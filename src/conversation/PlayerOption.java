@@ -8,30 +8,23 @@ public class PlayerOption {
 
     public DialogueState nextDialogueState;
 
-    public Boolean traversed;
+    public boolean picked;
 
-    public Boolean invisible;
+    public boolean invisible;
 
-    public PlayerOption(String playerText, DialogueState previousDialogueState, DialogueState nextDialogueState) {
-        this.playerText = playerText;
-        this.previousDialogueState = previousDialogueState;
-        this.nextDialogueState = nextDialogueState;
-    }
+    public boolean isStepBack;
 
     public PlayerOption(String playerText, DialogueState previousDialogueState, DialogueState nextDialogueState,
-            Boolean traversed) {
+                        boolean picked, boolean invisible, boolean isStepBack) {
         this.playerText = playerText;
         this.previousDialogueState = previousDialogueState;
         this.nextDialogueState = nextDialogueState;
-        this.traversed = traversed;
-    }
-
-    public PlayerOption(String playerText, DialogueState previousDialogueState, DialogueState nextDialogueState,
-            Boolean traversed, Boolean invisible) {
-        this.playerText = playerText;
-        this.previousDialogueState = previousDialogueState;
-        this.nextDialogueState = nextDialogueState;
-        this.traversed = traversed;
+        this.picked = picked;
         this.invisible = invisible;
+        this.isStepBack = isStepBack;
+    }
+
+    public boolean hasUnpickedChildren(){
+        return !this.picked && nextDialogueState.hasUnpickedChildren();
     }
 }

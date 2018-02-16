@@ -17,7 +17,33 @@ public class DialogueState {
         this.playerOptions = playerOptions;
     }
 
-    public void addPlayerOptions(ArrayList<PlayerOption> playerOptions) {
-        this.playerOptions = playerOptions;
+    public void addPlayerOption(PlayerOption playerOption) {
+        this.playerOptions.add(playerOption);
+    }
+
+    public boolean hasUnpickedChildren() {
+        for (PlayerOption playerOption :
+                this.playerOptions) {
+            if(!playerOption.isStepBack){
+                if(playerOption.hasUnpickedChildren()){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void onExit(PlayerOption playerOption){
+        playerOption.picked = true;
+    }
+
+    public void onEnter(){
+        int i = 1;
+        for(PlayerOption playerOption : this.playerOptions){
+            if(!playerOption.invisible && playerOption.hasUnpickedChildren()){
+                System.out.println("[" + i + "] " + playerOption.playerText);
+                i++;
+            }
+        }
     }
 }
