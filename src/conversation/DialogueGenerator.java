@@ -1,7 +1,5 @@
 package conversation;
 
-import java.util.ArrayList;
-
 public class DialogueGenerator {
     public DialogueState generateDialogue() {
 

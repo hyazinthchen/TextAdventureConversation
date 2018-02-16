@@ -3,15 +3,10 @@ package conversation;
 public class PlayerOption {
 
     public String playerText;
-
     public DialogueState parentDialogueState;
-
     public DialogueState targetDialogueState;
-
     public boolean picked;
-
     public boolean invisible;
-
     public boolean isStepBack;
 
     public PlayerOption(String playerText, DialogueState parentDialogueState, DialogueState targetDialogueState,
@@ -24,7 +19,7 @@ public class PlayerOption {
         this.isStepBack = isStepBack;
     }
 
-    public boolean hasUnpickedChildren(){
+    public boolean hasUnpickedChildren() {
         return !this.picked && targetDialogueState.hasUnpickedChildren();
     }
 }
