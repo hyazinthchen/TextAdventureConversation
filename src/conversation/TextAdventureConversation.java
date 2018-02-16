@@ -24,11 +24,11 @@ public class TextAdventureConversation {
     }
 
     private void printPlayerChoiceAndNpcAnswer(Integer playerInput) {
-        for (int j = 0; j < rootState.playerOptions.size(); j++) {
-            if (playerInput == j + 1) {
-                System.out.println("You: " + rootState.playerOptions.get(j).playerText);
-                rootState.onExit(rootState.playerOptions.get(j));
-                rootState = rootState.playerOptions.get(j).nextDialogueState;
+        for (int i = 0; i < rootState.playerOptions.size(); i++) {
+            if (playerInput == i + 1) {
+                System.out.println("You: " + rootState.playerOptions.get(i).playerText);
+                rootState.onExit(rootState.playerOptions.get(i));
+                rootState = rootState.playerOptions.get(i).nextDialogueState;
                 System.out.println("NPC: " + rootState.npcText);
                 break;
             }
