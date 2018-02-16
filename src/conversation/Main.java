@@ -5,9 +5,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException {
 
-        DialogueLoader dialogueLoader = new DialogueLoader();
-
-        DialogueState rootState = dialogueLoader.load();
+        DialogueState rootState = new DialogueGenerator().generateDialogue();
 
         TextAdventureConversation textAdventureConversation = new TextAdventureConversation(rootState);
         textAdventureConversation.start();

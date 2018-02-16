@@ -8,14 +8,13 @@ public class DialogueState {
 
     public ArrayList<PlayerOption> playerOptions;
 
-    public DialogueState(String npcText, ArrayList<PlayerOption> playerOptions) {
+    public DialogueState(String npcText) {
         this.npcText = npcText;
-        this.playerOptions = playerOptions;
+        this.playerOptions = new ArrayList<>();
     }
 
-    public void addPlayerOption(String playerText, DialogueState previousDialogueState, DialogueState nextDialogueState,
-                                boolean picked, boolean invisible, boolean isStepBack) {
-        this.playerOptions.add(new PlayerOption(playerText, previousDialogueState, nextDialogueState, picked, invisible, isStepBack));
+    public void addPlayerOption(String playerText, DialogueState nextDialogueState, boolean invisible, boolean isStepBack) {
+        this.playerOptions.add(new PlayerOption(playerText, this, nextDialogueState, false, invisible, isStepBack));
     }
 
     public boolean hasUnpickedChildren() {

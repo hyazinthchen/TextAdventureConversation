@@ -28,7 +28,7 @@ public class TextAdventureConversation {
             if (playerInput == i + 1) {
                 System.out.println("You: " + rootState.playerOptions.get(i).playerText);
                 rootState.onExit(rootState.playerOptions.get(i));
-                rootState = rootState.playerOptions.get(i).nextDialogueState;
+                rootState = rootState.playerOptions.get(i).targetDialogueState;
                 System.out.println("NPC: " + rootState.npcText);
                 break;
             }
