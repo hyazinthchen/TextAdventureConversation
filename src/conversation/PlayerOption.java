@@ -1,16 +1,18 @@
 package conversation;
 
-public class PlayerOption {
+public class PlayerOption implements DialogueOption {
 
-    public String playerText;
-    public DialogueState parentDialogueState;
-    public DialogueState targetDialogueState;
-    public boolean picked;
-    public boolean invisible;
-    public boolean isStepBack;
+    private final String playerText;
+    private final DialogueState parentDialogueState;
+
+
+    private final DialogueState targetDialogueState;
+    private boolean picked;
+    private final boolean invisible;
+    private final boolean isStepBack;
 
     public PlayerOption(String playerText, DialogueState parentDialogueState, DialogueState targetDialogueState,
-                        boolean picked, boolean invisible, boolean isStepBack) {
+                        boolean picked, boolean invisible, boolean isStepBack) { //TODO implement better strategy for cycles
         this.playerText = playerText;
         this.parentDialogueState = parentDialogueState;
         this.targetDialogueState = targetDialogueState;
@@ -19,7 +21,36 @@ public class PlayerOption {
         this.isStepBack = isStepBack;
     }
 
-    public boolean hasUnpickedChildren() {
-        return !this.picked && targetDialogueState.hasUnpickedChildren();
+    public void onPick() {
+        picked = true;
+    }
+
+
+    public boolean hasPickableOption() {
+        return !this.picked && targetDialogueState.hasPickableOption();
+    }
+
+
+    public boolean isVisible() {
+        return !invisible;
+    }
+
+
+    public boolean isStepBack() {
+        return isStepBack;
+    }
+
+    public DialogueState getTargetDialogueState() {
+        return targetDialogueState;
+    }
+
+    @Override
+    public String getLabel() {
+        return playerText;
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return isVisible() && hasPickableOption();
     }
 }
