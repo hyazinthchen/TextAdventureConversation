@@ -14,8 +14,8 @@ public class DialogueState {
         this.playerOptions = new ArrayList<>();
     }
 
-    public void addPlayerOption(String playerText, DialogueState targetDialogueState, boolean invisible, boolean isStepBack) {
-        this.playerOptions.add(new PlayerOption(playerText, this, targetDialogueState, false, invisible, isStepBack));
+    public void addPlayerOption(String label, String playerText, DialogueState targetDialogueState, boolean visible, boolean isStepBack) {
+        this.playerOptions.add(new PlayerOption(label, playerText, this, targetDialogueState, false, visible, isStepBack));
     }
 
 

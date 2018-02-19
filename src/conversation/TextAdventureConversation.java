@@ -18,7 +18,7 @@ public class TextAdventureConversation extends ConsoleDialogue {
 
         while (!currentDialogueState.isFinalState()) {
             PlayerOption selectedDialogueOption = currentDialogueState.process(this);
-            currentDialogueState = selectedDialogueOption.getTargetDialogueState();
+            currentDialogueState = selectedDialogueOption.getDestinationDialogueState();
         }
     }
 

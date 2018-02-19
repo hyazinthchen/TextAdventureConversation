@@ -2,22 +2,24 @@ package conversation;
 
 public class PlayerOption implements DialogueOption {
 
+    private final String label;
     private final String playerText;
-    private final DialogueState parentDialogueState;
+    private final DialogueState sourceDialogueState;
 
 
-    private final DialogueState targetDialogueState;
+    private final DialogueState destinationDialogueState;
     private boolean picked;
-    private final boolean invisible;
+    private final boolean visible;
     private final boolean isStepBack;
 
-    public PlayerOption(String playerText, DialogueState parentDialogueState, DialogueState targetDialogueState,
-                        boolean picked, boolean invisible, boolean isStepBack) { //TODO implement better strategy for cycles
+    public PlayerOption(String label, String playerText, DialogueState sourceDialogueState, DialogueState destinationDialogueState,
+                        boolean picked, boolean visible, boolean isStepBack) { //TODO implement better strategy for cycles
+        this.label = label;
         this.playerText = playerText;
-        this.parentDialogueState = parentDialogueState;
-        this.targetDialogueState = targetDialogueState;
+        this.sourceDialogueState = sourceDialogueState;
+        this.destinationDialogueState = destinationDialogueState;
         this.picked = picked;
-        this.invisible = invisible;
+        this.visible = visible;
         this.isStepBack = isStepBack;
     }
 
@@ -27,12 +29,12 @@ public class PlayerOption implements DialogueOption {
 
 
     public boolean hasPickableOption() {
-        return !this.picked && targetDialogueState.hasPickableOption();
+        return !this.picked && destinationDialogueState.hasPickableOption();
     }
 
 
     public boolean isVisible() {
-        return !invisible;
+        return visible;
     }
 
 
@@ -40,12 +42,16 @@ public class PlayerOption implements DialogueOption {
         return isStepBack;
     }
 
-    public DialogueState getTargetDialogueState() {
-        return targetDialogueState;
+    public DialogueState getDestinationDialogueState() {
+        return destinationDialogueState;
     }
 
     @Override
     public String getLabel() {
+        return label;
+    }
+
+    public String getPlayerText() {
         return playerText;
     }
 
