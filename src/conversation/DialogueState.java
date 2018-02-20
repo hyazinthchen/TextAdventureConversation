@@ -14,18 +14,18 @@ public class DialogueState {
         this.playerOptions = new ArrayList<>();
     }
 
-    public void addPlayerOption(String label, String playerText, DialogueState targetDialogueState, boolean visible, boolean isStepBack) {
-        this.playerOptions.add(new PlayerOption(label, playerText, this, targetDialogueState, false, visible, isStepBack));
+    public void addPlayerOption(String label, String playerText, DialogueState targetDialogueState, boolean visible) {
+        this.playerOptions.add(new PlayerOption(label, playerText, this, targetDialogueState, false, visible));
     }
 
 
-    public PlayerOption process(ConsoleDialogue ioProcessor) {
+    public PlayerOption process(InputOutputProcessor inputOutputProcessor) {
         System.out.format("\nNPC: \"%s\"\n\n", npcText);
 
         Map<Integer, PlayerOption> availableDialogueOptions = getAvailableOptions();
-        ioProcessor.prettyPrintNumberedOptions(availableDialogueOptions);
+        inputOutputProcessor.prettyPrintNumberedOptions(availableDialogueOptions);
 
-        Integer selectedIndex = ioProcessor.waitForIntegerInput(1, availableDialogueOptions.size()); //blocks and waits
+        Integer selectedIndex = inputOutputProcessor.waitForIntegerInput(1, availableDialogueOptions.size()); //blocks and waits
         PlayerOption selectedPlayerOption = availableDialogueOptions.get(selectedIndex);
         selectedPlayerOption.onPick();
 

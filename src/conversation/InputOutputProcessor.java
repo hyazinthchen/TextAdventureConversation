@@ -3,7 +3,7 @@ package conversation;
 import java.util.Map;
 import java.util.Scanner;
 
-public abstract class ConsoleDialogue {
+public class InputOutputProcessor {
 
     private static final Scanner SCANNER = new Scanner(System.in);
 
@@ -21,7 +21,7 @@ public abstract class ConsoleDialogue {
     }
 
 
-    public void prettyPrintNumberedOptions(Map<Integer, ? extends DialogueOption> options) {
+    public void prettyPrintNumberedOptions(Map<Integer, PlayerOption> options) {
         options.forEach(
                 (number, option) -> System.out.format("   [%s] - %s", number, option.getLabel())
         );

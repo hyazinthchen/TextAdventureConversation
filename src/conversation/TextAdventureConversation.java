@@ -1,7 +1,7 @@
 package conversation;
 
 
-public class TextAdventureConversation extends ConsoleDialogue {
+public class TextAdventureConversation {
 
     private final DialogueState rootState;
 
@@ -14,10 +14,12 @@ public class TextAdventureConversation extends ConsoleDialogue {
         //TODO print general intro text ? "once upon a time..."
         System.out.println("Once upon a time...\n\n");
 
+        InputOutputProcessor inputOutputProcessor = new InputOutputProcessor();
+
         DialogueState currentDialogueState = rootState;
 
         while (!currentDialogueState.isFinalState()) {
-            PlayerOption selectedDialogueOption = currentDialogueState.process(this);
+            PlayerOption selectedDialogueOption = currentDialogueState.process(inputOutputProcessor);
             currentDialogueState = selectedDialogueOption.getDestinationDialogueState();
         }
     }
