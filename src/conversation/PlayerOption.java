@@ -26,15 +26,22 @@ public class PlayerOption {
     }
 
     public boolean isStepBack() { //TODO implement correct logic
+        if (ConversationEngine.traversedPlayerOptions.contains(this)) {
+            return true;
+        }
         return false;
     }
 
-    public boolean hasPickableOption() {
-        return !this.picked && destinationDialogueState.hasPickableOption();
+    public boolean isAvailable() {
+        return isVisible() && hasPickableOption();
     }
 
     public boolean isVisible() {
         return visible;
+    }
+
+    public boolean hasPickableOption() {
+        return !this.picked && destinationDialogueState.hasPickableOption();
     }
 
     public DialogueState getDestinationDialogueState() {
@@ -49,7 +56,4 @@ public class PlayerOption {
         return playerText;
     }
 
-    public boolean isAvailable() {
-        return isVisible() && hasPickableOption();
-    }
 }

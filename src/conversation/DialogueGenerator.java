@@ -19,7 +19,7 @@ public class DialogueGenerator {
         dialogueState3.addPlayerOption("I haven't heard...", "I haven't heard about any trouble.", dialogueState5, true);
         dialogueState3.addPlayerOption("Did I saw Newton?", "Did I say Newton? I'm actually from Springville.", dialogueState2, true);
 
-        dialogueState4.addPlayerOption("Restart", "Restart", dialogueState1, true);
+        dialogueState5.addPlayerOption("Restart", "Restart", dialogueState1, true);
 
         return dialogueState1;
     }

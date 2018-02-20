@@ -11,9 +11,6 @@ public class TextAdventureConversation {
 
 
     public void start() {
-        //TODO print general intro text ? "once upon a time..."
-        System.out.println("Once upon a time...\n\n");
-
         InputOutputProcessor inputOutputProcessor = new InputOutputProcessor();
 
         DialogueState currentDialogueState = rootState;
@@ -21,6 +18,9 @@ public class TextAdventureConversation {
         while (!currentDialogueState.isFinalState()) {
             PlayerOption selectedDialogueOption = currentDialogueState.process(inputOutputProcessor);
             currentDialogueState = selectedDialogueOption.getDestinationDialogueState();
+        }
+        if (currentDialogueState.isFinalState()) {
+            System.out.format("\nNPC: \"%s\"\n\n", currentDialogueState.getNpcText());
         }
     }
 
