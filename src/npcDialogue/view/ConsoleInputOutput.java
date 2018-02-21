@@ -5,7 +5,7 @@ import conversation_deprecated.PlayerOption;
 import java.util.Map;
 import java.util.Scanner;
 
-public class ConsoleInputOutput {
+public class ConsoleInputOutput { //TODO rename
     private static final Scanner SCANNER = new Scanner(System.in);
 
 
