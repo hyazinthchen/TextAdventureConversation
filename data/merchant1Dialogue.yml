@@ -1,1 +1,47 @@
---
+
+# example dialogue content and rules for one NPC
+
+npcData:
+   bribePayed: 0
+   reputation: 50
+   keyQuestCompleted: false
+   timesTalked: 0
+   
+actionGraph:
+   entryPoint:  welcome1
+   npcActions:
+      welcome1: [smallTalkPlayer1, askForX, askForY]
+      smallTalkNpc1: [offerGoods]
+      offerGoods: [buyPotion, refuse, demandKey]
+      offerSpecialGood: [accept, ...]
+   playerActions:
+      smallTalkPlayer1: [smallTalkNpc1, smallTalkNpc2]
+      askForX: [...]
+      askForY: [...]
+      refuse: [...]
+      buyPotion: [...]
+      demandKey: [giveKey, noKeyAngry]
+
+actionContent:
+   # npc
+   welcome1: "Welcome to our blabla shop"
+   smallTalkNpc1: "weather...."
+   smallTalkNpc2: "about my pet..."
+   sleeping1: "(The vendor sleeps in his chair)"
+   endNeutral: "See you soon."
+   offerGoods: "Today we have blablalba for sale ...."
+   offerSpecialGood:
+      text: "By the way, i have a special item for you today ..."
+      tresholdRequired: reputation
+      tresholdMin: 80
+   giveKey:    
+      text: "Here you are, but don't tell anybody about it."
+      require: keyQuestCompleted
+   noKeyAngry:
+      text: "Stop asking about such things."
+      requireNot: keyQuestCompleted     
+   # player
+   demandKey:  "I don't want to buy something, but I really need the XY key please !"
+   smallTalkPlayer1: "Hello, did you hear the latest rumors ?"
+   askForX: "Do you have some X..."
+   
