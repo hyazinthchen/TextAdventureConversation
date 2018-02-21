@@ -1,4 +1,4 @@
-package conversation;
+package conversation_deprecated;
 
 public class PlayerOption {
 
@@ -26,7 +26,7 @@ public class PlayerOption {
     }
 
     public boolean isStepBack() { //TODO implement correct logic
-        if (ConversationEngine.traversedPlayerOptions.contains(this)) {
+        if (ConversationEngine.TRAVERSED_PLAYER_ACTIONS.contains(this)) {
             return true;
         }
         return false;

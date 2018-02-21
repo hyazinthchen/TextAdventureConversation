@@ -1,4 +1,4 @@
-package conversation;
+package conversation_deprecated;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +40,7 @@ public class DialogueState {
 
     public boolean hasPickableOption() {
         for (PlayerOption playerOption : this.playerOptions) {
-            ConversationEngine.traversedPlayerOptions.add(playerOption);
+            ConversationEngine.TRAVERSED_PLAYER_ACTIONS.add(playerOption);
             if (!playerOption.isStepBack() && playerOption.hasPickableOption()) {
                 return true;
             }
