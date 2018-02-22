@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Loads Dialogue from Text File per NPC
@@ -22,9 +23,11 @@ public class DialogueLoader {
         LinkedHashMap testData = yaml.load(inputStream);
 
         NpcData npcData = new NpcData();
-        Object rawNpcData = testData.get("npcData");
-        System.out.println(rawNpcData);
-
+        LinkedHashMap<Object, Object> rawNpcData = (LinkedHashMap<Object, Object>) testData.get("npcData");
+        for (Map.Entry<Object, Object> entry : rawNpcData.entrySet()) {
+            System.out.println(entry.getKey() + " " + entry.getValue());
+            npcData.addDataEntry(entry.getKey().toString(), entry.getValue());
+        }
 
         /*TODO
         reading data from this NPCs YAML file, creating:
