@@ -1,9 +1,9 @@
-package main.java.npcDialogue.controller;
+package npcDialogue.controller;
 
-import main.java.npcDialogue.model.ActorType;
-import main.java.npcDialogue.model.NpcAction;
-import main.java.npcDialogue.model.NpcData;
-import main.java.npcDialogue.model.NpcDialogueData;
+import npcDialogue.model.ActorType;
+import npcDialogue.model.NpcAction;
+import npcDialogue.model.NpcData;
+import npcDialogue.model.NpcDialogueData;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -22,7 +22,7 @@ public class DialogueLoader {
         LinkedHashMap testData = yaml.load(inputStream);
 
         NpcData npcData = new NpcData();
-        Iterable<Object> rawNpcData = (Iterable<Object>) testData.get("npcData");
+        Object rawNpcData = testData.get("npcData");
         System.out.println(rawNpcData);
 
 

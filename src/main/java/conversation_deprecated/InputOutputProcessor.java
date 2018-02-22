@@ -1,15 +1,14 @@
-package npcDialogue.view;
-
-import npcDialogue.model.PlayerAction;
+package conversation_deprecated;
 
 import java.util.Map;
 import java.util.Scanner;
 
-public class ConsoleInputOutput { //TODO rename
+public class InputOutputProcessor {
+
     private static final Scanner SCANNER = new Scanner(System.in);
 
 
-    public int awaitIntegerInput(int min, int max) {
+    public int waitForIntegerInput(int min, int max) {
         while (true) {
             try {
                 int input = SCANNER.nextInt();
@@ -22,10 +21,11 @@ public class ConsoleInputOutput { //TODO rename
     }
 
 
-    public void printNumberedOptions(Map<Integer, PlayerAction> options) {
+    public void prettyPrintNumberedOptions(Map<Integer, PlayerOption> options) {
         options.forEach(
-                (number, option) -> System.out.format("   [%s] - %s", number, "text blabla")
+                (number, option) -> System.out.format("   [%s] - %s", number, option.getLabel())
         );
     }
+
 
 }
