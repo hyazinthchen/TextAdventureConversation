@@ -1,13 +1,15 @@
-package npcDialogue;
+package main.java.npcDialogue;
 
-import npcDialogue.controller.DialogueLoader;
-import npcDialogue.model.NpcDialogueData;
+import main.java.npcDialogue.controller.DialogueLoader;
+import main.java.npcDialogue.model.NpcDialogueData;
+
+import java.io.IOException;
 
 /**
  * Entrypoint of Application
  */
 public class ConversationTest {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         //later: needs to be done at game start one time per NPC
         DialogueLoader dialogueLoader = new DialogueLoader();

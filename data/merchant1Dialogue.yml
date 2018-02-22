@@ -8,40 +8,47 @@ npcData:
    timesTalked: 0
    
 actionGraph:
-   entryPoint:  welcome1
+   entryPoint:  welcome
    npcActions:
-      welcome1: [smallTalkPlayer1, askForX, askForY]
-      smallTalkNpc1: [offerGoods]
-      offerGoods: [buyPotion, refuse, demandKey]
-      offerSpecialGood: [accept, ...]
+      welcome: [smallTalkPlayer, askForPotion1, askForPotion2]
+      smallTalkNpc1: [offerGoods2]
+      smallTalkNpc2: [offerGoods2]
+      offerGoods1: [buyPotion, refuse, demandKey]
+      offerGoods2: [buyPotion, refuse, demandKey]
+      offerSpecialGood: [demandKey]
+      giveKey: []
+      noKeyAngry: []
+
    playerActions:
-      smallTalkPlayer1: [smallTalkNpc1, smallTalkNpc2]
-      askForX: [...]
-      askForY: [...]
-      refuse: [...]
-      buyPotion: [...]
+      smallTalkPlayer: [smallTalkNpc1, smallTalkNpc2]
+      askForPotion1: [offerGoods1]
+      askForPotion2: [offerGoods2, offerSpecialGood]
+      refuse: []
+      buyPotion: [demandKey]
       demandKey: [giveKey, noKeyAngry]
 
 actionContent:
    # npc
-   welcome1: "Welcome to our blabla shop"
-   smallTalkNpc1: "weather...."
-   smallTalkNpc2: "about my pet..."
-   sleeping1: "(The vendor sleeps in his chair)"
-   endNeutral: "See you soon."
-   offerGoods: "Today we have blablalba for sale ...."
+   welcome: "Welcome to our potion shop! Best potions in town!"
+   smallTalkNpc1: "He didn't show up here yet!"
+   smallTalkNpc2: "Yes he bought a few potions from me!"
+   offerGoods1: "Yes indeed we do! It costs 20 gold."
+   offerGoods2: "We have an invisibility potion on sale. Only 20 gold."
    offerSpecialGood:
-      text: "By the way, i have a special item for you today ..."
-      tresholdRequired: reputation
-      tresholdMin: 80
+      text: "Ah it's you! I have something special for you..."
+      required: reputation
+      requiredMin: 80
    giveKey:    
-      text: "Here you are, but don't tell anybody about it."
+      text: "Here you are, but don't tell anyone about it..."
       require: keyQuestCompleted
    noKeyAngry:
       text: "Stop asking about such things."
       requireNot: keyQuestCompleted     
    # player
-   demandKey:  "I don't want to buy something, but I really need the XY key please !"
-   smallTalkPlayer1: "Hello, did you hear the latest rumors ?"
-   askForX: "Do you have some X..."
+   smallTalkPlayer: "I heard that the grand wizard is in town. Is that true?"
+   askForPotion1: "Do you have a potion that makes me invisible?"
+   askForPotion2: "I'm looking for a special potion..."
+   buyPotion: "I think I want to buy it."
+   refuse: "That is too expensive!"
+   demandKey:  "I don't really want to buy something, but I really need the key to the castle please!"
    

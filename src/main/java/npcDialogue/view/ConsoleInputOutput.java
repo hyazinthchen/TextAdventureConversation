@@ -1,4 +1,4 @@
-package npcDialogue.view;
+package main.java.npcDialogue.view;
 
 import conversation_deprecated.PlayerOption;
 
