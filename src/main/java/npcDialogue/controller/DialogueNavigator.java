@@ -1,14 +1,14 @@
 package npcDialogue.controller;
 
 import npcDialogue.model.Action;
-import npcDialogue.model.NpcData;
+import npcDialogue.model.NpcTraits;
 import npcDialogue.view.ConsoleInputOutput;
 
 public class DialogueNavigator {
 
     private final Action currentAction;
 
-    public DialogueNavigator(NpcData npcData, Action startAction) {
+    public DialogueNavigator(NpcTraits npcTraits, Action startAction) {
         this.currentAction = startAction;
     }
 

@@ -8,7 +8,7 @@ import java.io.IOException;
 /**
  * Entrypoint of Application
  */
-public class ConversationTest {
+public class ConversationStarter {
     public static void main(String[] args) throws IOException {
 
         //later: needs to be done at game start one time per NPC

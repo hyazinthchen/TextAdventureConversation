@@ -4,19 +4,27 @@ import npcDialogue.controller.DialogueNavigator;
 import npcDialogue.view.ConsoleInputOutput;
 
 /**
- * Later: Save ActionGraph (stateful!) and npcData in DB
+ * Later: Save ActionGraph (stateful!) and npcTraits in DB
  */
 public class NpcDialogueData {
-    private final NpcData npcData;
-    private final Action startAction; //TODO make stateless and save all states to npcData ?
+    private final NpcTraits npcTraits;
+    private final Action startAction; //TODO make stateless and save all states to npcTraits ?
     //private DialogueNavigator dialogueNavigator; //TODO keep this between npc conversions ?
 
-    public NpcDialogueData(NpcData npcData, Action startAction) { //TODO merge with DialogueNavigator ?
-        this.npcData = npcData;
+    public NpcDialogueData(NpcTraits npcTraits, Action startAction) { //TODO merge with DialogueNavigator ?
+        this.npcTraits = npcTraits;
         this.startAction = startAction;
     }
 
     public void start() {
-        new DialogueNavigator(npcData, startAction).start(new ConsoleInputOutput());
+        new DialogueNavigator(npcTraits, startAction).start(new ConsoleInputOutput());
+    }
+
+    public Action getStartAction() {
+        return startAction;
+    }
+
+    public NpcTraits getNpcTraits() {
+        return npcTraits;
     }
 }
