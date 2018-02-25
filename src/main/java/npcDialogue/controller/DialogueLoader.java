@@ -35,22 +35,27 @@ public class DialogueLoader {
         - new NpcTraits with initial values
         - the Action graph, represented by the root action
          */
-        return new NpcDialogueData(newNpcTraits, new NpcAction(ActorType.PLAYER)); //dummy data !
+        return npcDialogueData; //dummy data !
     }
 
     /**
      * Loads the NPCs traits from the yaml file.
      *
-     * @param testData the whole dialogue data
+     * @param yamlContent the whole dialogue data
      * @return returns an NpcTraits object
      */
-    public NpcTraits loadNpcTraits(LinkedHashMap testData) {
+    public NpcTraits loadNpcTraits(LinkedHashMap yamlContent) {
         NpcTraits newNpcTraits = new NpcTraits();
-        LinkedHashMap<String, Object> rawNpcTraits = (LinkedHashMap) testData.get("npcData");
+        LinkedHashMap<String, Object> rawNpcTraits = getMapOrThrow(yamlContent, "npcData");
         for (Map.Entry<String, Object> entry : rawNpcTraits.entrySet()) {
             newNpcTraits.addDataEntry(entry.getKey(), entry.getValue());
         }
         return newNpcTraits;
+    }
+
+    //TODO: throw own parsing exception if get(key) is null or doesnt return a map, surround wih try catch, catch own exception
+    private LinkedHashMap<String, Object> getMapOrThrow(LinkedHashMap yamlContent, String key) {
+            return (LinkedHashMap) yamlContent.get(key);
     }
 
     /**
@@ -60,16 +65,16 @@ public class DialogueLoader {
      * @return returns an NpcDialogueData object
      */
     public NpcDialogueData loadNpcDialogue(LinkedHashMap testData, NpcTraits npcTraits) {
-        NpcDialogueData newNpcDialogueData = new NpcDialogueData(npcTraits, new PlayerAction(ActorType.PLAYER));
         LinkedHashMap<String, Object> rawActionGraph = (LinkedHashMap) testData.get("actionGraph");
-        String startAction = (String) rawActionGraph.get("entryPoint");
+        String startActionText = rawActionGraph.get("entryPoint").toString();
         LinkedHashMap<String, Object> npcActions = (LinkedHashMap) rawActionGraph.get("npcActions");
         LinkedHashMap<String, Object> playerActions = (LinkedHashMap) rawActionGraph.get("playerActions");
         LinkedHashMap<String, Object> actionContents = (LinkedHashMap) rawActionGraph.get("actionContent");
+        NpcDialogueData newNpcDialogueData = new NpcDialogueData(npcTraits, new NpcAction(ActorType.PLAYER, startActionText)); //TODO how to get type of start action and targetactortype of next actions?
 
         getNpcActions(npcActions, actionContents);
         getPlayerActions(playerActions, actionContents);
-        return newNpcDialogueData;
+        return newNpcDialogueData; //TODO: alle actions miteinander verketten und hier nur startaction zurückgeben
     }
 
     /**
@@ -82,7 +87,8 @@ public class DialogueLoader {
         for (Map.Entry<String, Object> actionEntry : npcActions.entrySet()) {
             for (Map.Entry<String, Object> contentEntry : actionContents.entrySet()) {
                 if (actionEntry.getKey() == contentEntry.getKey()) {
-                    NpcAction action = new NpcAction(ActorType.NPC);
+                    String actionText = contentEntry.getValue().toString();
+                    NpcAction action = new NpcAction(ActorType.NPC, actionText);
                     // TODO: NpcAction.setMessage((String) contentEntry.getValue());
                 }
             }
@@ -98,7 +104,8 @@ public class DialogueLoader {
         for (Map.Entry<String, Object> actionEntry : playerActions.entrySet()) {
             for (Map.Entry<String, Object> contentEntry : actionContents.entrySet()) {
                 if (actionEntry.getKey() == contentEntry.getKey()) {
-                    PlayerAction action = new PlayerAction(ActorType.PLAYER);
+                    String actionText = contentEntry.getValue().toString();
+                    PlayerAction action = new PlayerAction(ActorType.PLAYER, actionText);
                     //TODO: PlayerAction.setMessage((String) contentEntry.getValue());
                 }
             }

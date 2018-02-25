@@ -8,8 +8,10 @@ public abstract class Action {
     private final List<Action> targetActions;
     private final ActorType actorType; // not using generics because content is read from text file
     private final ActorType targetActionsActorType; // all targetActionActors must be of same type
+    private final String ActionText;
 
-    public Action(ActorType actorType, ActorType targetActionActorType) {
+    public Action(ActorType actorType, ActorType targetActionActorType, String actionText) {
+        this.ActionText = actionText;
         this.targetActions = new ArrayList<>();
         this.actorType = actorType;
         this.targetActionsActorType = targetActionActorType;
