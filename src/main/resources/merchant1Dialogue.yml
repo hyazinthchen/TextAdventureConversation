@@ -34,16 +34,9 @@ actionContent:
    smallTalkNpc2: "Yes he bought a few potions from me!"
    offerGoods1: "Yes indeed we do! It costs 20 gold."
    offerGoods2: "We have an invisibility potion on sale. Only 20 gold."
-   offerSpecialGood:
-      text: "Ah it's you! I have something special for you..."
-      required: reputation
-      requiredMin: 80
-   giveKey:    
-      text: "Here you are, but don't tell anyone about it..."
-      require: keyQuestCompleted
-   noKeyAngry:
-      text: "Stop asking about such things."
-      requireNot: keyQuestCompleted     
+   offerSpecialGood: "Ah it's you! I have something special for you..."
+   giveKey: "Here you are, but don't tell anyone about it..."
+   noKeyAngry: "Stop asking about such things."
    # player
    smallTalkPlayer: "I heard that the grand wizard is in town. Is that true?"
    askForPotion1: "Do you have a potion that makes me invisible?"

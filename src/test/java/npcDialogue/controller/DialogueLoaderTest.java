@@ -1,7 +1,9 @@
 package npcDialogue.controller;
 
+import npcDialogue.model.InvalidStateException;
 import npcDialogue.model.NpcDialogueData;
 import npcDialogue.model.NpcTraits;
+import npcDialogue.model.ParsingException;
 
 import java.util.LinkedHashMap;
 
@@ -35,7 +37,7 @@ public class DialogueLoaderTest {
     }
 
     @org.junit.Test
-    public void testLoadNpcTraits() {
+    public void testLoadNpcTraits() throws ParsingException {
         LinkedHashMap testData = generateTestData();
 
         DialogueLoader dialogueLoader = new DialogueLoader();
@@ -46,7 +48,7 @@ public class DialogueLoaderTest {
     }
 
     @org.junit.Test
-    public void testLoadNpcDialogue() {
+    public void testLoadNpcDialogue() throws InvalidStateException {
         NpcTraits testNpcTraits = new NpcTraits();
         testNpcTraits.addDataEntry("reputation", 50);
         testNpcTraits.addDataEntry("questCompleted", false);

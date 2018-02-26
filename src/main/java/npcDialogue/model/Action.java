@@ -17,6 +17,25 @@ public abstract class Action {
         this.targetActionsActorType = targetActionActorType;
     }
 
+    public ActorType getActorType() {
+        return actorType;
+    }
+
+    public String getActionText() {
+        return ActionText;
+    }
+
+    //TODO: only for test purposes, remove when wrapping up project
+    public String getTargetActionsAsString() {
+        String targetActionList = "";
+        int i = 0;
+        for (Action action : targetActions) {
+            targetActionList = targetActionList + "[" + i + "]" + action.ActionText;
+            i++;
+        }
+        return targetActionList;
+    }
+
     public void addTargetAction(Action targetAction) throws InvalidStateException {
         if (targetAction.actorType == targetActionsActorType) {
             targetActions.add(targetAction);
