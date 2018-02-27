@@ -4,6 +4,7 @@ import npcDialogue.controller.DialogueNavigator;
 import npcDialogue.view.ConsoleInputOutput;
 
 /**
+ * Contains the npcData and the startAction of the whole dialogue
  * Later: Save ActionGraph (stateful!) and npcTraits in DB
  */
 public class NpcDialogueData {
@@ -16,6 +17,9 @@ public class NpcDialogueData {
         this.startAction = startAction;
     }
 
+    /**
+     * Starts a new DialogueNavigator.
+     */
     public void start() {
         new DialogueNavigator(npcTraits, startAction).start(new ConsoleInputOutput());
     }

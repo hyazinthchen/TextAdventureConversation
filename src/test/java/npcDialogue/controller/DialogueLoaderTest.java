@@ -3,64 +3,77 @@ package npcDialogue.controller;
 import npcDialogue.model.InvalidStateException;
 import npcDialogue.model.NpcDialogueData;
 import npcDialogue.model.NpcTraits;
-import npcDialogue.model.ParsingException;
+import org.junit.Test;
+import org.yaml.snakeyaml.Yaml;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 
 import static junit.framework.TestCase.assertEquals;
 
 public class DialogueLoaderTest {
 
-    public LinkedHashMap generateTestData() {
-        LinkedHashMap npcActions = new LinkedHashMap();
-        npcActions.put("welcome", "Hello and welcome!");
-        npcActions.put("smallTalk", "The weather is nice today.");
+    private File getFileFromClassPath(final String fileName) {
+        //checknotnull with queo-commons-checks
 
-        LinkedHashMap playerActions = new LinkedHashMap();
-        npcActions.put("greet", "Hello!");
-        npcActions.put("agree", "Yes it is.");
-
-        LinkedHashMap testActionGraph = new LinkedHashMap();
-        testActionGraph.put("entryPoint", "welcome");
-        testActionGraph.put("npcActions", npcActions);
-        testActionGraph.put("playerActions", playerActions);
-
-        LinkedHashMap npcData = new LinkedHashMap();
-        npcData.put("reputation", 50);
-        npcData.put("questCompleted", false);
-
-        LinkedHashMap testData = new LinkedHashMap();
-        testData.put("npcData", npcData);
-        testData.put("actionGraph", testActionGraph);
-
-        return testData;
+        String absoluteFileName;
+        if (fileName.startsWith("/")) {
+            absoluteFileName = fileName;
+        } else {
+            absoluteFileName = "/" + fileName;
+        }
+        java.net.URL fileUrl = this.getClass().getResource(absoluteFileName);
+        if (fileUrl == null) {
+            throw new RuntimeException("file with name `" + absoluteFileName + "` not found in classpath");
+        }
+        try {
+            Path filePath = Paths.get(fileUrl.toURI());
+            return filePath.toFile();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("error while loading file `" + absoluteFileName + "` from  classpath");
+        }
     }
 
-    @org.junit.Test
-    public void testLoadNpcTraits() throws ParsingException {
-        LinkedHashMap testData = generateTestData();
-
+    //TODO: delete this test method?
+    @Test
+    public void testLoad() throws FileNotFoundException, InvalidStateException {
         DialogueLoader dialogueLoader = new DialogueLoader();
-        NpcTraits npcTraits = dialogueLoader.loadNpcTraits(testData);
+        NpcDialogueData dialogueData = dialogueLoader.load(getFileFromClassPath("merchant1Dialogue.yml"));
 
+        assertEquals(0, dialogueData.getNpcTraits().getTraits().get("bribePaid"));
+        assertEquals(50, dialogueData.getNpcTraits().getTraits().get("reputation"));
+
+        assertEquals("Welcome!", dialogueData.getStartAction().getActionText());
+    }
+
+    @Test
+    public void testLoadNpcTraits() throws FileNotFoundException {
+        DialogueLoader dialogueLoader = new DialogueLoader();
+        InputStream inputStream = new FileInputStream(new File("src/test/resources/merchant1Dialogue.yml"));
+        Yaml yaml = new Yaml();
+        LinkedHashMap yamlDataMap = yaml.load(inputStream);
+
+        NpcTraits npcTraits = dialogueLoader.loadNpcTraits(yamlDataMap);
+
+        assertEquals(0, npcTraits.getTraits().get("bribePaid"));
         assertEquals(50, npcTraits.getTraits().get("reputation"));
-        assertEquals(false, npcTraits.getTraits().get("questCompleted"));
     }
 
-    @org.junit.Test
-    public void testLoadNpcDialogue() throws InvalidStateException {
-        NpcTraits testNpcTraits = new NpcTraits();
-        testNpcTraits.addDataEntry("reputation", 50);
-        testNpcTraits.addDataEntry("questCompleted", false);
-
-        LinkedHashMap testData = generateTestData();
-
+    @Test
+    public void testLoadNpcDialogue() throws InvalidStateException, FileNotFoundException {
         DialogueLoader dialogueLoader = new DialogueLoader();
-        NpcDialogueData npcDialogueData = dialogueLoader.loadNpcDialogue(testData, testNpcTraits);
+        InputStream inputStream = new FileInputStream(new File("src/test/resources/merchant1Dialogue.yml"));
+        Yaml yaml = new Yaml();
+        LinkedHashMap yamlDataMap = yaml.load(inputStream);
 
-        assertEquals(50, npcDialogueData.getNpcTraits().getTraits().get("reputation"));
-        assertEquals(false, npcDialogueData.getNpcTraits().getTraits().get("questCompleted"));
+        NpcDialogueData npcDialogueData = dialogueLoader.loadNpcDialogue(yamlDataMap, new NpcTraits());
 
-        //TODO: check if action objects match testData
+        assertEquals("Welcome!", npcDialogueData.getStartAction().getActionText());
     }
 }

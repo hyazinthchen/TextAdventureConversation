@@ -1,10 +1,13 @@
 package npcDialogue.view;
 
-import npcDialogue.model.PlayerAction;
+import npcDialogue.model.Action;
+import npcDialogue.model.ActorType;
 
-import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * Responsible for reading the Players input from the console and printing ActionTexts to the console
+ */
 public class ConsoleInputOutput { //TODO rename
     private static final Scanner SCANNER = new Scanner(System.in);
 
@@ -22,10 +25,20 @@ public class ConsoleInputOutput { //TODO rename
     }
 
 
-    public void printNumberedOptions(Map<Integer, PlayerAction> options) {
-        options.forEach(
-                (number, option) -> System.out.format("   [%s] - %s", number, "text blabla")
-        );
+    public void printNumberedOptions(Action currentAction) {
+        int i = 0;
+        for (Action targetAction : currentAction.getTargetActions()) {
+            System.out.println("[" + i + "] " + targetAction.getActionText());
+            i++;
+        }
+    }
+
+    public void printSingleAction(Action currentAction) {
+        if (currentAction.getActorType() == ActorType.PLAYER) {
+            System.out.println("You: " + currentAction.getActionText());
+        } else {
+            System.out.println("NPC: " + currentAction.getActionText());
+        }
     }
 
 }

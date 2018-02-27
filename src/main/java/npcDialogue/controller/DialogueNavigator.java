@@ -1,22 +1,84 @@
 package npcDialogue.controller;
 
 import npcDialogue.model.Action;
+import npcDialogue.model.ActorType;
 import npcDialogue.model.NpcTraits;
 import npcDialogue.view.ConsoleInputOutput;
 
+import java.util.Random;
+
+/**
+ * The DialogueNavigator is responsible for navigating from Action to Action in the conversation.
+ */
 public class DialogueNavigator {
 
-    private final Action currentAction;
+    private Action currentAction;
 
     public DialogueNavigator(NpcTraits npcTraits, Action startAction) {
         this.currentAction = startAction;
     }
 
-    public void start(ConsoleInputOutput consoleInputOutput) { //TODO use generic IO interface ? switch to GUI easyly
+    /**
+     * Navigates from action to action until an action has no more targetActions
+     *
+     * @param consoleInputOutput the class that prints the text of the actions to the console window
+     */
+    public void start(ConsoleInputOutput consoleInputOutput) {
+        //TODO: conditional printing of targetActions
+        while (!this.currentAction.getTargetActions().isEmpty()) {
+            consoleInputOutput.printSingleAction(currentAction);
+            if (currentActionHasMultipleNpcTargetActions()) {
+                printNpcActionRandomly(consoleInputOutput);
+            }
+            if (currentAction.getTargetActions().size() == 1) {
+                consoleInputOutput.printSingleAction(currentAction.getTargetActions().get(0));
+                currentAction = currentAction.getTargetActions().get(0);
+            }
+            if (currentActionHasMultiplePlayerTargetActions()) {
+                printPlayerActionsToChooseFrom(consoleInputOutput);
+            }
+        }
+    }
 
-        //TODO while not final state ...
-        // - currentAction.onAction()       // for example printing stuff ...consoleInputOutput.print(....) bla
-        // - currentAction.getTargetActions()   -> select ONE  (player->pick  // npc->random||conditional)
-        // current = selected
+    /**
+     * Checks whether the currentAction has more than one targetAction with ActorType NPC
+     *
+     * @return true if currentAction has more than one targetAction with ActorType NPC
+     */
+    private boolean currentActionHasMultipleNpcTargetActions() {
+        return currentAction.getTargetActions().size() > 1 && currentAction.getTargetActionsActorType() == ActorType.NPC;
+    }
+
+    /**
+     * Checks whether the currentAction has more than one targetAction with ActorType PLAYER
+     *
+     * @return true if currentAction has more than one targetAction with ActorType PLAYER
+     */
+    private boolean currentActionHasMultiplePlayerTargetActions() {
+        return currentAction.getTargetActions().size() > 1 && currentAction.getTargetActionsActorType() == ActorType.PLAYER;
+    }
+
+    /**
+     * Lets the player choose from multiple playerActions and sets the currentAction as his selected Action
+     *
+     * @param consoleInputOutput the class that prints the text of the actions to the console window
+     */
+    private void printPlayerActionsToChooseFrom(ConsoleInputOutput consoleInputOutput) {
+        consoleInputOutput.printNumberedOptions(currentAction);
+        int index = consoleInputOutput.awaitIntegerInput(0, currentAction.getTargetActions().size() - 1);
+        Action selectedAction = currentAction.getTargetActions().get(index);
+        currentAction = selectedAction;
+    }
+
+    /**
+     * Decides randomly which sentence the NPC says, when there are multiple options
+     *
+     * @param consoleInputOutput the class that prints the text of the actions to the console window
+     */
+    private void printNpcActionRandomly(ConsoleInputOutput consoleInputOutput) {
+        Random random = new Random();
+        int randomNumber = random.nextInt(currentAction.getTargetActions().size() - 1) + 0;
+        consoleInputOutput.printSingleAction(currentAction.getTargetActions().get(randomNumber));
+        currentAction = currentAction.getTargetActions().get(randomNumber);
     }
 }

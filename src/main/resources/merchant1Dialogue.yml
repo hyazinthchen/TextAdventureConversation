@@ -2,7 +2,7 @@
 # example dialogue content and rules for one NPC
 
 npcData:
-   bribePayed: 0
+   bribePaid: 0
    reputation: 50
    keyQuestCompleted: false
    timesTalked: 0

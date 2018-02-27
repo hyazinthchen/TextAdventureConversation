@@ -18,14 +18,14 @@ import java.util.Map;
 public class DialogueLoader {
 
     /**
-     * Loads the data of the dialogue from a yaml file.
+     * Loads the whole data of the dialogue from a yaml file (actions and npcTraits.
      *
-     * @param path the path of the yaml file
-     * @return returns a new NpcDialogueData object
+     * @param file the yaml file
+     * @return A new NpcDialogueData object.
      * @throws FileNotFoundException in case the path is incorrect
      */
-    public NpcDialogueData load(String path) throws FileNotFoundException, ParsingException, InvalidStateException {
-        InputStream inputStream = new FileInputStream(new File(path));
+    public NpcDialogueData load(File file) throws FileNotFoundException, InvalidStateException {
+        InputStream inputStream = new FileInputStream(file);
         Yaml yaml = new Yaml();
         LinkedHashMap yamlDataMap = yaml.load(inputStream);
 
@@ -35,12 +35,23 @@ public class DialogueLoader {
     }
 
     /**
+     * Loads the whole data of the dialogue from a yaml file (actions and npcTraits.
+     *
+     * @param path the path of the yaml file
+     * @return A new NpcDialogueData object.
+     * @throws FileNotFoundException in case the path is incorrect
+     */
+    public NpcDialogueData load(String path) throws FileNotFoundException, InvalidStateException {
+        return load(new File(path));
+    }
+
+    /**
      * Loads the NPCs traits from the yaml file.
      *
-     * @param yamlContent the whole dialogue data
-     * @return returns an NpcTraits object
+     * @param yamlContent the whole dialogue data read from a file
+     * @return An NpcTraits object.
      */
-    public NpcTraits loadNpcTraits(LinkedHashMap yamlContent) throws ParsingException {
+    public NpcTraits loadNpcTraits(LinkedHashMap yamlContent) {
         NpcTraits newNpcTraits = new NpcTraits();
         LinkedHashMap<String, Object> rawNpcTraits = (LinkedHashMap) yamlContent.get("npcData");
         for (Map.Entry<String, Object> entry : rawNpcTraits.entrySet()) {
@@ -52,49 +63,38 @@ public class DialogueLoader {
     /**
      * Loads the dialogue and the traits of the NPC.
      *
-     * @param yamlDataMap the whole dialogue data read from a file
-     * @return returns an NpcDialogueData object
+     * @param yamlContent the whole dialogue data read from a file
+     * @return An NpcDialogueData object.
      */
-    public NpcDialogueData loadNpcDialogue(LinkedHashMap yamlDataMap, NpcTraits npcTraits) throws InvalidStateException {
-        LinkedHashMap<String, Object> rawActionGraph = (LinkedHashMap) yamlDataMap.get("actionGraph");
+    public NpcDialogueData loadNpcDialogue(LinkedHashMap yamlContent, NpcTraits npcTraits) throws InvalidStateException {
+        LinkedHashMap<String, Object> rawActionGraph = (LinkedHashMap) yamlContent.get("actionGraph");
         String startActionText = rawActionGraph.get("entryPoint").toString();
         LinkedHashMap<String, Object> npcActions = (LinkedHashMap) rawActionGraph.get("npcActions");
         LinkedHashMap<String, Object> playerActions = (LinkedHashMap) rawActionGraph.get("playerActions");
-        LinkedHashMap<String, String> actionContents = (LinkedHashMap) yamlDataMap.get("actionContent");
+        LinkedHashMap<String, String> actionContents = (LinkedHashMap) yamlContent.get("actionContent");
 
         //Make a map <Key, Action> for the NPC & Player
         Map<String, Action> dialogueMap = new HashMap<>();
 
-        //Add playerOptions to dialogueMap
-        for (Map.Entry<String, Object> playerAction : playerActions.entrySet()) {
-            ArrayList<String> targetActions = (ArrayList<String>) playerAction.getValue();
-            if (targetActions.size() > 0) {
-                String firstTargetAction = targetActions.get(0);
-                if (playerActions.containsKey(firstTargetAction)) {
-                    dialogueMap.put(playerAction.getKey(), new PlayerAction(ActorType.PLAYER, actionContents.get(playerAction.getKey())));
-                } else {
-                    dialogueMap.put(playerAction.getKey(), new PlayerAction(ActorType.NPC, actionContents.get(playerAction.getKey())));
-                }
-            } else { //When this playerAction is one possible ending of the dialogue
-                dialogueMap.put(playerAction.getKey(), new PlayerAction(ActorType.NPC, actionContents.get(playerAction.getKey())));
-            }
-        }
+        addPlayerActionsToMap(playerActions, actionContents, dialogueMap);
 
-        //Add npcOptions to dialogueMap
-        for (Map.Entry<String, Object> npcAction : npcActions.entrySet()) {
-            ArrayList<String> targetActions = (ArrayList<String>) npcAction.getValue();
-            if (targetActions.size() > 0) {
-                String firstTargetAction = targetActions.get(0);
-                if (npcActions.containsKey(firstTargetAction)) {
-                    dialogueMap.put(npcAction.getKey(), new NpcAction(ActorType.NPC, actionContents.get(npcAction.getKey())));
-                } else {
-                    dialogueMap.put(npcAction.getKey(), new NpcAction(ActorType.PLAYER, actionContents.get(npcAction.getKey())));
-                }
-            } else { //When this npcAction is one possible ending of the dialogue
-                dialogueMap.put(npcAction.getKey(), new NpcAction(ActorType.PLAYER, actionContents.get(npcAction.getKey())));
-            }
-        }
+        addNpcActionsToMap(npcActions, actionContents, dialogueMap);
 
+        addTargetActions(npcActions, playerActions, dialogueMap);
+
+        NpcDialogueData npcDialogueData = new NpcDialogueData(npcTraits, dialogueMap.get(startActionText));
+        return npcDialogueData;
+    }
+
+    /**
+     * Adds all targetActions to npcActions and playerActions in the map
+     *
+     * @param npcActions    the npcActions from the yaml file
+     * @param playerActions the playerActions from the yaml file
+     * @param dialogueMap
+     * @throws InvalidStateException
+     */
+    private void addTargetActions(LinkedHashMap<String, Object> npcActions, LinkedHashMap<String, Object> playerActions, Map<String, Action> dialogueMap) throws InvalidStateException {
         for (Map.Entry<String, Action> action : dialogueMap.entrySet()) {
             // Add targetActions to npcActions in dialogueMap
             if (npcActions.containsKey(action.getKey())) {
@@ -111,14 +111,52 @@ public class DialogueLoader {
                 }
             }
         }
+    }
 
-        for (Map.Entry<String, Action> action : dialogueMap.entrySet()) {
-            System.out.println("ActorType: " + action.getValue().getActorType() + " ActionText: " + action.getValue().getActionText() + " TargetActions: " + action.getValue().getTargetActionsAsString());
+    /**
+     * Adds the npcActions from the yaml file as objects to the map
+     *
+     * @param npcActions     the npcActions from the yaml file
+     * @param actionContents the actionTexts of the npcActions
+     * @param dialogueMap
+     */
+    private void addNpcActionsToMap(LinkedHashMap<String, Object> npcActions, LinkedHashMap<String, String> actionContents, Map<String, Action> dialogueMap) {
+        for (Map.Entry<String, Object> npcAction : npcActions.entrySet()) {
+            ArrayList<String> targetActions = (ArrayList<String>) npcAction.getValue();
+            if (targetActions.size() > 0) {
+                String firstTargetAction = targetActions.get(0);
+                if (npcActions.containsKey(firstTargetAction)) {
+                    dialogueMap.put(npcAction.getKey(), new NpcAction(ActorType.NPC, actionContents.get(npcAction.getKey())));
+                } else {
+                    dialogueMap.put(npcAction.getKey(), new NpcAction(ActorType.PLAYER, actionContents.get(npcAction.getKey())));
+                }
+            } else { //When this npcAction is one possible ending of the dialogue
+                dialogueMap.put(npcAction.getKey(), new NpcAction(ActorType.PLAYER, actionContents.get(npcAction.getKey())));
+            }
         }
+    }
 
-
-        NpcDialogueData npcDialogueData = new NpcDialogueData(npcTraits, dialogueMap.get(startActionText));
-        return npcDialogueData;
+    /**
+     * Adds the playerActions from the yaml file as objects to the map
+     *
+     * @param playerActions  the playerActions from the yaml file
+     * @param actionContents the actionTexts of the playerActions
+     * @param dialogueMap
+     */
+    private void addPlayerActionsToMap(LinkedHashMap<String, Object> playerActions, LinkedHashMap<String, String> actionContents, Map<String, Action> dialogueMap) {
+        for (Map.Entry<String, Object> playerAction : playerActions.entrySet()) {
+            ArrayList<String> targetActions = (ArrayList<String>) playerAction.getValue();
+            if (targetActions.size() > 0) {
+                String firstTargetAction = targetActions.get(0);
+                if (playerActions.containsKey(firstTargetAction)) {
+                    dialogueMap.put(playerAction.getKey(), new PlayerAction(ActorType.PLAYER, actionContents.get(playerAction.getKey())));
+                } else {
+                    dialogueMap.put(playerAction.getKey(), new PlayerAction(ActorType.NPC, actionContents.get(playerAction.getKey())));
+                }
+            } else { //When this playerAction is one possible ending of the dialogue
+                dialogueMap.put(playerAction.getKey(), new PlayerAction(ActorType.NPC, actionContents.get(playerAction.getKey())));
+            }
+        }
     }
 
 }
