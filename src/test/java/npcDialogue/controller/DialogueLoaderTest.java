@@ -1,5 +1,8 @@
 package npcDialogue.controller;
 
+import com.queomedia.commons.asserts.AssertUtil;
+import com.queomedia.commons.checks.Check;
+import npcDialogue.model.Action;
 import npcDialogue.model.InvalidStateException;
 import npcDialogue.model.NpcDialogueData;
 import npcDialogue.model.NpcTraits;
@@ -13,6 +16,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 
 import static junit.framework.TestCase.assertEquals;
@@ -20,7 +24,7 @@ import static junit.framework.TestCase.assertEquals;
 public class DialogueLoaderTest {
 
     private File getFileFromClassPath(final String fileName) {
-        //checknotnull with queo-commons-checks
+        Check.notNullArgument(fileName, "fileName");
 
         String absoluteFileName;
         if (fileName.startsWith("/")) {
@@ -28,6 +32,7 @@ public class DialogueLoaderTest {
         } else {
             absoluteFileName = "/" + fileName;
         }
+
         java.net.URL fileUrl = this.getClass().getResource(absoluteFileName);
         if (fileUrl == null) {
             throw new RuntimeException("file with name `" + absoluteFileName + "` not found in classpath");
@@ -75,5 +80,7 @@ public class DialogueLoaderTest {
         NpcDialogueData npcDialogueData = dialogueLoader.loadNpcDialogue(yamlDataMap, new NpcTraits());
 
         assertEquals("Welcome!", npcDialogueData.getStartAction().getActionText());
+        AssertUtil.containsExact(Arrays.asList("The weather is nice Today.", "I heard it will snow today."), npcDialogueData.getStartAction().getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
+
 }

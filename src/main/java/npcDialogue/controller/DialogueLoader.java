@@ -13,12 +13,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Loads the dialogue for one NPC from a Yaml File.
+ * Loads the dialogue between one NPC and the player from a yaml file.
  */
 public class DialogueLoader {
 
     /**
-     * Loads the whole data of the dialogue from a yaml file (actions and npcTraits.
+     * Loads the whole data of the dialogue from a yaml file (actions and npcTraits).
      *
      * @param file the yaml file
      * @return A new NpcDialogueData object.
@@ -35,7 +35,7 @@ public class DialogueLoader {
     }
 
     /**
-     * Loads the whole data of the dialogue from a yaml file (actions and npcTraits.
+     * Loads the whole data of the dialogue from a yaml file (actions and npcTraits).
      *
      * @param path the path of the yaml file
      * @return A new NpcDialogueData object.
@@ -53,7 +53,7 @@ public class DialogueLoader {
      */
     public NpcTraits loadNpcTraits(LinkedHashMap yamlContent) {
         NpcTraits newNpcTraits = new NpcTraits();
-        LinkedHashMap<String, Object> rawNpcTraits = (LinkedHashMap) yamlContent.get("npcData");
+        LinkedHashMap<String, Object> rawNpcTraits = (LinkedHashMap) yamlContent.get("npcData"); //TODO: throw exception in case snakeyamls get method does stupid things
         for (Map.Entry<String, Object> entry : rawNpcTraits.entrySet()) {
             newNpcTraits.addDataEntry(entry.getKey(), entry.getValue());
         }
@@ -87,7 +87,7 @@ public class DialogueLoader {
     }
 
     /**
-     * Adds all targetActions to npcActions and playerActions in the map
+     * Adds all targetActions to npcActions and playerActions in the map.
      *
      * @param npcActions    the npcActions from the yaml file
      * @param playerActions the playerActions from the yaml file
@@ -114,7 +114,7 @@ public class DialogueLoader {
     }
 
     /**
-     * Adds the npcActions from the yaml file as objects to the map
+     * Adds the npcActions from the yaml file as objects to the map.
      *
      * @param npcActions     the npcActions from the yaml file
      * @param actionContents the actionTexts of the npcActions
@@ -137,7 +137,7 @@ public class DialogueLoader {
     }
 
     /**
-     * Adds the playerActions from the yaml file as objects to the map
+     * Adds the playerActions from the yaml file as objects to the map.
      *
      * @param playerActions  the playerActions from the yaml file
      * @param actionContents the actionTexts of the playerActions

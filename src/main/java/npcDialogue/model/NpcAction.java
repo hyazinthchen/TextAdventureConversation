@@ -1,7 +1,7 @@
 package npcDialogue.model;
 
 /**
- * A statement, message or activity of the NPC directed towards the Player
+ * A statement, message or activity of the NPC directed towards the player.
  */
 public class NpcAction extends Action {
 

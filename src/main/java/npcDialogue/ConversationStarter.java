@@ -7,7 +7,7 @@ import npcDialogue.model.NpcDialogueData;
 import java.io.IOException;
 
 /**
- * Entrypoint of Application.
+ * Represents the entry point of the application.
  */
 public class ConversationStarter {
     public static void main(String[] args) throws IOException, InvalidStateException {
