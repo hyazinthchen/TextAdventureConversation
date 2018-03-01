@@ -6,18 +6,25 @@ npcData:
    reputation: 50
    
 actionGraph:
-   entryPoint:  welcome
+   startAction:  welcome
    npcActions:
       welcome: [smallTalkPlayer1, smallTalkPlayer2]
-      smallTalkNpc: [buyPotion]
+      smallTalkNpc: [buyPotion, buySpecialPotion]
       bye: []
-
 
    playerActions:
       smallTalkPlayer1: [smallTalkNpc]
       smallTalkPlayer2: [smallTalkNpc]
       buyPotion: [bye]
+      buySpecialPotion: [bye]
 
+   actionDependencies:
+      buySpecialPotion:
+        reputation: 60
+
+   npcDataChanges:
+      smallTalkPlayer1:
+        reputation: 60
 
 actionContent:
    # npc
@@ -28,4 +35,5 @@ actionContent:
    smallTalkPlayer1: "The weather is nice today."
    smallTalkPlayer2: "I heard it will snow today."
    buyPotion: "I want to buy a potion."
+   buySpecialPotion: "I want to buy a special potion."
 

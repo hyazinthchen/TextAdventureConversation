@@ -1,86 +1,62 @@
 package npcDialogue.controller;
 
 import com.queomedia.commons.asserts.AssertUtil;
-import com.queomedia.commons.checks.Check;
 import npcDialogue.model.Action;
 import npcDialogue.model.InvalidStateException;
 import npcDialogue.model.NpcDialogueData;
-import npcDialogue.model.NpcTraits;
 import org.junit.Test;
-import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 
 import static junit.framework.TestCase.assertEquals;
 
 public class DialogueLoaderTest {
 
-    private File getFileFromClassPath(final String fileName) {
-        Check.notNullArgument(fileName, "fileName");
-
-        String absoluteFileName;
-        if (fileName.startsWith("/")) {
-            absoluteFileName = fileName;
-        } else {
-            absoluteFileName = "/" + fileName;
-        }
-
-        java.net.URL fileUrl = this.getClass().getResource(absoluteFileName);
-        if (fileUrl == null) {
-            throw new RuntimeException("file with name `" + absoluteFileName + "` not found in classpath");
-        }
-        try {
-            Path filePath = Paths.get(fileUrl.toURI());
-            return filePath.toFile();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("error while loading file `" + absoluteFileName + "` from  classpath");
-        }
-    }
-
-    //TODO: delete this test method?
     @Test
-    public void testLoad() throws FileNotFoundException, InvalidStateException {
-        DialogueLoader dialogueLoader = new DialogueLoader();
-        NpcDialogueData dialogueData = dialogueLoader.load(getFileFromClassPath("merchant1Dialogue.yml"));
+    public void testLoadingNpcTraits() throws FileNotFoundException, InvalidStateException {
+        DialogueLoader loader = new DialogueLoader();
+        NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
         assertEquals(0, dialogueData.getNpcTraits().getTraits().get("bribePaid"));
         assertEquals(50, dialogueData.getNpcTraits().getTraits().get("reputation"));
+    }
+
+    @Test
+    public void testLoadingStartAction() throws FileNotFoundException, InvalidStateException {
+        DialogueLoader loader = new DialogueLoader();
+        NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
         assertEquals("Welcome!", dialogueData.getStartAction().getActionText());
     }
 
     @Test
-    public void testLoadNpcTraits() throws FileNotFoundException {
-        DialogueLoader dialogueLoader = new DialogueLoader();
-        InputStream inputStream = new FileInputStream(new File("src/test/resources/merchant1Dialogue.yml"));
-        Yaml yaml = new Yaml();
-        LinkedHashMap yamlDataMap = yaml.load(inputStream);
+    public void testLoadingActionTexts() throws FileNotFoundException, InvalidStateException {
+        DialogueLoader loader = new DialogueLoader();
+        NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
-        NpcTraits npcTraits = dialogueLoader.loadNpcTraits(yamlDataMap);
-
-        assertEquals(0, npcTraits.getTraits().get("bribePaid"));
-        assertEquals(50, npcTraits.getTraits().get("reputation"));
+        AssertUtil.containsExact(Arrays.asList("The weather is nice today.", "I heard it will snow today."), dialogueData.getStartAction().getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("I heard the sun will shine all day."), dialogueData.getStartAction().getTargetActionAt(0).getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("I heard the sun will shine all day."), dialogueData.getStartAction().getTargetActionAt(1).getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("I want to buy a potion.", "I want to buy a special potion."), dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("Here you go. See you!"), dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(0).getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
 
     @Test
-    public void testLoadNpcDialogue() throws InvalidStateException, FileNotFoundException {
-        DialogueLoader dialogueLoader = new DialogueLoader();
-        InputStream inputStream = new FileInputStream(new File("src/test/resources/merchant1Dialogue.yml"));
-        Yaml yaml = new Yaml();
-        LinkedHashMap yamlDataMap = yaml.load(inputStream);
+    public void testLoadingActionDependencies() throws FileNotFoundException, InvalidStateException {
+        DialogueLoader loader = new DialogueLoader();
+        NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
-        NpcDialogueData npcDialogueData = dialogueLoader.loadNpcDialogue(yamlDataMap, new NpcTraits());
+        assertEquals(0, dialogueData.getStartAction().getActionDependencies().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getActionDependencies().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(1).getActionDependencies().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getActionDependencies().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getActionDependencies().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(0).getActionDependencies().size());
+        assertEquals(1, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(1).getActionDependencies().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(1).getTargetActionAt(0).getActionDependencies().size());
 
-        assertEquals("Welcome!", npcDialogueData.getStartAction().getActionText());
-        AssertUtil.containsExact(Arrays.asList("The weather is nice Today.", "I heard it will snow today."), npcDialogueData.getStartAction().getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertEquals(60, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(1).getActionDependencies().get("reputation"));
     }
 
 }

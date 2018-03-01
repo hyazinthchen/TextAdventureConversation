@@ -7,7 +7,7 @@ public class NpcAction extends Action {
 
 
     //TODO model conditions ?
-    public NpcAction(ActorType targetActionActorType, String actionText) {
-        super(ActorType.NPC, targetActionActorType, actionText);
+    public NpcAction(Role targetActionRole, String actionText) {
+        super(Role.NPC, targetActionRole, actionText);
     }
 }

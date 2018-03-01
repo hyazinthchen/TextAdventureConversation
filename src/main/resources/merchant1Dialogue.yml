@@ -8,7 +8,7 @@ npcData:
    timesTalked: 0
    
 actionGraph:
-   entryPoint:  welcome
+   startAction:  welcome
    npcActions:
       welcome: [smallTalkPlayer, askForPotion1, askForPotion2]
       smallTalkNpc1: [offerGoods2]
@@ -27,6 +27,14 @@ actionGraph:
       buyPotion: [demandKey]
       demandKey: [giveKey, noKeyAngry]
 
+   actionDependencies:
+      giveKey:
+        reputation: 60
+
+   npcDataChanges:
+      buyPotion:
+        reputation: 60
+
 actionContent:
    # npc
    welcome: "Welcome to our potion shop! Best potions in town!"
@@ -41,7 +49,7 @@ actionContent:
    smallTalkPlayer: "I heard that the grand wizard is in town. Is that true?"
    askForPotion1: "Do you have a potion that makes me invisible?"
    askForPotion2: "I'm looking for a special potion..."
-   buyPotion: "I think I want to buy it."
+   buyPotion: "I think I might buy it...let me think..."
    refuse: "That is too expensive!"
-   demandKey:  "I don't really want to buy something, but I really need the key to the castle please!"
+   demandKey:  "To be honest, I don't really want to buy something. I just need the key to the castle please!"
    

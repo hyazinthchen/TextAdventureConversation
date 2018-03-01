@@ -1,6 +1,6 @@
 package npcDialogue.model;
 
-public enum ActorType {
+public enum Role {
     PLAYER,
     NPC
 }

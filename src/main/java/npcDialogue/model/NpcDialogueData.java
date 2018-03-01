@@ -10,9 +10,9 @@ import npcDialogue.view.ConsoleInputOutput;
 public class NpcDialogueData {
     private final NpcTraits npcTraits;
     private final Action startAction; //TODO make stateless and save all states to npcTraits ?
-    //private DialogueNavigator dialogueNavigator; //TODO keep this between npc conversions ?
+    private DialogueNavigator dialogueNavigator; //TODO keep this between npc conversions ?
 
-    public NpcDialogueData(NpcTraits npcTraits, Action startAction) { //TODO merge with DialogueNavigator ?
+    public NpcDialogueData(NpcTraits npcTraits, Action startAction) {
         this.npcTraits = npcTraits;
         this.startAction = startAction;
     }
@@ -21,7 +21,8 @@ public class NpcDialogueData {
      * Starts a new DialogueNavigator.
      */
     public void start() {
-        new DialogueNavigator(npcTraits, startAction).start(new ConsoleInputOutput());
+        dialogueNavigator = new DialogueNavigator(npcTraits, startAction);
+        dialogueNavigator.start(new ConsoleInputOutput());
     }
 
     public Action getStartAction() {
@@ -30,5 +31,9 @@ public class NpcDialogueData {
 
     public NpcTraits getNpcTraits() {
         return npcTraits;
+    }
+
+    public DialogueNavigator getDialogueNavigator() {
+        return dialogueNavigator;
     }
 }

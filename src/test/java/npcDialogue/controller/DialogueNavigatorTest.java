@@ -6,14 +6,17 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 
+import static junit.framework.TestCase.assertEquals;
+
 public class DialogueNavigatorTest {
     @Test
-    public void testStart() throws FileNotFoundException, InvalidStateException {
-
-        DialogueLoader dialogueLoader = new DialogueLoader();
-        NpcDialogueData dialogueData = dialogueLoader.load("src/main/resources/merchant1Dialogue.yml");
+    public void testStartByLastCurrentAction() throws FileNotFoundException, InvalidStateException {
+        DialogueLoader loader = new DialogueLoader();
+        NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant2Dialogue.yml"));
         dialogueData.start();
-        //TODO: how to test DialogueNavigator.start() ?
+        DialogueNavigator navigator = dialogueData.getDialogueNavigator();
+
+        assertEquals("Here you go. See you!", navigator.getCurrentAction().getActionText());
     }
 
 }

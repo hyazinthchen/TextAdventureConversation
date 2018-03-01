@@ -1,0 +1,38 @@
+
+# example dialogue content and rules for one NPC
+
+npcData:
+   bribePaid: 0
+   reputation: 50
+   
+actionGraph:
+   startAction:  welcome
+   npcActions:
+      welcome: [smallTalkPlayer]
+      smallTalkNpc1: [buyPotion]
+      smallTalkNpc2: [buyPotion]
+      bye: []
+
+   playerActions:
+      smallTalkPlayer: [smallTalkNpc1, smallTalkNpc2]
+      buyPotion: [bye]
+
+   actionDependencies:
+      smallTalkNpc2:
+        reputation: 60
+
+   npcDataChanges:
+      welcome:
+        reputation: 60
+
+
+actionContent:
+   # npc
+   welcome: "Welcome!"
+   smallTalkNpc1: "I heard the sun will shine all day."
+   smallTalkNpc2: "I think it will rain."
+   bye: "Here you go. See you!"
+   # player
+   smallTalkPlayer: "The weather is nice today."
+   buyPotion: "I want to buy a potion."
+
