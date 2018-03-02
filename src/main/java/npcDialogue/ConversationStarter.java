@@ -1,7 +1,6 @@
 package npcDialogue;
 
 import npcDialogue.controller.DialogueLoader;
-import npcDialogue.model.InvalidStateException;
 import npcDialogue.model.NpcDialogueData;
 
 import java.io.IOException;
@@ -10,9 +9,9 @@ import java.io.IOException;
  * Represents the entry point of the application.
  */
 public class ConversationStarter {
-    public static void main(String[] args) throws IOException, InvalidStateException {
+    public static void main(String[] args) throws IOException {
 
-        //later: needs to be done at game start one time per NPC
+        //later: needs to be done at game navigate one time per NPC
         DialogueLoader dialogueLoader = new DialogueLoader();
         NpcDialogueData dialogueData = dialogueLoader.load(dialogueLoader.getFileFromClassPath("merchant1Dialogue.yml"));
 

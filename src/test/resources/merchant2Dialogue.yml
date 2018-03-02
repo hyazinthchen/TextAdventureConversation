@@ -11,14 +11,15 @@ actionGraph:
       welcome: [smallTalkPlayer]
       smallTalkNpc1: [buyPotion]
       smallTalkNpc2: [buyPotion]
-      bye: []
+      byeNice: []
+      byeAngry: []
 
    playerActions:
       smallTalkPlayer: [smallTalkNpc1, smallTalkNpc2]
-      buyPotion: [bye]
+      buyPotion: [byeNice, byeAngry]
 
    actionDependencies:
-      smallTalkNpc2:
+      byeNice:
         reputation: 60
 
    npcDataChanges:
@@ -31,7 +32,8 @@ actionContent:
    welcome: "Welcome!"
    smallTalkNpc1: "I heard the sun will shine all day."
    smallTalkNpc2: "I think it will rain."
-   bye: "Here you go. See you!"
+   byeNice: "Here you go. See you!"
+   byeAngry: "I don't want to sell anything to you!"
    # player
    smallTalkPlayer: "The weather is nice today."
    buyPotion: "I want to buy a potion."

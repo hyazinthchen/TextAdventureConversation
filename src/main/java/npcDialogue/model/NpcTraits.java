@@ -19,12 +19,7 @@ public class NpcTraits { //TODO: implement method that changes a npcTrait in the
         npcTraits.put(key, value);
     }
 
-    /**
-     * Gets the traits of an NPC as a Map <String, Object>.
-     *
-     * @return A the Map of NpcTraits.
-     */
-    public Map<String, Object> getTraits() {
-        return this.npcTraits;
+    public Map<String, Object> getNpcTraits() {
+        return npcTraits;
     }
 }

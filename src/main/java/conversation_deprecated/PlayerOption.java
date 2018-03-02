@@ -26,10 +26,7 @@ public class PlayerOption {
     }
 
     public boolean isStepBack() { //TODO implement correct logic
-        if (ConversationEngine.TRAVERSED_PLAYER_ACTIONS.contains(this)) {
-            return true;
-        }
-        return false;
+        return ConversationEngine.TRAVERSED_PLAYER_ACTIONS.contains(this);
     }
 
     public boolean isAvailable() {

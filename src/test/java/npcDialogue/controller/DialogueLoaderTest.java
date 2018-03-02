@@ -2,7 +2,6 @@ package npcDialogue.controller;
 
 import com.queomedia.commons.asserts.AssertUtil;
 import npcDialogue.model.Action;
-import npcDialogue.model.InvalidStateException;
 import npcDialogue.model.NpcDialogueData;
 import org.junit.Test;
 
@@ -14,16 +13,16 @@ import static junit.framework.TestCase.assertEquals;
 public class DialogueLoaderTest {
 
     @Test
-    public void testLoadingNpcTraits() throws FileNotFoundException, InvalidStateException {
+    public void testLoadingNpcTraits() throws FileNotFoundException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
-        assertEquals(0, dialogueData.getNpcTraits().getTraits().get("bribePaid"));
-        assertEquals(50, dialogueData.getNpcTraits().getTraits().get("reputation"));
+        assertEquals(0, dialogueData.getNpcTraits().getNpcTraits().get("bribePaid"));
+        assertEquals(50, dialogueData.getNpcTraits().getNpcTraits().get("reputation"));
     }
 
     @Test
-    public void testLoadingStartAction() throws FileNotFoundException, InvalidStateException {
+    public void testLoadingStartAction() throws FileNotFoundException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
@@ -31,7 +30,7 @@ public class DialogueLoaderTest {
     }
 
     @Test
-    public void testLoadingActionTexts() throws FileNotFoundException, InvalidStateException {
+    public void testLoadingActionTexts() throws FileNotFoundException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
@@ -43,20 +42,20 @@ public class DialogueLoaderTest {
     }
 
     @Test
-    public void testLoadingActionDependencies() throws FileNotFoundException, InvalidStateException {
+    public void testLoadingActionDependencies() throws FileNotFoundException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
-        assertEquals(0, dialogueData.getStartAction().getActionDependencies().size());
-        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getActionDependencies().size());
-        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(1).getActionDependencies().size());
-        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getActionDependencies().size());
-        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getActionDependencies().size());
-        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(0).getActionDependencies().size());
-        assertEquals(1, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(1).getActionDependencies().size());
-        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(1).getTargetActionAt(0).getActionDependencies().size());
+        assertEquals(0, dialogueData.getStartAction().getActionConditions().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getActionConditions().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(1).getActionConditions().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getActionConditions().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getActionConditions().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(0).getActionConditions().size());
+        assertEquals(1, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(1).getActionConditions().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(1).getTargetActionAt(0).getActionConditions().size());
 
-        assertEquals(60, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(1).getActionDependencies().get("reputation"));
+        assertEquals(60, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(1).getActionConditions().get("reputation"));
     }
 
 }

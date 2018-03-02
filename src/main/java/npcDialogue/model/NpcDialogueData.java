@@ -22,7 +22,7 @@ public class NpcDialogueData {
      */
     public void start() {
         dialogueNavigator = new DialogueNavigator(npcTraits, startAction);
-        dialogueNavigator.start(new ConsoleInputOutput());
+        dialogueNavigator.navigate(new ConsoleInputOutput());
     }
 
     public Action getStartAction() {

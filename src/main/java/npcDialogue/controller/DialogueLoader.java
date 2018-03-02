@@ -28,7 +28,7 @@ public class DialogueLoader {
      * @return A new NpcDialogueData object.
      * @throws FileNotFoundException in case the path is incorrect
      */
-    public NpcDialogueData load(File file) throws FileNotFoundException, InvalidStateException {
+    public NpcDialogueData load(File file) throws FileNotFoundException {
         InputStream inputStream = new FileInputStream(file);
         Yaml yaml = new Yaml();
         LinkedHashMap yamlDataMap = yaml.load(inputStream);
@@ -59,7 +59,7 @@ public class DialogueLoader {
      * @param yamlContent the whole dialogue data read from a file
      * @return An NpcDialogueData object.
      */
-    private NpcDialogueData loadNpcDialogue(LinkedHashMap yamlContent, NpcTraits npcTraits) throws InvalidStateException {
+    private NpcDialogueData loadNpcDialogue(LinkedHashMap yamlContent, NpcTraits npcTraits) {
         LinkedHashMap<String, Object> rawActionGraph = (LinkedHashMap) yamlContent.get("actionGraph");
         String startActionText = rawActionGraph.get("startAction").toString();
         LinkedHashMap<String, Object> npcActions = (LinkedHashMap) rawActionGraph.get("npcActions");
@@ -90,9 +90,8 @@ public class DialogueLoader {
      * @param npcActions    the npcActions from the yaml file
      * @param playerActions the playerActions from the yaml file
      * @param dialogueMap
-     * @throws InvalidStateException
      */
-    private void addTargetActions(LinkedHashMap<String, Object> npcActions, LinkedHashMap<String, Object> playerActions, Map<String, Action> dialogueMap) throws InvalidStateException {
+    private void addTargetActions(LinkedHashMap<String, Object> npcActions, LinkedHashMap<String, Object> playerActions, Map<String, Action> dialogueMap) {
         for (Map.Entry<String, Action> entry : dialogueMap.entrySet()) {
             // Add targetActions to npcActions in dialogueMap
             if (npcActions.containsKey(entry.getKey())) {
@@ -113,6 +112,9 @@ public class DialogueLoader {
 
     /**
      * Adds all actionDependencies to the npcActions and playerActions.
+     *
+     * @param actionDependencies
+     * @param dialogueMap
      */
     private void addActionDependencies(LinkedHashMap<String, LinkedHashMap> actionDependencies, Map<String, Action> dialogueMap) {
         for (Map.Entry<String, Action> entry : dialogueMap.entrySet()) {
@@ -138,12 +140,12 @@ public class DialogueLoader {
             if (targetActions.size() > 0) {
                 String firstTargetAction = targetActions.get(0);
                 if (npcActions.containsKey(firstTargetAction)) {
-                    dialogueMap.put(npcEntry.getKey(), new NpcAction(Role.NPC, actionContents.get(npcEntry.getKey())));
+                    dialogueMap.put(npcEntry.getKey(), new NpcAction(Role.NPC, actionContents.get(npcEntry.getKey()), npcEntry.getKey()));
                 } else {
-                    dialogueMap.put(npcEntry.getKey(), new NpcAction(Role.PLAYER, actionContents.get(npcEntry.getKey())));
+                    dialogueMap.put(npcEntry.getKey(), new NpcAction(Role.PLAYER, actionContents.get(npcEntry.getKey()), npcEntry.getKey()));
                 }
             } else { //When this npcAction is one possible ending of the dialogue
-                dialogueMap.put(npcEntry.getKey(), new NpcAction(Role.PLAYER, actionContents.get(npcEntry.getKey())));
+                dialogueMap.put(npcEntry.getKey(), new NpcAction(Role.PLAYER, actionContents.get(npcEntry.getKey()), npcEntry.getKey()));
             }
         }
     }
@@ -161,16 +163,17 @@ public class DialogueLoader {
             if (targetActions.size() > 0) {
                 String firstTargetAction = targetActions.get(0);
                 if (playerActions.containsKey(firstTargetAction)) {
-                    dialogueMap.put(playerEntry.getKey(), new PlayerAction(Role.PLAYER, actionContents.get(playerEntry.getKey())));
+                    dialogueMap.put(playerEntry.getKey(), new PlayerAction(Role.PLAYER, actionContents.get(playerEntry.getKey()), playerEntry.getKey()));
                 } else {
-                    dialogueMap.put(playerEntry.getKey(), new PlayerAction(Role.NPC, actionContents.get(playerEntry.getKey())));
+                    dialogueMap.put(playerEntry.getKey(), new PlayerAction(Role.NPC, actionContents.get(playerEntry.getKey()), playerEntry.getKey()));
                 }
             } else { //When this playerAction is one possible ending of the dialogue
-                dialogueMap.put(playerEntry.getKey(), new PlayerAction(Role.NPC, actionContents.get(playerEntry.getKey())));
+                dialogueMap.put(playerEntry.getKey(), new PlayerAction(Role.NPC, actionContents.get(playerEntry.getKey()), playerEntry.getKey()));
             }
         }
     }
 
+    //TODO: add javadoc
     public File getFileFromClassPath(final String fileName) {
         Check.notNullArgument(fileName, "fileName");
 

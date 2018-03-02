@@ -5,7 +5,6 @@ import npcDialogue.model.Action;
 import npcDialogue.model.Role;
 
 import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -46,20 +45,6 @@ public class ConsoleInputOutput { //TODO rename
                 System.err.println("\n -> please enter a valid number !\n");
             }
         }
-    }
-
-    /**
-     * Chooses an action randomly from a list of actions and returns it.
-     *
-     * @param availableActions the list of available actions.
-     * @return the chosen action.
-     */
-    public Action chooseRandomly(List<Action> availableActions) {
-        Random random = new Random();
-        int randomNumber = random.nextInt(availableActions.size());
-        Action action = availableActions.get(randomNumber);
-        printSingleActionText(action);
-        return action;
     }
 
     /**
