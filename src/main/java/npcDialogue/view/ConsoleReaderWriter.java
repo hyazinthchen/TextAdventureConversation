@@ -10,7 +10,7 @@ import java.util.Scanner;
 /**
  * Responsible for reading the players input from the console and printing ActionTexts to the console.
  */
-public class ConsoleInputOutput { //TODO rename
+public class ConsoleReaderWriter {
     private static final Scanner SCANNER = new Scanner(System.in);
 
     /**

@@ -35,10 +35,10 @@ public class DialogueLoaderTest {
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
         AssertUtil.containsExact(Arrays.asList("The weather is nice today.", "I heard it will snow today."), dialogueData.getStartAction().getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("I heard the sun will shine all day."), dialogueData.getStartAction().getTargetActionAt(0).getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("I heard the sun will shine all day."), dialogueData.getStartAction().getTargetActionAt(1).getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("I want to buy a potion.", "I want to buy a special potion."), dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("Here you go. See you!"), dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(0).getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("I heard the sun will shine all day."), dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer1").getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("I heard the sun will shine all day."), dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer2").getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("I want to buy a potion.", "I want to buy a special potion."), dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer2").getTargetActionByName("smallTalkNpc").getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("Here you go. See you!"), dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer2").getTargetActionByName("smallTalkNpc").getTargetActionByName("buyPotion").getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
 
     @Test
@@ -47,15 +47,13 @@ public class DialogueLoaderTest {
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
         assertEquals(0, dialogueData.getStartAction().getActionConditions().size());
-        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getActionConditions().size());
-        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(1).getActionConditions().size());
-        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getActionConditions().size());
-        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getActionConditions().size());
-        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(0).getActionConditions().size());
-        assertEquals(1, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(1).getActionConditions().size());
-        assertEquals(0, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(1).getTargetActionAt(0).getActionConditions().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer1").getActionConditions().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer2").getActionConditions().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer1").getTargetActionByName("smallTalkNpc").getActionConditions().size());
+        assertEquals(0, dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer2").getTargetActionByName("smallTalkNpc").getTargetActionByName("buyPotion").getActionConditions().size());
+        assertEquals(1, dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer2").getTargetActionByName("smallTalkNpc").getTargetActionByName("buySpecialPotion").getActionConditions().size());
 
-        assertEquals(60, dialogueData.getStartAction().getTargetActionAt(0).getTargetActionAt(0).getTargetActionAt(1).getActionConditions().get("reputation"));
+        assertEquals(60, dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer2").getTargetActionByName("smallTalkNpc").getTargetActionByName("buySpecialPotion").getActionConditions().get("reputation"));
     }
 
 }

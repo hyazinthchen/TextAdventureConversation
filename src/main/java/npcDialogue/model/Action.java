@@ -1,24 +1,25 @@
 package npcDialogue.model;
 
 
-import com.queomedia.commons.checks.Check;
 import com.queomedia.commons.equals.EqualsChecker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 /**
  * Describes something an actor in the conversation can do or say. Each action has following actions or no following actions.
  */
-public abstract class Action { //TODO: add List of npcTraits whose value will change when action is currentAction in the dialogueNavigator
+public abstract class Action {
     private final ArrayList<Action> targetActions;
     private final Map<String, Object> actionConditions; // example: action "buyStuff" can only be used when npcTrait "reputation" = 60
     private final Role role; // not using generics because content is read from text file
     private final Role targetActionsRole; // all targetActionActors must be of same type
     private final String actionText;
     private final String name;
+    private final Map<String, Object> npcTraitsModifications; //TODO: implement method that changes npcTraits when this is currentAction
 
     public Action(Role role, Role targetActionRole, String actionText, String name) {
         this.actionText = actionText;
@@ -27,6 +28,7 @@ public abstract class Action { //TODO: add List of npcTraits whose value will ch
         this.role = role;
         this.targetActionsRole = targetActionRole;
         this.name = name;
+        this.npcTraitsModifications = new HashMap<>();
     }
 
     public Map<String, Object> getActionConditions() {
@@ -60,12 +62,12 @@ public abstract class Action { //TODO: add List of npcTraits whose value will ch
     }
 
     /**
-     * Adds a dependency to an action. For example: action "buyStuff" can only be used when npcTrait "reputation" = 60.
+     * Adds a condition to an action. For example: action "buyStuff" can only be used when npcTrait "reputation" = 60.
      *
      * @param key
      * @param value
      */
-    public void addActionDependency(String key, Object value) {
+    public void addActionConditions(String key, Object value) {
         actionConditions.put(key, value);
     }
 
@@ -73,16 +75,19 @@ public abstract class Action { //TODO: add List of npcTraits whose value will ch
         return targetActions;
     }
 
-    //TODO: replace with getTargetActionByName
-    public Action getTargetActionAt(int index) {
-        Check.argumentBetween(index, 0, targetActions.size() - 1, "index");
-
-        return targetActions.get(index);
-    }
-
-    //TODO: implement
+    /**
+     * Gets a targetAction by its name from the List of targetActions.
+     *
+     * @param actionName
+     * @return the targetAction with the specific name.
+     */
     public Action getTargetActionByName(String actionName) {
-        return null;
+        for (Action targetAction : targetActions) {
+            if (targetAction.name.equals(actionName)) {
+                return targetAction;
+            }
+        }
+        throw new NoSuchElementException("No targetAction with name '" + actionName + "' found in the targetActions of action '" + name + "'.");
     }
 
     @Override
@@ -105,7 +110,6 @@ public abstract class Action { //TODO: add List of npcTraits whose value will ch
                 '}';
     }
 
-    //TODO: add javadoc
     public static final EqualsChecker<String, Action> ACTION_BY_TEXT_EQUALS_CHECKER =
             (String actionText, Action action) -> action.getActionText().equals(actionText);
 }

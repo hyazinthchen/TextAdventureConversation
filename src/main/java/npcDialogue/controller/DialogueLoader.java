@@ -46,7 +46,7 @@ public class DialogueLoader {
      */
     private NpcTraits loadNpcTraits(LinkedHashMap yamlContent) {
         NpcTraits newNpcTraits = new NpcTraits();
-        LinkedHashMap<String, Object> rawNpcTraits = (LinkedHashMap) yamlContent.get("npcData"); //TODO: throw exception in case snakeyamls get method does stupid things
+        LinkedHashMap<String, Object> rawNpcTraits = (LinkedHashMap) yamlContent.get("npcData"); //TODO: throw exception in case snakeyamls get method does stupid things AND what if two conditions have the same key???
         for (Map.Entry<String, Object> entry : rawNpcTraits.entrySet()) {
             newNpcTraits.addDataEntry(entry.getKey(), entry.getValue());
         }
@@ -120,8 +120,8 @@ public class DialogueLoader {
         for (Map.Entry<String, Action> entry : dialogueMap.entrySet()) {
             if (actionDependencies.containsKey(entry.getKey())) {
                 LinkedHashMap<String, Object> mapOfActionDependencies = actionDependencies.get(entry.getKey());
-                for (Map.Entry<String, Object> actionDependencyEntry : mapOfActionDependencies.entrySet()) {
-                    entry.getValue().addActionDependency(actionDependencyEntry.getKey(), actionDependencyEntry.getValue());
+                for (Map.Entry<String, Object> actionConditionEntry : mapOfActionDependencies.entrySet()) {
+                    entry.getValue().addActionConditions(actionConditionEntry.getKey(), actionConditionEntry.getValue());
                 }
             }
         }
@@ -173,7 +173,12 @@ public class DialogueLoader {
         }
     }
 
-    //TODO: add javadoc
+    /**
+     * Gets a file by its name from the classpath.
+     *
+     * @param fileName
+     * @return the file.
+     */
     public File getFileFromClassPath(final String fileName) {
         Check.notNullArgument(fileName, "fileName");
 

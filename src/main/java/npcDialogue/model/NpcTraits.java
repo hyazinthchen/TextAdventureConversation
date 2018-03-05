@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Describes the relationship of the NPC to the player. Actions are visible to the player depending on the npcTraits.
  */
-public class NpcTraits { //TODO: implement method that changes a npcTrait in the map when an action has been chosen
+public class NpcTraits {
     private Map<String, Object> npcTraits = new HashMap<>();
 
     /**
@@ -21,5 +21,9 @@ public class NpcTraits { //TODO: implement method that changes a npcTrait in the
 
     public Map<String, Object> getNpcTraits() {
         return npcTraits;
+    }
+
+    public void modifyEntry(String a, Object b) { //TODO: implement!!!
+
     }
 }

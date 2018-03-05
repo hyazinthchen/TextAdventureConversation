@@ -1,7 +1,7 @@
 package npcDialogue.model;
 
 import npcDialogue.controller.DialogueNavigator;
-import npcDialogue.view.ConsoleInputOutput;
+import npcDialogue.view.ConsoleReaderWriter;
 
 /**
  * Contains the npcData and the startAction of the whole dialogue.
@@ -22,7 +22,7 @@ public class NpcDialogueData {
      */
     public void start() {
         dialogueNavigator = new DialogueNavigator(npcTraits, startAction);
-        dialogueNavigator.navigate(new ConsoleInputOutput());
+        dialogueNavigator.navigate(new ConsoleReaderWriter());
     }
 
     public Action getStartAction() {

@@ -31,7 +31,7 @@ actionGraph:
       giveKey:
         reputation: 60
 
-   npcDataChanges:
+   npcDataModifications:
       buyPotion:
         reputation: 60
 
