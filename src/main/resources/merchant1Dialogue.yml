@@ -1,7 +1,7 @@
 
 # example dialogue content and rules for one NPC
 
-npcData:
+npcAttributes:
    bribePaid: 0
    reputation: 50
    keyQuestCompleted: false
@@ -27,11 +27,11 @@ actionGraph:
       buyPotion: [demandKey]
       demandKey: [giveKey, noKeyAngry]
 
-   actionDependencies:
+   actionConditions:
       giveKey:
         reputation: 60
 
-   npcDataModifications:
+   npcAttributeModifications:
       buyPotion:
         reputation: 60
 

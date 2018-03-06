@@ -5,45 +5,37 @@ import npcDialogue.model.*;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 
 public class DialogueNavigatorTest {
 
     /**
-     * Helper method for generating a simple dialogue to test without any conditions.
+     * /**
+     * Helper method for generating a simple action without any conditions for test purposes.
      *
-     * @param actionTexts
+     * @param actionText the actionText of the new action.
+     * @return a new action object.
      */
-    private ArrayList<Action> generateSimpleActionList(String... actionTexts) {
-        ArrayList<Action> testActions = new ArrayList<>();
-        for (String actionText : actionTexts) {
-            testActions.add(generateSimpleActionList(actionText));
-        }
-        return testActions;
-    }
-
-    /**
-     * Helper method for generating a simple dialogue to test without any conditions.
-     *
-     * @param actionText
-     */
-    private Action generateSimpleActionList(String actionText) {
+    private Action generateTestAction(String actionText) {
         return new NpcAction(Role.NPC, actionText, actionText);
     }
 
     /**
-     * Helper method that generates an NpcTraits object for test purposes.
+     * /**
+     * Helper method that generates an NpcAttributes object for test purposes.
      *
-     * @return
+     * @param firstValue  the value of the first attribute.
+     * @param secondValue the value of the second attribute.
+     * @return an npcAttributes object with two entries.
      */
-    private NpcTraits generateTestNpcTraits(Object firstValue, Object secondValue) {
-        NpcTraits traits = new NpcTraits();
-        traits.addDataEntry("D", firstValue);
-        traits.addDataEntry("E", secondValue);
-        return traits;
+    private NpcAttributes generateTestNpcAttributes(Object firstValue, Object secondValue) {
+        NpcAttributes attributes = new NpcAttributes();
+        attributes.addDataEntry("D", firstValue);
+        attributes.addDataEntry("E", secondValue);
+        return attributes;
     }
 
     /**
@@ -51,9 +43,10 @@ public class DialogueNavigatorTest {
      */
     @Test
     public void testGetAvailableTargetActions1() {
-        Action actionA = generateSimpleActionList("A");
-        DialogueNavigator navigator = new DialogueNavigator(new NpcTraits(), actionA);
-        ArrayList<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionA.getTargetActions());
+        Action actionA = generateTestAction("A");
+
+        DialogueNavigator navigator = new DialogueNavigator(new NpcAttributes(), actionA);
+        List<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
         AssertUtil.isEmpty(availableTargetActionsOfA);
     }
@@ -63,11 +56,13 @@ public class DialogueNavigatorTest {
      */
     @Test
     public void testGetAvailableTargetActions2() {
-        ArrayList<Action> actionList = generateSimpleActionList("A", "B");
-        actionList.get(0).addTargetAction(actionList.get(1));
-        DialogueNavigator navigator = new DialogueNavigator(new NpcTraits(), actionList.get(0));
-        ArrayList<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionList.get(0).getTargetActions());
-        ArrayList<Action> availableTargetActionsOfB = navigator.getAvailableTargetActions(actionList.get(1).getTargetActions());
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+
+        actionA.addTargetAction(actionB);
+        DialogueNavigator navigator = new DialogueNavigator(new NpcAttributes(), actionA);
+        List<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionA.getTargetActions());
+        List<Action> availableTargetActionsOfB = navigator.getAvailableTargetActions(actionB.getTargetActions());
 
         AssertUtil.containsExact(Arrays.asList("B"), availableTargetActionsOfA, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
         AssertUtil.isEmpty(availableTargetActionsOfB);
@@ -79,20 +74,21 @@ public class DialogueNavigatorTest {
     @Test
     public void testGetAvailableTargetActions3() {
 
-        Action actionA = generateSimpleActionList("A");
-        Action actionB = generateSimpleActionList("B");
-        Action actionC = generateSimpleActionList("A");
-        Action actionD = generateSimpleActionList("D");
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
+        Action actionD = generateTestAction("D");
 
         actionA.addTargetAction(actionB);
         actionA.addTargetAction(actionC);
         actionB.addTargetAction(actionD);
         actionC.addTargetAction(actionD);
-        DialogueNavigator navigator = new DialogueNavigator(new NpcTraits(), actionA);
-        ArrayList<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(Arrays.asList(actionA));
-        ArrayList<Action> availableTargetActionsOfB = navigator.getAvailableTargetActions(Arrays.asList(actionB));
-        ArrayList<Action> availableTargetActionsOfC = navigator.getAvailableTargetActions(Arrays.asList(actionC));
-        ArrayList<Action> availableTargetActionsOfD = navigator.getAvailableTargetActions(Arrays.asList(actionD));
+
+        DialogueNavigator navigator = new DialogueNavigator(new NpcAttributes(), actionA);
+        List<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionA.getTargetActions());
+        List<Action> availableTargetActionsOfB = navigator.getAvailableTargetActions(actionB.getTargetActions());
+        List<Action> availableTargetActionsOfC = navigator.getAvailableTargetActions(actionC.getTargetActions());
+        List<Action> availableTargetActionsOfD = navigator.getAvailableTargetActions(actionD.getTargetActions());
 
         AssertUtil.containsExact(Arrays.asList("B", "C"), availableTargetActionsOfA, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
         AssertUtil.containsExact(Arrays.asList("D"), availableTargetActionsOfB, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
@@ -105,16 +101,21 @@ public class DialogueNavigatorTest {
      */
     @Test
     public void testGetAvailableTargetActions4() {
-        ArrayList<Action> actionList = generateSimpleActionList(new String[]{"A", "B", "C", "D"});
-        actionList.get(0).addTargetAction(actionList.get(1));
-        actionList.get(0).addTargetAction(actionList.get(2));
-        actionList.get(1).addTargetAction(actionList.get(3));
-        actionList.get(2).addTargetAction(actionList.get(1));
-        DialogueNavigator navigator = new DialogueNavigator(new NpcTraits(), actionList.get(0));
-        ArrayList<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionList.get(0).getTargetActions());
-        ArrayList<Action> availableTargetActionsOfB = navigator.getAvailableTargetActions(actionList.get(1).getTargetActions());
-        ArrayList<Action> availableTargetActionsOfC = navigator.getAvailableTargetActions(actionList.get(2).getTargetActions());
-        ArrayList<Action> availableTargetActionsOfD = navigator.getAvailableTargetActions(actionList.get(3).getTargetActions());
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
+        Action actionD = generateTestAction("D");
+
+        actionA.addTargetAction(actionB);
+        actionA.addTargetAction(actionC);
+        actionB.addTargetAction(actionD);
+        actionC.addTargetAction(actionB);
+
+        DialogueNavigator navigator = new DialogueNavigator(new NpcAttributes(), actionA);
+        List<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionA.getTargetActions());
+        List<Action> availableTargetActionsOfB = navigator.getAvailableTargetActions(actionB.getTargetActions());
+        List<Action> availableTargetActionsOfC = navigator.getAvailableTargetActions(actionC.getTargetActions());
+        List<Action> availableTargetActionsOfD = navigator.getAvailableTargetActions(actionD.getTargetActions());
 
         AssertUtil.containsExact(Arrays.asList("B", "C"), availableTargetActionsOfA, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
         AssertUtil.containsExact(Arrays.asList("D"), availableTargetActionsOfB, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
@@ -127,16 +128,21 @@ public class DialogueNavigatorTest {
      */
     @Test
     public void testGetAvailableTargetActions5() {
-        ArrayList<Action> actionList = generateSimpleActionList(new String[]{"A", "B", "C", "D"});
-        actionList.get(0).addTargetAction(actionList.get(1));
-        actionList.get(0).addTargetAction(actionList.get(2));
-        actionList.get(1).addTargetAction(actionList.get(3));
-        actionList.get(1).addTargetAction(actionList.get(2));
-        DialogueNavigator navigator = new DialogueNavigator(new NpcTraits(), actionList.get(0));
-        ArrayList<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionList.get(0).getTargetActions());
-        ArrayList<Action> availableTargetActionsOfB = navigator.getAvailableTargetActions(actionList.get(1).getTargetActions());
-        ArrayList<Action> availableTargetActionsOfC = navigator.getAvailableTargetActions(actionList.get(2).getTargetActions());
-        ArrayList<Action> availableTargetActionsOfD = navigator.getAvailableTargetActions(actionList.get(3).getTargetActions());
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
+        Action actionD = generateTestAction("D");
+
+        actionA.addTargetAction(actionB);
+        actionA.addTargetAction(actionC);
+        actionB.addTargetAction(actionC);
+        actionB.addTargetAction(actionD);
+
+        DialogueNavigator navigator = new DialogueNavigator(new NpcAttributes(), actionA);
+        List<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionA.getTargetActions());
+        List<Action> availableTargetActionsOfB = navigator.getAvailableTargetActions(actionB.getTargetActions());
+        List<Action> availableTargetActionsOfC = navigator.getAvailableTargetActions(actionC.getTargetActions());
+        List<Action> availableTargetActionsOfD = navigator.getAvailableTargetActions(actionD.getTargetActions());
 
         AssertUtil.containsExact(Arrays.asList("B", "C"), availableTargetActionsOfA, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
         AssertUtil.containsExact(Arrays.asList("C", "D"), availableTargetActionsOfB, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
@@ -149,12 +155,15 @@ public class DialogueNavigatorTest {
      */
     @Test
     public void testGetAvailableTargetActions6() {
-        ArrayList<Action> actionList = generateSimpleActionList(new String[]{"A", "B"});
-        actionList.get(0).addTargetAction(actionList.get(1));
-        actionList.get(1).addTargetAction(actionList.get(0));
-        DialogueNavigator navigator = new DialogueNavigator(new NpcTraits(), actionList.get(0));
-        ArrayList<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionList.get(0).getTargetActions());
-        ArrayList<Action> availableTargetActionsOfB = navigator.getAvailableTargetActions(actionList.get(1).getTargetActions());
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+
+        actionA.addTargetAction(actionB);
+        actionB.addTargetAction(actionA);
+
+        DialogueNavigator navigator = new DialogueNavigator(new NpcAttributes(), actionA);
+        List<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionA.getTargetActions());
+        List<Action> availableTargetActionsOfB = navigator.getAvailableTargetActions(actionB.getTargetActions());
 
         AssertUtil.containsExact(Arrays.asList("B"), availableTargetActionsOfA, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
         AssertUtil.containsExact(Arrays.asList("A"), availableTargetActionsOfB, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
@@ -165,15 +174,18 @@ public class DialogueNavigatorTest {
      */
     @Test
     public void testGetAvailableTargetActionsWithConditions1() {
-        ArrayList<Action> actionList = generateSimpleActionList(new String[]{"A", "B", "C"});
-        actionList.get(0).addTargetAction(actionList.get(1));
-        actionList.get(0).addTargetAction(actionList.get(2));
-        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcTraits(50, true), actionList.get(0));
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
 
-        navigator.getCurrentAction().getTargetActionByName("C").addActionConditions("D", 50);
-        navigator.getCurrentAction().getTargetActionByName("C").addActionConditions("E", true);
+        actionA.addTargetAction(actionB);
+        actionA.addTargetAction(actionC);
+        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(50, true), actionA);
 
-        ArrayList<Action> availableTargetActions = navigator.getAvailableTargetActions(actionList.get(0).getTargetActions());
+        navigator.getCurrentAction().getTargetActionByName("C").addActionCondition("D", 50);
+        navigator.getCurrentAction().getTargetActionByName("C").addActionCondition("E", true);
+
+        List<Action> availableTargetActions = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
         AssertUtil.containsExact(Arrays.asList("B", "C"), availableTargetActions, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
@@ -183,15 +195,18 @@ public class DialogueNavigatorTest {
      */
     @Test
     public void testGetAvailableTargetActionsWithConditions2() {
-        ArrayList<Action> actionList = generateSimpleActionList(new String[]{"A", "B", "C"});
-        actionList.get(0).addTargetAction(actionList.get(1));
-        actionList.get(0).addTargetAction(actionList.get(2));
-        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcTraits(60, true), actionList.get(0));
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
 
-        navigator.getCurrentAction().getTargetActionByName("C").addActionConditions("D", 50);
-        navigator.getCurrentAction().getTargetActionByName("C").addActionConditions("E", true);
+        actionA.addTargetAction(actionB);
+        actionA.addTargetAction(actionC);
+        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(60, true), actionA);
 
-        ArrayList<Action> availableTargetActions = navigator.getAvailableTargetActions(actionList.get(0).getTargetActions());
+        navigator.getCurrentAction().getTargetActionByName("C").addActionCondition("D", 50);
+        navigator.getCurrentAction().getTargetActionByName("C").addActionCondition("E", true);
+
+        List<Action> availableTargetActions = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
         AssertUtil.containsExact(Arrays.asList("B"), availableTargetActions, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
@@ -201,15 +216,18 @@ public class DialogueNavigatorTest {
      */
     @Test
     public void testGetAvailableTargetActionsWithConditions3() {
-        ArrayList<Action> actionList = generateSimpleActionList(new String[]{"A", "B", "C"});
-        actionList.get(0).addTargetAction(actionList.get(1));
-        actionList.get(0).addTargetAction(actionList.get(2));
-        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcTraits(60, false), actionList.get(0));
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
 
-        navigator.getCurrentAction().getTargetActionByName("C").addActionConditions("D", 50);
-        navigator.getCurrentAction().getTargetActionByName("C").addActionConditions("E", true);
+        actionA.addTargetAction(actionB);
+        actionA.addTargetAction(actionC);
+        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(60, false), actionA);
 
-        ArrayList<Action> availableTargetActions = navigator.getAvailableTargetActions(actionList.get(0).getTargetActions());
+        navigator.getCurrentAction().getTargetActionByName("C").addActionCondition("D", 50);
+        navigator.getCurrentAction().getTargetActionByName("C").addActionCondition("E", true);
+
+        List<Action> availableTargetActions = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
         AssertUtil.containsExact(Arrays.asList("B"), availableTargetActions, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }

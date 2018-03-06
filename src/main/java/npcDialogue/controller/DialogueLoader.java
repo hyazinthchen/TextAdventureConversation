@@ -22,7 +22,7 @@ import java.util.Map;
 public class DialogueLoader {
 
     /**
-     * Loads the whole data of the dialogue from a yaml file (actions and npcTraits).
+     * Loads the whole data of the dialogue from a yaml file (actions and npcAttributes).
      *
      * @param file the yaml file
      * @return A new NpcDialogueData object.
@@ -31,41 +31,42 @@ public class DialogueLoader {
     public NpcDialogueData load(File file) throws FileNotFoundException {
         InputStream inputStream = new FileInputStream(file);
         Yaml yaml = new Yaml();
-        LinkedHashMap yamlDataMap = yaml.load(inputStream);
+        LinkedHashMap yamlDataMap = yaml.load(inputStream); //TODO: catch errors if snakeyamls load() does weird stuff.
 
-        NpcTraits npcTraits = loadNpcTraits(yamlDataMap);
-        NpcDialogueData npcDialogueData = loadNpcDialogue(yamlDataMap, npcTraits);
-        return npcDialogueData;
+        NpcAttributes npcAttributes = loadNpcAttributes(yamlDataMap);
+        return loadNpcDialogue(yamlDataMap, npcAttributes);
     }
 
     /**
-     * Loads the NPCs traits from the yaml file.
+     * Loads the NPCs attributes from the yaml file.
      *
      * @param yamlContent the whole dialogue data read from a file
-     * @return An NpcTraits object.
+     * @return An NpcAttributes object.
      */
-    private NpcTraits loadNpcTraits(LinkedHashMap yamlContent) {
-        NpcTraits newNpcTraits = new NpcTraits();
-        LinkedHashMap<String, Object> rawNpcTraits = (LinkedHashMap) yamlContent.get("npcData"); //TODO: throw exception in case snakeyamls get method does stupid things AND what if two conditions have the same key???
-        for (Map.Entry<String, Object> entry : rawNpcTraits.entrySet()) {
-            newNpcTraits.addDataEntry(entry.getKey(), entry.getValue());
+    private NpcAttributes loadNpcAttributes(LinkedHashMap yamlContent) {
+        NpcAttributes newNpcAttributes = new NpcAttributes();
+        LinkedHashMap<String, Object> rawNpcAttributes = (LinkedHashMap) yamlContent.get("npcAttributes"); //TODO: catch null & what if two conditions have the same key?
+        for (Map.Entry<String, Object> entry : rawNpcAttributes.entrySet()) {
+            newNpcAttributes.addDataEntry(entry.getKey(), entry.getValue());
         }
-        return newNpcTraits;
+        return newNpcAttributes;
     }
 
     /**
-     * Loads the dialogue and the traits of the NPC.
+     * Loads the dialogue and the attributes of the NPC.
      *
      * @param yamlContent the whole dialogue data read from a file
      * @return An NpcDialogueData object.
      */
-    private NpcDialogueData loadNpcDialogue(LinkedHashMap yamlContent, NpcTraits npcTraits) {
-        LinkedHashMap<String, Object> rawActionGraph = (LinkedHashMap) yamlContent.get("actionGraph");
+    private NpcDialogueData loadNpcDialogue(LinkedHashMap yamlContent, NpcAttributes npcAttributes) {
+
+        //TODO: catch null for the next 6 lines.
+        Map<String, Object> rawActionGraph = (LinkedHashMap) yamlContent.get("actionGraph");
         String startActionText = rawActionGraph.get("startAction").toString();
-        LinkedHashMap<String, Object> npcActions = (LinkedHashMap) rawActionGraph.get("npcActions");
-        LinkedHashMap<String, Object> playerActions = (LinkedHashMap) rawActionGraph.get("playerActions");
-        LinkedHashMap<String, String> actionContents = (LinkedHashMap) yamlContent.get("actionContent");
-        LinkedHashMap<String, LinkedHashMap> actionDependencies = (LinkedHashMap) rawActionGraph.get("actionDependencies");
+        Map<String, Object> npcActions = (LinkedHashMap) rawActionGraph.get("npcActions");
+        Map<String, Object> playerActions = (LinkedHashMap) rawActionGraph.get("playerActions");
+        Map<String, String> actionContents = (LinkedHashMap) yamlContent.get("actionContent");
+        Map<String, LinkedHashMap> actionConditions = (LinkedHashMap) rawActionGraph.get("actionConditions");
 
         //Make a map <Key, Action> for the NPC & Player
         Map<String, Action> dialogueMap = new HashMap<>();
@@ -76,12 +77,10 @@ public class DialogueLoader {
 
         addTargetActions(npcActions, playerActions, dialogueMap);
 
-        if (!actionDependencies.isEmpty()) {
-            addActionDependencies(actionDependencies, dialogueMap);
+        if (!actionConditions.isEmpty()) {
+            addActionConditions(actionConditions, dialogueMap);
         }
-
-        NpcDialogueData npcDialogueData = new NpcDialogueData(npcTraits, dialogueMap.get(startActionText));
-        return npcDialogueData;
+        return new NpcDialogueData(npcAttributes, dialogueMap.get(startActionText));
     }
 
     /**
@@ -89,9 +88,9 @@ public class DialogueLoader {
      *
      * @param npcActions    the npcActions from the yaml file
      * @param playerActions the playerActions from the yaml file
-     * @param dialogueMap
+     * @param dialogueMap   a map with actions from Npc and Player
      */
-    private void addTargetActions(LinkedHashMap<String, Object> npcActions, LinkedHashMap<String, Object> playerActions, Map<String, Action> dialogueMap) {
+    private void addTargetActions(Map<String, Object> npcActions, Map<String, Object> playerActions, Map<String, Action> dialogueMap) {
         for (Map.Entry<String, Action> entry : dialogueMap.entrySet()) {
             // Add targetActions to npcActions in dialogueMap
             if (npcActions.containsKey(entry.getKey())) {
@@ -111,17 +110,17 @@ public class DialogueLoader {
     }
 
     /**
-     * Adds all actionDependencies to the npcActions and playerActions.
+     * Adds all actionConditions to the npcActions and playerActions.
      *
-     * @param actionDependencies
-     * @param dialogueMap
+     * @param actionConditions a map of conditions the use of an action depends on
+     * @param dialogueMap      a map with actions from Npc and Player
      */
-    private void addActionDependencies(LinkedHashMap<String, LinkedHashMap> actionDependencies, Map<String, Action> dialogueMap) {
+    private void addActionConditions(Map<String, LinkedHashMap> actionConditions, Map<String, Action> dialogueMap) {
         for (Map.Entry<String, Action> entry : dialogueMap.entrySet()) {
-            if (actionDependencies.containsKey(entry.getKey())) {
-                LinkedHashMap<String, Object> mapOfActionDependencies = actionDependencies.get(entry.getKey());
-                for (Map.Entry<String, Object> actionConditionEntry : mapOfActionDependencies.entrySet()) {
-                    entry.getValue().addActionConditions(actionConditionEntry.getKey(), actionConditionEntry.getValue());
+            if (actionConditions.containsKey(entry.getKey())) {
+                LinkedHashMap<String, Object> mapOfActionConditions = actionConditions.get(entry.getKey());
+                for (Map.Entry<String, Object> actionConditionEntry : mapOfActionConditions.entrySet()) {
+                    entry.getValue().addActionCondition(actionConditionEntry.getKey(), actionConditionEntry.getValue());
                 }
             }
         }
@@ -132,9 +131,9 @@ public class DialogueLoader {
      *
      * @param npcActions     the npcActions from the yaml file
      * @param actionContents the actionTexts of the npcActions
-     * @param dialogueMap
+     * @param dialogueMap    a map with actions from Npc and Player
      */
-    private void addNpcActionsToMap(LinkedHashMap<String, Object> npcActions, LinkedHashMap<String, String> actionContents, Map<String, Action> dialogueMap) {
+    private void addNpcActionsToMap(Map<String, Object> npcActions, Map<String, String> actionContents, Map<String, Action> dialogueMap) {
         for (Map.Entry<String, Object> npcEntry : npcActions.entrySet()) {
             ArrayList<String> targetActions = (ArrayList<String>) npcEntry.getValue();
             if (targetActions.size() > 0) {
@@ -155,9 +154,9 @@ public class DialogueLoader {
      *
      * @param playerActions  the playerActions from the yaml file
      * @param actionContents the actionTexts of the playerActions
-     * @param dialogueMap
+     * @param dialogueMap    a map with actions from Npc and Player
      */
-    private void addPlayerActionsToMap(LinkedHashMap<String, Object> playerActions, LinkedHashMap<String, String> actionContents, Map<String, Action> dialogueMap) {
+    private void addPlayerActionsToMap(Map<String, Object> playerActions, Map<String, String> actionContents, Map<String, Action> dialogueMap) {
         for (Map.Entry<String, Object> playerEntry : playerActions.entrySet()) {
             ArrayList<String> targetActions = (ArrayList<String>) playerEntry.getValue();
             if (targetActions.size() > 0) {
@@ -176,7 +175,7 @@ public class DialogueLoader {
     /**
      * Gets a file by its name from the classpath.
      *
-     * @param fileName
+     * @param fileName the name of the file.
      * @return the file.
      */
     public File getFileFromClassPath(final String fileName) {

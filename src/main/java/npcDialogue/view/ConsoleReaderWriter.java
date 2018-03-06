@@ -16,8 +16,8 @@ public class ConsoleReaderWriter {
     /**
      * Returns the action which was chosen by the player.
      *
-     * @param availableActions
-     * @return the chosen action.
+     * @param availableActions a list of all the actions the player may choose from.
+     * @return the chosen action by the player.
      */
     public Action chooseByPlayerInput(List<Action> availableActions) {
         Check.notNullArgument(availableActions, "availableActions");
@@ -35,7 +35,7 @@ public class ConsoleReaderWriter {
      * @param max the highest number the player may enter.
      * @return the input of the player as an int.
      */
-    public int awaitIntegerInput(int min, int max) {
+    private int awaitIntegerInput(int min, int max) {
         while (true) {
             try {
                 int input = SCANNER.nextInt();
@@ -48,7 +48,7 @@ public class ConsoleReaderWriter {
     }
 
     /**
-     * Prints one single actions actionText to the console and inserts the actorType of the action before it.
+     * Prints one single actions actionText to the console and inserts the role of the action before it.
      *
      * @param action the action of which the actionText should be printed.
      */

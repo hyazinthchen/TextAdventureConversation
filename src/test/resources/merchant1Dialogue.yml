@@ -1,7 +1,7 @@
 
 # example dialogue content and rules for one NPC
 
-npcData:
+npcAttributes:
    bribePaid: 0
    reputation: 50
    
@@ -18,11 +18,11 @@ actionGraph:
       buyPotion: [bye]
       buySpecialPotion: [bye]
 
-   actionDependencies:
+   actionConditions:
       buySpecialPotion:
         reputation: 60
 
-   npcDataChanges:
+   npcAttributeModifications:
       smallTalkPlayer1:
         reputation: 60
 

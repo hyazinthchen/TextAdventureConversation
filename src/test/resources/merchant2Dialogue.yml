@@ -1,7 +1,7 @@
 
 # example dialogue content and rules for one NPC
 
-npcData:
+npcAttributes:
    bribePaid: 0
    reputation: 50
    
@@ -18,11 +18,11 @@ actionGraph:
       smallTalkPlayer: [smallTalkNpc1, smallTalkNpc2]
       buyPotion: [byeNice, byeAngry]
 
-   actionDependencies:
+   actionConditions:
       byeNice:
         reputation: 60
 
-   npcDataChanges:
+   npcAttributeChanges:
       welcome:
         reputation: 60
 

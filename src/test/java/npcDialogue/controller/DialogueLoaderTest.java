@@ -13,12 +13,12 @@ import static junit.framework.TestCase.assertEquals;
 public class DialogueLoaderTest {
 
     @Test
-    public void testLoadingNpcTraits() throws FileNotFoundException {
+    public void testLoadNpcAttributes() throws FileNotFoundException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
-        assertEquals(0, dialogueData.getNpcTraits().getNpcTraits().get("bribePaid"));
-        assertEquals(50, dialogueData.getNpcTraits().getNpcTraits().get("reputation"));
+        assertEquals(0, dialogueData.getNpcAttributes().getNpcAttributes().get("bribePaid"));
+        assertEquals(50, dialogueData.getNpcAttributes().getNpcAttributes().get("reputation"));
     }
 
     @Test
@@ -42,7 +42,7 @@ public class DialogueLoaderTest {
     }
 
     @Test
-    public void testLoadingActionDependencies() throws FileNotFoundException {
+    public void testLoadingActionConditions() throws FileNotFoundException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 

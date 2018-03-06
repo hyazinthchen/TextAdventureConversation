@@ -3,23 +3,20 @@ package npcDialogue.model;
 
 import com.queomedia.commons.equals.EqualsChecker;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Describes something an actor in the conversation can do or say. Each action has following actions or no following actions.
+ * Describes something in a conversation that can be done or said. Each action has following actions or no following actions.
  */
 public abstract class Action {
     private final ArrayList<Action> targetActions;
-    private final Map<String, Object> actionConditions; // example: action "buyStuff" can only be used when npcTrait "reputation" = 60
+    private final Map<String, Object> actionConditions; // example: action "buyStuff" can only be used when npcAttribute "reputation" = 60
     private final Role role; // not using generics because content is read from text file
-    private final Role targetActionsRole; // all targetActionActors must be of same type
+    private final Role targetActionsRole; // all targetActionRoles must be of same type
     private final String actionText;
     private final String name;
-    private final Map<String, Object> npcTraitsModifications; //TODO: implement method that changes npcTraits when this is currentAction
+    private final Map<String, Object> npcAttributeModifications; //TODO: implement method that changes npcAttributes when this is currentAction
 
     public Action(Role role, Role targetActionRole, String actionText, String name) {
         this.actionText = actionText;
@@ -28,7 +25,7 @@ public abstract class Action {
         this.role = role;
         this.targetActionsRole = targetActionRole;
         this.name = name;
-        this.npcTraitsModifications = new HashMap<>();
+        this.npcAttributeModifications = new HashMap<>();
     }
 
     public Map<String, Object> getActionConditions() {
@@ -48,37 +45,37 @@ public abstract class Action {
     }
 
     /**
-     * Adds a targetAction to the actions list of targetActions if the targetActions Role and the targetActionsRole of the action match.
+     * Adds a targetAction to the actions list of targetActions if the role of the action you wish to add the targetActionsRole of the action match.
      *
-     * @param targetAction
-     * @throws IllegalArgumentException
+     * @param targetAction the action to be added as a targetAction.
+     * @throws IllegalArgumentException when the role of the action to be added and the targetActionsRole of the action don't match.
      */
     public void addTargetAction(Action targetAction) throws IllegalArgumentException {
         if (targetAction.role == targetActionsRole) {
             targetActions.add(targetAction);
         } else {
-            throw new IllegalArgumentException("Actortype of new action does not match. Can't build dialogue. Got: " + targetAction.role + ". Expected: " + this.targetActionsRole);
+            throw new IllegalArgumentException("Role of new action does not match. Can't build dialogue. Got: " + targetAction.role + ". Expected: " + this.targetActionsRole);
         }
     }
 
     /**
-     * Adds a condition to an action. For example: action "buyStuff" can only be used when npcTrait "reputation" = 60.
+     * Adds a condition to an action. For example: action "buyStuff" can only be used when npcAttribute "reputation" = 60.
      *
-     * @param key
-     * @param value
+     * @param key   the key of an npcAttribute
+     * @param value the value the npcAttribute should have
      */
-    public void addActionConditions(String key, Object value) {
+    public void addActionCondition(String key, Object value) {
         actionConditions.put(key, value);
     }
 
-    public ArrayList<Action> getTargetActions() {
+    public List<Action> getTargetActions() {
         return targetActions;
     }
 
     /**
      * Gets a targetAction by its name from the List of targetActions.
      *
-     * @param actionName
+     * @param actionName the name of the action that is looked for.
      * @return the targetAction with the specific name.
      */
     public Action getTargetActionByName(String actionName) {
@@ -94,13 +91,9 @@ public abstract class Action {
     public String toString() {
 
         final String actionTextList;
-        if (targetActions != null) {
-            actionTextList = targetActions.stream()
-                    .map(Action::getActionText)
-                    .collect(Collectors.joining(", "));
-        } else {
-            actionTextList = "null";
-        }
+        actionTextList = targetActions.stream()
+                .map(Action::getActionText)
+                .collect(Collectors.joining(", "));
 
         return "Action{" +
                 "role=" + role +
