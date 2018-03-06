@@ -2,7 +2,11 @@ package npcDialogue.controller;
 
 import com.queomedia.commons.asserts.AssertUtil;
 import npcDialogue.model.*;
+import npcDialogue.view.ConsoleReaderWriter;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.FileNotFoundException;
 import java.util.Arrays;
@@ -33,8 +37,8 @@ public class DialogueNavigatorTest {
      */
     private NpcAttributes generateTestNpcAttributes(Object firstValue, Object secondValue) {
         NpcAttributes attributes = new NpcAttributes();
-        attributes.addDataEntry("D", firstValue);
-        attributes.addDataEntry("E", secondValue);
+        attributes.addAttribute("D", firstValue);
+        attributes.addAttribute("E", secondValue);
         return attributes;
     }
 
@@ -240,6 +244,42 @@ public class DialogueNavigatorTest {
         DialogueNavigator navigator = dialogueData.getDialogueNavigator();
 
         assertEquals("I don't want to sell anything to you!", navigator.getCurrentAction().getActionText());
+    }
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    /**
+     * Produces a dead end. Expects an IllegalArgumentException.
+     */
+    @Test
+    public void testNavigateByDeadEnd() throws IllegalArgumentException {
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+
+        actionA.addTargetAction(actionB);
+        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(50, true), actionA);
+        actionB.addActionCondition("D", 99);
+        actionB.addActionCondition("E", false);
+
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Dead end reached. availableTargetActions = 0");
+        navigator.navigate(new ConsoleReaderWriter());
+    }
+
+    /**
+     * Produces an endless loop resulting in a stack overflow
+     */
+    @Ignore
+    @Test
+    public void testNavigateByEndlessLoop() {
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+
+        actionA.addTargetAction(actionB);
+        actionB.addTargetAction(actionA);
+        DialogueNavigator navigator = new DialogueNavigator(new NpcAttributes(), actionA);
+        navigator.navigate(new ConsoleReaderWriter());
     }
 
 }

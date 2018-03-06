@@ -15,7 +15,7 @@ public class NpcAttributesTest {
      */
     private NpcAttributes generateTestNpcAttributes(String key, Object value) {
         NpcAttributes testNpcAttributes = new NpcAttributes();
-        testNpcAttributes.addDataEntry(key, value);
+        testNpcAttributes.addAttribute(key, value);
         return testNpcAttributes;
     }
 

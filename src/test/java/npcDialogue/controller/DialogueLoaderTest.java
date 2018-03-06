@@ -56,4 +56,12 @@ public class DialogueLoaderTest {
         assertEquals(60, dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer2").getTargetActionByName("smallTalkNpc").getTargetActionByName("buySpecialPotion").getActionConditions().get("reputation"));
     }
 
+    @Test
+    public void testLoadingNpcAttributeModifications() throws FileNotFoundException {
+        DialogueLoader loader = new DialogueLoader();
+        NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
+
+        assertEquals(60, dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer1").getNpcAttributeModifications().get("reputation"));
+    }
+
 }

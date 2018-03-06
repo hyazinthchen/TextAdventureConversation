@@ -16,7 +16,7 @@ public abstract class Action {
     private final Role targetActionsRole; // all targetActionRoles must be of same type
     private final String actionText;
     private final String name;
-    private final Map<String, Object> npcAttributeModifications; //TODO: implement method that changes npcAttributes when this is currentAction
+    private final Map<String, Object> npcAttributeModifications;
 
     public Action(Role role, Role targetActionRole, String actionText, String name) {
         this.actionText = actionText;
@@ -68,6 +68,16 @@ public abstract class Action {
         actionConditions.put(key, value);
     }
 
+    /**
+     * Adds a modification to an action. The modification will change the npcAttributes once the action is currentAction.
+     *
+     * @param key   the key of an npcAttribute
+     * @param value the value the npcAttribute will have
+     */
+    public void addNpcAttributeModification(String key, Object value) {
+        npcAttributeModifications.put(key, value);
+    }
+
     public List<Action> getTargetActions() {
         return targetActions;
     }
@@ -105,4 +115,8 @@ public abstract class Action {
 
     public static final EqualsChecker<String, Action> ACTION_BY_TEXT_EQUALS_CHECKER =
             (String actionText, Action action) -> action.getActionText().equals(actionText);
+
+    public Map<String, Object> getNpcAttributeModifications() {
+        return npcAttributeModifications;
+    }
 }

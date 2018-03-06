@@ -5,7 +5,10 @@ import npcDialogue.model.NpcAttributes;
 import npcDialogue.model.Role;
 import npcDialogue.view.ConsoleReaderWriter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * The DialogueNavigator is responsible for navigating from Action to Action in the conversation.
@@ -25,13 +28,16 @@ public class DialogueNavigator {
      *
      * @param consoleReaderWriter the class that prints the text of the actions to the console.
      */
-    public void navigate(ConsoleReaderWriter consoleReaderWriter) {
+    public void navigate(ConsoleReaderWriter consoleReaderWriter) { //TODO: detect cycles & detect dead ends
+        modifyNpcAttributes();
         consoleReaderWriter.printSingleActionText(currentAction);
         while (!currentAction.getTargetActions().isEmpty()) {
             List<Action> availableTargetActions = getAvailableTargetActions(currentAction.getTargetActions());
             if (availableTargetActions.size() == 1) {
                 consoleReaderWriter.printSingleActionText(availableTargetActions.get(0));
                 reassignCurrentAction(availableTargetActions.get(0));
+            } else if (availableTargetActions.size() == 0) { //TODO: remove me. I'm currently only for test purposes.
+                throw new IllegalArgumentException("Dead end reached. availableTargetActions = " + availableTargetActions.size());
             } else {
                 if (currentAction.getTargetActionsRole() == Role.NPC) {
                     Action chosenAction = chooseRandomly(availableTargetActions);
@@ -47,6 +53,15 @@ public class DialogueNavigator {
     }
 
     /**
+     * Modifies the npcAttributes if the currentAction has one or more npcAttributeModifications.
+     */
+    private void modifyNpcAttributes() {
+        for (Map.Entry<String, Object> modification : currentAction.getNpcAttributeModifications().entrySet()) {
+            npcAttributes.modifyAttribute(modification.getKey(), modification.getValue());
+        }
+    }
+
+    /**
      * Chooses an action randomly from a list of actions and returns it.
      *
      * @param availableActions the list of available actions.
@@ -58,7 +73,6 @@ public class DialogueNavigator {
         return availableActions.get(randomNumber);
     }
 
-
     /**
      * Only gets the targetActions that do not depend on any npcAttributes and those that depend on npcAttributes but fulfill their condition.
      *
@@ -68,17 +82,7 @@ public class DialogueNavigator {
     public List<Action> getAvailableTargetActions(List<Action> targetActions) {
         List<Action> availableTargetActions = new ArrayList<>();
         for (Action targetAction : targetActions) {
-            Map<String, Object> fulfilledConditions = new HashMap<>();
-            for (Map.Entry<String, Object> conditionEntry : targetAction.getActionConditions().entrySet()) {
-                if (conditionEntry.getValue().equals(npcAttributes.getNpcAttributes().get(conditionEntry.getKey()))) {
-                    fulfilledConditions.put(conditionEntry.getKey(), conditionEntry.getValue());
-                }
-            }
-            //check if all conditions are fulfilled, not only one
-            if (fulfilledConditions.size() == targetAction.getActionConditions().size() && !targetAction.getActionConditions().isEmpty()) {
-                availableTargetActions.add(targetAction);
-            }
-            if (targetAction.getActionConditions().isEmpty()) {
+            if (npcAttributes.contain(targetAction.getActionConditions().entrySet())) {
                 availableTargetActions.add(targetAction);
             }
         }

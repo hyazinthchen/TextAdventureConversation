@@ -47,7 +47,7 @@ public class DialogueLoader {
         NpcAttributes newNpcAttributes = new NpcAttributes();
         LinkedHashMap<String, Object> rawNpcAttributes = (LinkedHashMap) yamlContent.get("npcAttributes"); //TODO: catch null & what if two conditions have the same key?
         for (Map.Entry<String, Object> entry : rawNpcAttributes.entrySet()) {
-            newNpcAttributes.addDataEntry(entry.getKey(), entry.getValue());
+            newNpcAttributes.addAttribute(entry.getKey(), entry.getValue());
         }
         return newNpcAttributes;
     }
@@ -67,6 +67,7 @@ public class DialogueLoader {
         Map<String, Object> playerActions = (LinkedHashMap) rawActionGraph.get("playerActions");
         Map<String, String> actionContents = (LinkedHashMap) yamlContent.get("actionContent");
         Map<String, LinkedHashMap> actionConditions = (LinkedHashMap) rawActionGraph.get("actionConditions");
+        Map<String, LinkedHashMap> npcAttributeModifications = (LinkedHashMap) rawActionGraph.get("npcAttributeModifications");
 
         //Make a map <Key, Action> for the NPC & Player
         Map<String, Action> dialogueMap = new HashMap<>();
@@ -80,7 +81,29 @@ public class DialogueLoader {
         if (!actionConditions.isEmpty()) {
             addActionConditions(actionConditions, dialogueMap);
         }
+
+        if (!npcAttributeModifications.isEmpty()) {
+            addNpcAttributeModifications(npcAttributeModifications, dialogueMap);
+        }
+
         return new NpcDialogueData(npcAttributes, dialogueMap.get(startActionText));
+    }
+
+    /**
+     * Adds all modifications to the actions. Once an action is currentAction, it can modify the npcAttributes.
+     *
+     * @param npcAttributeModifications a map of modifications.
+     * @param dialogueMap               a map with actions from Npc and Player
+     */
+    private void addNpcAttributeModifications(Map<String, LinkedHashMap> npcAttributeModifications, Map<String, Action> dialogueMap) {
+        for (Map.Entry<String, Action> entry : dialogueMap.entrySet()) {
+            if (npcAttributeModifications.containsKey(entry.getKey())) {
+                LinkedHashMap<String, Object> mapOfNpcAttributeModifications = npcAttributeModifications.get(entry.getKey());
+                for (Map.Entry<String, Object> npcAttributeModification : mapOfNpcAttributeModifications.entrySet()) {
+                    entry.getValue().addNpcAttributeModification(npcAttributeModification.getKey(), npcAttributeModification.getValue());
+                }
+            }
+        }
     }
 
     /**

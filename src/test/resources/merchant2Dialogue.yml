@@ -22,7 +22,7 @@ actionGraph:
       byeNice:
         reputation: 60
 
-   npcAttributeChanges:
+   npcAttributeModifications:
       welcome:
         reputation: 60
 
