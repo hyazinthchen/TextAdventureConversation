@@ -63,5 +63,4 @@ public class DialogueLoaderTest {
 
         assertEquals(60, dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer1").getNpcAttributeModifications().get("reputation"));
     }
-
 }

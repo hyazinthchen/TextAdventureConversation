@@ -24,7 +24,7 @@ actionGraph:
 
    npcAttributeModifications:
       welcome:
-        reputation: 60
+        reputation: 70
 
 
 actionContent:

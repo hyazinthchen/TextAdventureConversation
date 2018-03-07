@@ -4,9 +4,7 @@ import com.queomedia.commons.asserts.AssertUtil;
 import npcDialogue.model.*;
 import npcDialogue.view.ConsoleReaderWriter;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.io.FileNotFoundException;
 import java.util.Arrays;
@@ -177,7 +175,7 @@ public class DialogueNavigatorTest {
      * To be able to see option "C" two conditions must be true. Here both conditions are true.
      */
     @Test
-    public void testGetAvailableTargetActionsWithConditions1() {
+    public void testGetAvailableTargetActionsWithConditions_fullMatch() {
         Action actionA = generateTestAction("A");
         Action actionB = generateTestAction("B");
         Action actionC = generateTestAction("C");
@@ -186,8 +184,8 @@ public class DialogueNavigatorTest {
         actionA.addTargetAction(actionC);
         DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(50, true), actionA);
 
-        navigator.getCurrentAction().getTargetActionByName("C").addActionCondition("D", 50);
-        navigator.getCurrentAction().getTargetActionByName("C").addActionCondition("E", true);
+        actionC.addActionCondition("D", 50);
+        actionC.addActionCondition("E", true);
 
         List<Action> availableTargetActions = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
@@ -198,7 +196,7 @@ public class DialogueNavigatorTest {
      * To be able to see option "C" two conditions must be true. Here one condition is true.
      */
     @Test
-    public void testGetAvailableTargetActionsWithConditions2() {
+    public void testGetAvailableTargetActionsWithConditions_singleMatch() {
         Action actionA = generateTestAction("A");
         Action actionB = generateTestAction("B");
         Action actionC = generateTestAction("C");
@@ -207,8 +205,8 @@ public class DialogueNavigatorTest {
         actionA.addTargetAction(actionC);
         DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(60, true), actionA);
 
-        navigator.getCurrentAction().getTargetActionByName("C").addActionCondition("D", 50);
-        navigator.getCurrentAction().getTargetActionByName("C").addActionCondition("E", true);
+        actionC.addActionCondition("D", 50);
+        actionC.addActionCondition("E", true);
 
         List<Action> availableTargetActions = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
@@ -219,7 +217,7 @@ public class DialogueNavigatorTest {
      * To be able to see option "C" two conditions must be true. Here both conditions are false.
      */
     @Test
-    public void testGetAvailableTargetActionsWithConditions3() {
+    public void testGetAvailableTargetActionsWithConditions_fullMismatch() {
         Action actionA = generateTestAction("A");
         Action actionB = generateTestAction("B");
         Action actionC = generateTestAction("C");
@@ -228,8 +226,8 @@ public class DialogueNavigatorTest {
         actionA.addTargetAction(actionC);
         DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(60, false), actionA);
 
-        navigator.getCurrentAction().getTargetActionByName("C").addActionCondition("D", 50);
-        navigator.getCurrentAction().getTargetActionByName("C").addActionCondition("E", true);
+        actionC.addActionCondition("D", 50);
+        actionC.addActionCondition("E", true);
 
         List<Action> availableTargetActions = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
@@ -246,14 +244,11 @@ public class DialogueNavigatorTest {
         assertEquals("I don't want to sell anything to you!", navigator.getCurrentAction().getActionText());
     }
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     /**
-     * Produces a dead end. Expects an IllegalArgumentException.
+     * Produces a dead end where an action has no available targetActions and the dialogue stops.
      */
     @Test
-    public void testNavigateByDeadEnd() throws IllegalArgumentException {
+    public void testNavigateByDeadEnd() {
         Action actionA = generateTestAction("A");
         Action actionB = generateTestAction("B");
 
@@ -262,9 +257,10 @@ public class DialogueNavigatorTest {
         actionB.addActionCondition("D", 99);
         actionB.addActionCondition("E", false);
 
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Dead end reached. availableTargetActions = 0");
         navigator.navigate(new ConsoleReaderWriter());
+
+        assertEquals("A", navigator.getCurrentAction().getActionText());
+        assertEquals(0, navigator.getAvailableTargetActions(navigator.getCurrentAction().getTargetActions()).size());
     }
 
     /**

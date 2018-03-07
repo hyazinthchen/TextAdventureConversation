@@ -30,17 +30,31 @@ public class NpcAttributes {
      * @param key   the name of the attribute.
      * @param value the new value of the attribute.
      */
-    public void modifyAttribute(String key, Object value) { //TODO: What if the value of an attribute is boolean and I change it to int? Should that be possible?
-        npcAttributes.put(key, value);
+    public void modifyAttribute(String key, Object value) {
+        if (npcAttributes.get(key).getClass() == value.getClass()) {
+            npcAttributes.put(key, value);
+        } else {
+            throw new IllegalArgumentException("Attribute " + key + " is of type " + npcAttributes.get(key).getClass() + " and can't be changed to " + value.getClass());
+        }
     }
 
     /**
-     * Evaluates if the npcAttributes contain an actions conditions.
+     * Evaluates if a set of requirements matches the set of npcAttributes.
      *
-     * @param conditionSet the conditions of an action.
+     * @param requirementSet the conditions of an action.
      * @return true if the conditions are fulfilled.
      */
-    public boolean contain(Set<Map.Entry<String, Object>> conditionSet) {
-        return getNpcAttributes().entrySet().containsAll(conditionSet);
+    public boolean fulfill(Set<Map.Entry<String, Object>> requirementSet) {
+        return getNpcAttributes().entrySet().containsAll(requirementSet);
+    }
+
+    /**
+     * Evaluates if a map of requirements matches the npcAttributes.
+     *
+     * @param requirements the conditions of an action.
+     * @return true if the conditions are fulfilled.
+     */
+    public boolean fulfill(Map<String, Object> requirements) {
+        return fulfill(requirements.entrySet());
     }
 }

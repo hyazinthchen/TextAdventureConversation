@@ -28,7 +28,7 @@ public class DialogueNavigator {
      *
      * @param consoleReaderWriter the class that prints the text of the actions to the console.
      */
-    public void navigate(ConsoleReaderWriter consoleReaderWriter) { //TODO: detect cycles & detect dead ends
+    public void navigate(ConsoleReaderWriter consoleReaderWriter) { //TODO: detect cycles
         modifyNpcAttributes();
         consoleReaderWriter.printSingleActionText(currentAction);
         while (!currentAction.getTargetActions().isEmpty()) {
@@ -36,8 +36,8 @@ public class DialogueNavigator {
             if (availableTargetActions.size() == 1) {
                 consoleReaderWriter.printSingleActionText(availableTargetActions.get(0));
                 reassignCurrentAction(availableTargetActions.get(0));
-            } else if (availableTargetActions.size() == 0) { //TODO: remove me. I'm currently only for test purposes.
-                throw new IllegalArgumentException("Dead end reached. availableTargetActions = " + availableTargetActions.size());
+            } else if (availableTargetActions.isEmpty()) { //dead end. stop dialogue
+                break;
             } else {
                 if (currentAction.getTargetActionsRole() == Role.NPC) {
                     Action chosenAction = chooseRandomly(availableTargetActions);
@@ -80,13 +80,13 @@ public class DialogueNavigator {
      * @return only targetActions that should be available.
      */
     public List<Action> getAvailableTargetActions(List<Action> targetActions) {
-        List<Action> availableTargetActions = new ArrayList<>();
+        List<Action> result = new ArrayList<>();
         for (Action targetAction : targetActions) {
-            if (npcAttributes.contain(targetAction.getActionConditions().entrySet())) {
-                availableTargetActions.add(targetAction);
+            if (npcAttributes.fulfill(targetAction.getActionConditions())) {
+                result.add(targetAction);
             }
         }
-        return availableTargetActions;
+        return result;
     }
 
     /**
