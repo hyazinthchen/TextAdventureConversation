@@ -235,7 +235,7 @@ public class DialogueNavigatorTest {
     }
 
     @Test
-    public void testNavigateByLastCurrentAction() throws FileNotFoundException {
+    public void testNavigateByLastCurrentAction() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant2Dialogue.yml"));
         dialogueData.start();

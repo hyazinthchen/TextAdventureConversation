@@ -1,6 +1,7 @@
 package npcDialogue.model;
 
 import npcDialogue.controller.DialogueNavigator;
+import npcDialogue.controller.DialogueScreener;
 import npcDialogue.view.ConsoleReaderWriter;
 
 /**
@@ -21,8 +22,10 @@ public class NpcDialogueData {
      * Starts a new DialogueNavigator.
      */
     public void start() {
-        dialogueNavigator = new DialogueNavigator(npcAttributes, startAction);
-        dialogueNavigator.navigate(new ConsoleReaderWriter());
+        if (new DialogueScreener(this).screenIsClean()) {
+            dialogueNavigator = new DialogueNavigator(npcAttributes, startAction);
+            dialogueNavigator.navigate(new ConsoleReaderWriter());
+        }
     }
 
     public Action getStartAction() {

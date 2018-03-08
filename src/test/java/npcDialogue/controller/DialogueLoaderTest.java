@@ -3,6 +3,7 @@ package npcDialogue.controller;
 import com.queomedia.commons.asserts.AssertUtil;
 import npcDialogue.model.Action;
 import npcDialogue.model.NpcDialogueData;
+import npcDialogue.model.ParsingException;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
@@ -13,7 +14,7 @@ import static junit.framework.TestCase.assertEquals;
 public class DialogueLoaderTest {
 
     @Test
-    public void testLoadNpcAttributes() throws FileNotFoundException {
+    public void testLoadNpcAttributes() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
@@ -22,7 +23,7 @@ public class DialogueLoaderTest {
     }
 
     @Test
-    public void testLoadingStartAction() throws FileNotFoundException {
+    public void testLoadingStartAction() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
@@ -30,7 +31,7 @@ public class DialogueLoaderTest {
     }
 
     @Test
-    public void testLoadingActionTexts() throws FileNotFoundException {
+    public void testLoadingActionTexts() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
@@ -42,7 +43,7 @@ public class DialogueLoaderTest {
     }
 
     @Test
-    public void testLoadingActionConditions() throws FileNotFoundException {
+    public void testLoadingActionConditions() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
@@ -57,7 +58,7 @@ public class DialogueLoaderTest {
     }
 
     @Test
-    public void testLoadingNpcAttributeModifications() throws FileNotFoundException {
+    public void testLoadingNpcAttributeModifications() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 

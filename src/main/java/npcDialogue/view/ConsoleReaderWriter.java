@@ -73,4 +73,7 @@ public class ConsoleReaderWriter {
         }
     }
 
+    public void printErrorMessage(String message) {
+        System.err.print(message);
+    }
 }

@@ -28,13 +28,17 @@ public class DialogueLoader {
      * @return A new NpcDialogueData object.
      * @throws FileNotFoundException in case the path is incorrect
      */
-    public NpcDialogueData load(File file) throws FileNotFoundException {
+    public NpcDialogueData load(File file) throws FileNotFoundException, ParsingException {
         InputStream inputStream = new FileInputStream(file);
         Yaml yaml = new Yaml();
-        LinkedHashMap yamlDataMap = yaml.load(inputStream); //TODO: catch errors if snakeyamls load() does weird stuff.
+        try {
+            LinkedHashMap yamlDataMap = yaml.load(inputStream);
 
-        NpcAttributes npcAttributes = loadNpcAttributes(yamlDataMap);
-        return loadNpcDialogue(yamlDataMap, npcAttributes);
+            NpcAttributes npcAttributes = loadNpcAttributes(yamlDataMap);
+            return loadNpcDialogue(yamlDataMap, npcAttributes);
+        } catch (Exception e) {
+            throw new ParsingException("Invalid Yaml structure. Please make sure your file contains valid Yaml.");
+        }
     }
 
     /**
@@ -43,9 +47,9 @@ public class DialogueLoader {
      * @param yamlContent the whole dialogue data read from a file
      * @return An NpcAttributes object.
      */
-    private NpcAttributes loadNpcAttributes(LinkedHashMap yamlContent) {
+    private NpcAttributes loadNpcAttributes(LinkedHashMap yamlContent) {//TODO: catch all errors in yaml
         NpcAttributes newNpcAttributes = new NpcAttributes();
-        LinkedHashMap<String, Object> rawNpcAttributes = (LinkedHashMap) yamlContent.get("npcAttributes"); //TODO: catch null & what if two conditions have the same key?
+        LinkedHashMap<String, Object> rawNpcAttributes = (LinkedHashMap) yamlContent.get("npcAttributes");
         for (Map.Entry<String, Object> entry : rawNpcAttributes.entrySet()) {
             newNpcAttributes.addAttribute(entry.getKey(), entry.getValue());
         }
@@ -58,9 +62,7 @@ public class DialogueLoader {
      * @param yamlContent the whole dialogue data read from a file
      * @return An NpcDialogueData object.
      */
-    private NpcDialogueData loadNpcDialogue(LinkedHashMap yamlContent, NpcAttributes npcAttributes) {
-
-        //TODO: catch null for the next 6 lines.
+    private NpcDialogueData loadNpcDialogue(LinkedHashMap yamlContent, NpcAttributes npcAttributes) {//TODO: catch all errors in yaml
         Map<String, Object> rawActionGraph = (LinkedHashMap) yamlContent.get("actionGraph");
         String startActionText = rawActionGraph.get("startAction").toString();
         Map<String, Object> npcActions = (LinkedHashMap) rawActionGraph.get("npcActions");
@@ -69,7 +71,6 @@ public class DialogueLoader {
         Map<String, LinkedHashMap> actionConditions = (LinkedHashMap) rawActionGraph.get("actionConditions");
         Map<String, LinkedHashMap> npcAttributeModifications = (LinkedHashMap) rawActionGraph.get("npcAttributeModifications");
 
-        //Make a map <Key, Action> for the NPC & Player
         Map<String, Action> dialogueMap = new HashMap<>();
 
         addPlayerActionsToMap(playerActions, actionContents, dialogueMap);

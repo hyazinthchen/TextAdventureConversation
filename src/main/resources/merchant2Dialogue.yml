@@ -1,0 +1,36 @@
+
+# example dialogue content and rules for one NPC
+
+npcAttributes:
+   reputation: 50
+
+actionGraph:
+   startAction:  welcome
+   npcActions:
+      welcome: [greet]
+      smallTalk1: [bye]
+      smallTalk2: [bye]
+
+   playerActions:
+      greet: [smallTalk1, smallTalk2]
+      bye: []
+
+   actionConditions:
+      smallTalk1:
+        reputation: 60
+      smallTalk2:
+        reputation: 60
+
+   npcAttributeModifications:
+      greet:
+        reputation: 70
+
+actionContent:
+   # npc
+   welcome: "Welcome!"
+   smallTalk1: "The weather is nice today."
+   smallTalk2: "I heard it might snow today."
+   # player
+   greet: "Hi!"
+   bye: "I suddenly have to go."
+

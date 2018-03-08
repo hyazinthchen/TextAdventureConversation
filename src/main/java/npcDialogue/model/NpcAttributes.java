@@ -30,7 +30,7 @@ public class NpcAttributes {
      * @param key   the name of the attribute.
      * @param value the new value of the attribute.
      */
-    public void modifyAttribute(String key, Object value) {
+    public void modifyAttribute(String key, Object value) { //TODO: maybe wrong place for error detection, better put it in the DialogueScreener
         if (npcAttributes.get(key).getClass() == value.getClass()) {
             npcAttributes.put(key, value);
         } else {
