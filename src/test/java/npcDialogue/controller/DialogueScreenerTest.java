@@ -2,6 +2,7 @@ package npcDialogue.controller;
 
 import com.queomedia.commons.asserts.AssertUtil;
 import npcDialogue.model.*;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -141,5 +142,74 @@ public class DialogueScreenerTest {
         List<Action> endActions = new DialogueScreener(dialogueData).screenForEndActions();
         assertEquals(2, endActions.size());
         AssertUtil.containsExact(Arrays.asList("E", "F"), endActions, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+    }
+
+    /**
+     * A[B, C]
+     */
+    @Test
+    public void testScreenForPaths_TwoEnds_TwoPaths() {
+        NpcAttributes attributes = new NpcAttributes();
+
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
+        actionA.addTargetAction(actionB);
+        actionA.addTargetAction(actionC);
+
+        NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
+
+        List<Path> paths = new DialogueScreener(dialogueData).screenForPaths();
+        assertEquals(2, paths.size());
+        AssertUtil.containsExact(Arrays.asList("A", "B"), paths.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("A", "C"), paths.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+    }
+
+    /**
+     * A[B, C], B[D], C[D]
+     */
+    @Test
+    public void testScreenForPaths_OneEnd_TwoPaths() {
+        NpcAttributes attributes = new NpcAttributes();
+
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
+        Action actionD = generateTestAction("D");
+        actionA.addTargetAction(actionB);
+        actionA.addTargetAction(actionC);
+        actionB.addTargetAction(actionD);
+        actionC.addTargetAction(actionD);
+
+        NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
+
+        List<Path> paths = new DialogueScreener(dialogueData).screenForPaths();
+        assertEquals(2, paths.size());
+        AssertUtil.containsExact(Arrays.asList("A", "B", "D"), paths.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("A", "C", "D"), paths.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+    }
+
+    /**
+     * A[B, C], B[D], D[A]
+     */
+    @Ignore
+    @Test
+    public void testScreenForPaths_OneEnd_TwoPaths_WithCircle() {
+        NpcAttributes attributes = new NpcAttributes();
+
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
+        Action actionD = generateTestAction("D");
+        actionA.addTargetAction(actionB);
+        actionA.addTargetAction(actionC);
+        actionB.addTargetAction(actionD);
+        actionD.addTargetAction(actionA);
+
+        NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
+
+        List<Path> paths = new DialogueScreener(dialogueData).screenForPaths();
+        AssertUtil.containsExact(Arrays.asList("A", "B", "D", "A", "C"), paths.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("A", "C"), paths.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
 }

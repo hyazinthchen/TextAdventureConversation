@@ -2,6 +2,7 @@ package npcDialogue.controller;
 
 import npcDialogue.model.Action;
 import npcDialogue.model.NpcDialogueData;
+import npcDialogue.model.Path;
 import npcDialogue.view.ConsoleReaderWriter;
 
 import java.util.ArrayList;
@@ -20,9 +21,13 @@ public class DialogueScreener {
 
     private List<Action> endActions;
 
+    private List<Path> paths;
+
     private DialogueNavigator navigator;
 
     private ConsoleReaderWriter consoleReaderWriter;
+
+    private List<Action> visitedWayPoints;
 
     public DialogueScreener(NpcDialogueData dialogueData) {
         this.dialogueData = dialogueData;
@@ -31,6 +36,8 @@ public class DialogueScreener {
         this.endActions = new ArrayList<>();
         this.navigator = new DialogueNavigator(dialogueData.getNpcAttributes(), dialogueData.getStartAction());
         this.consoleReaderWriter = new ConsoleReaderWriter();
+        this.paths = new ArrayList<>();
+        this.visitedWayPoints = new ArrayList<>();
     }
 
     public boolean screenIsClean() {
@@ -99,5 +106,40 @@ public class DialogueScreener {
                 addEndActionsByDepthFirstSearch(availableTargetAction);
             }
         }
+    }
+
+    /**
+     * Gets a list of paths that lead from an action to an endAction of the dialogue.
+     *
+     * @return a list of paths the player can take to endActions.
+     */
+    public List<Path> screenForPaths() {
+        screenForEndActions();
+        for (Action endAction : endActions) {
+            visitedWayPoints.clear();
+            Path path = new Path();
+            path.addWayPoint(dialogueData.getStartAction());
+            getAllPathsToEndAction(dialogueData.getStartAction(), endAction, path.getWayPoints());
+        }
+        return paths;
+    }
+
+    private void getAllPathsToEndAction(Action currentAction, Action endAction, List<Action> localPath) { //TODO: doesn't work with cycles
+        visitedWayPoints.add(currentAction);
+        if (currentAction.equals(endAction)) {
+            Path path = new Path();
+            for (Action action : localPath) {
+                path.addWayPoint(action);
+            }
+            paths.add(path);
+        }
+        for (Action targetAction : currentAction.getTargetActions()) {
+            if (!visitedWayPoints.contains(targetAction)) {
+                localPath.add(targetAction);
+                getAllPathsToEndAction(targetAction, endAction, localPath);
+                localPath.remove(targetAction);
+            }
+        }
+        visitedWayPoints.remove(currentAction);
     }
 }

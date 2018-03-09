@@ -14,7 +14,7 @@ public class ConversationStarter {
 
         //later: needs to be done at game navigate one time per NPC
         DialogueLoader dialogueLoader = new DialogueLoader();
-        NpcDialogueData dialogueData = dialogueLoader.load(dialogueLoader.getFileFromClassPath("merchant2Dialogue.yml"));
+        NpcDialogueData dialogueData = dialogueLoader.load(dialogueLoader.getFileFromClassPath("merchant1Dialogue.yml"));
 
         //later: needs to be executed when a player starts to interact with an npc, each time
         // (storing state and NPC development etc. in npcDialogueData)
