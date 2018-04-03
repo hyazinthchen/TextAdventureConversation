@@ -119,4 +119,12 @@ public abstract class Action {
     public Map<String, Object> getNpcAttributeModifications() {
         return npcAttributeModifications;
     }
+
+    public boolean isLeaf(){
+        return false; //TODO
+    }
+
+    public boolean isEndAction(){
+        return getTargetActions().isEmpty();
+    }
 }

@@ -1,7 +1,7 @@
 package npcDialogue.model;
 
 import npcDialogue.controller.DialogueNavigator;
-import npcDialogue.controller.DialogueScreener;
+import npcDialogue.controller.DialogueValidator;
 import npcDialogue.view.ConsoleReaderWriter;
 
 /**
@@ -22,7 +22,7 @@ public class NpcDialogueData {
      * Starts a new DialogueNavigator.
      */
     public void start() {
-        if (new DialogueScreener(this).screenIsClean()) {
+        if (new DialogueValidator(this).isValid()) {
             dialogueNavigator = new DialogueNavigator(npcAttributes, startAction);
             dialogueNavigator.navigate(new ConsoleReaderWriter());
         }

@@ -22,6 +22,10 @@ public class Path {
         wayPoints.remove(action);
     }
 
+    public Action getLastAction(){
+        return wayPoints.get(wayPoints.size()-1); //TODO use or throw away
+    }
+
     /**
      * Creates a new path object which is a copy of the first path object and thus, has the same waypoints.
      *

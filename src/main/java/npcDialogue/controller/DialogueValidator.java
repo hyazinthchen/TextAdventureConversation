@@ -11,32 +11,23 @@ import java.util.List;
 /**
  * Checks for errors in a loaded dialogue. Errors can be: dead ends, where no available targetActions are available or cycles.
  */
-public class DialogueScreener {
+public class DialogueValidator {
 
     private NpcDialogueData dialogueData;
 
-    private List<Action> visitedActions;
-
-    private List<Action> leaves;
-
-    private List<Action> endActions;
+    private List<Action> visitedActions; //TODO: put in method as local variable
 
     private DialogueNavigator navigator;
 
-    private ConsoleReaderWriter consoleReaderWriter;
-
-    public DialogueScreener(NpcDialogueData dialogueData) {
+    public DialogueValidator(NpcDialogueData dialogueData) {
         this.dialogueData = dialogueData;
         this.visitedActions = new ArrayList<>();
-        this.leaves = new ArrayList<>();
-        this.endActions = new ArrayList<>();
         this.navigator = new DialogueNavigator(dialogueData.getNpcAttributes(), dialogueData.getStartAction());
-        this.consoleReaderWriter = new ConsoleReaderWriter();
     }
 
-    public boolean screenIsClean() {
+    public boolean isValid() {
         if (screenForEndActions().isEmpty()) {
-            consoleReaderWriter.printErrorMessage("Error in loaded dialogue. Dialogue will never reach a desired end.");
+            new ConsoleReaderWriter().printErrorMessage("Error in loaded dialogue. Dialogue will never reach a desired end.");
             return false;
         }
         return true;
@@ -48,8 +39,9 @@ public class DialogueScreener {
      * @return a list of actions where the dialogue stops.
      */
     public List<Action> screenForLeaves() {
+        List<Action> leaves = new ArrayList<>();
 
-        addAllLeavesByDepthFirstSearch(dialogueData.getStartAction());
+        addAllLeavesByDepthFirstSearch(dialogueData.getStartAction(), leaves);
 
         return leaves;
     }
@@ -59,7 +51,7 @@ public class DialogueScreener {
      *
      * @param currentAction
      */
-    private void addAllLeavesByDepthFirstSearch(final Action currentAction) {
+    private void addAllLeavesByDepthFirstSearch(final Action currentAction, List<Action> leaves) {
         visitedActions.add(currentAction);
         List<Action> availableActions = navigator.getAvailableTargetActions(currentAction.getTargetActions());
         if (availableActions.isEmpty() || currentAction.getTargetActions().isEmpty()) {
@@ -67,7 +59,7 @@ public class DialogueScreener {
         }
         for (Action targetAction : availableActions) {
             if (!visitedActions.contains(targetAction)) {
-                addAllLeavesByDepthFirstSearch(targetAction);
+                addAllLeavesByDepthFirstSearch(targetAction, leaves);
             }
         }
     }
@@ -78,8 +70,9 @@ public class DialogueScreener {
      * @return a list of reachable end points of the dialogue.
      */
     public List<Action> screenForEndActions() {
+        List<Action> endActions = new ArrayList<>();
 
-        addEndActionsByDepthFirstSearch(dialogueData.getStartAction());
+        addEndActionsByDepthFirstSearch(dialogueData.getStartAction(), endActions);
 
         return endActions;
     }
@@ -89,7 +82,7 @@ public class DialogueScreener {
      *
      * @param currentAction
      */
-    private void addEndActionsByDepthFirstSearch(final Action currentAction) {
+    private void addEndActionsByDepthFirstSearch(final Action currentAction, List<Action> endActions) {
         visitedActions.add(currentAction);
         if (currentAction.getTargetActions().isEmpty()) {
             endActions.add(currentAction);
@@ -97,7 +90,7 @@ public class DialogueScreener {
         List<Action> availableActions = navigator.getAvailableTargetActions(currentAction.getTargetActions());
         for (Action availableTargetAction : availableActions) {
             if (!visitedActions.contains(availableTargetAction)) {
-                addEndActionsByDepthFirstSearch(availableTargetAction);
+                addEndActionsByDepthFirstSearch(availableTargetAction, endActions);
             }
         }
     }
@@ -110,7 +103,7 @@ public class DialogueScreener {
     public List<Path> screenForPaths() {
         screenForEndActions();
         List<Path> paths = new ArrayList<>();
-        for (Action endAction : endActions) {
+        for (Action endAction : screenForEndActions()) {
             Path path = new Path();
             path.addWayPoint(dialogueData.getStartAction());
             getAllPathsToEndAction(dialogueData.getStartAction(), endAction, path, paths);
@@ -142,20 +135,22 @@ public class DialogueScreener {
      * Gets every possible path to to any endAction in a dialogue.
      *
      * @param currentAction
-     * @param path
-     * @param paths
      * @return
      */
-    public List<Path> getAllPathsToAllEndActions(Action currentAction, Path path, List<Path> paths) {
+    public List<Path> findAllPathsToAllEndActionsFrom(Action currentAction) {
+        List<Path> paths = new ArrayList<>();
+        Path path = new Path();
         path.addWayPoint(currentAction);
-        if (currentAction.getTargetActions().isEmpty()) {
+        return addPathToPathList(currentAction, path, paths);
+    }
+
+    private List<Path> addPathToPathList(Action currentAction, Path path, List<Path> paths) { //TODO: look for cycles
+        if (screenForEndActions().contains(currentAction)) {
             paths.add(path);
-        }
-        List<Action> leaves = screenForLeaves();
-        if (!containsVisitedLeaf(path.getWayPoints(), leaves)) {
-            for (Action targetAction : currentAction.getTargetActions()) {
-                Path newPath = path.copy();
-                getAllPathsToAllEndActions(targetAction, newPath, paths);
+        }else{
+            for (Action targetAction : currentAction.getTargetActions()){
+                path.addWayPoint(targetAction);
+                addPathToPathList(targetAction, path.copy(), paths);
             }
         }
         return paths;
@@ -167,7 +162,7 @@ public class DialogueScreener {
      * @param endAction
      * @return
      */
-    public List<Path> getAllPathsToSpecificEndAction(Action endAction) {
+    public List<Path> findAllPathsToSpecificEndActionFrom(Action endAction) {
         //List<Path> allPaths= getAllPathsToAllEndActions();
         List<Path> pathsToEndAction = new ArrayList<>();
         //get every path in allPaths that ends with endAction and add to pathsToEndAction
