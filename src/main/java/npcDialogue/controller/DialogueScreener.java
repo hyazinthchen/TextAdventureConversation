@@ -21,13 +21,9 @@ public class DialogueScreener {
 
     private List<Action> endActions;
 
-    private List<Path> paths;
-
     private DialogueNavigator navigator;
 
     private ConsoleReaderWriter consoleReaderWriter;
-
-    private List<Action> visitedWayPoints;
 
     public DialogueScreener(NpcDialogueData dialogueData) {
         this.dialogueData = dialogueData;
@@ -36,8 +32,6 @@ public class DialogueScreener {
         this.endActions = new ArrayList<>();
         this.navigator = new DialogueNavigator(dialogueData.getNpcAttributes(), dialogueData.getStartAction());
         this.consoleReaderWriter = new ConsoleReaderWriter();
-        this.paths = new ArrayList<>();
-        this.visitedWayPoints = new ArrayList<>();
     }
 
     public boolean screenIsClean() {
@@ -115,31 +109,86 @@ public class DialogueScreener {
      */
     public List<Path> screenForPaths() {
         screenForEndActions();
+        List<Path> paths = new ArrayList<>();
         for (Action endAction : endActions) {
-            visitedWayPoints.clear();
             Path path = new Path();
             path.addWayPoint(dialogueData.getStartAction());
-            getAllPathsToEndAction(dialogueData.getStartAction(), endAction, path.getWayPoints());
+            getAllPathsToEndAction(dialogueData.getStartAction(), endAction, path, paths);
         }
         return paths;
     }
 
-    private void getAllPathsToEndAction(Action currentAction, Action endAction, List<Action> localPath) { //TODO: doesn't work with cycles
-        visitedWayPoints.add(currentAction);
+    private void getAllPathsToEndAction(Action currentAction, Action endAction, Path path, List<Path> paths) {
+        List<Action> visitedWayPoints = new ArrayList<>(path.getWayPoints());
+        visitedWayPoints.add(currentAction); //A is now twice in visitedWayPoints!
         if (currentAction.equals(endAction)) {
-            Path path = new Path();
-            for (Action action : localPath) {
-                path.addWayPoint(action);
+            Path newPath = new Path();
+            for (Action action : path.getWayPoints()) {
+                newPath.addWayPoint(action);
             }
-            paths.add(path);
+            paths.add(newPath);
         }
         for (Action targetAction : currentAction.getTargetActions()) {
             if (!visitedWayPoints.contains(targetAction)) {
-                localPath.add(targetAction);
-                getAllPathsToEndAction(targetAction, endAction, localPath);
-                localPath.remove(targetAction);
+                path.addWayPoint(targetAction);
+                getAllPathsToEndAction(targetAction, endAction, path, paths);
+                path.removeWayPoint(targetAction);
             }
         }
         visitedWayPoints.remove(currentAction);
+    }
+
+    /**
+     * Gets every possible path to to any endAction in a dialogue.
+     *
+     * @param currentAction
+     * @param path
+     * @param paths
+     * @return
+     */
+    public List<Path> getAllPathsToAllEndActions(Action currentAction, Path path, List<Path> paths) {
+        path.addWayPoint(currentAction);
+        if (currentAction.getTargetActions().isEmpty()) {
+            paths.add(path);
+        }
+        List<Action> leaves = screenForLeaves();
+        if (!containsVisitedLeaf(path.getWayPoints(), leaves)) {
+            for (Action targetAction : currentAction.getTargetActions()) {
+                Path newPath = path.copy();
+                getAllPathsToAllEndActions(targetAction, newPath, paths);
+            }
+        }
+        return paths;
+    }
+
+    /**
+     * Only gets paths that lead to a certain endAction.
+     *
+     * @param endAction
+     * @return
+     */
+    public List<Path> getAllPathsToSpecificEndAction(Action endAction) {
+        //List<Path> allPaths= getAllPathsToAllEndActions();
+        List<Path> pathsToEndAction = new ArrayList<>();
+        //get every path in allPaths that ends with endAction and add to pathsToEndAction
+        return pathsToEndAction;
+    }
+
+    /**
+     * Checks whether a leaf has already been visited.
+     *
+     * @param visitedWayPoints
+     * @param leaves
+     * @return
+     */
+    private boolean containsVisitedLeaf(List<Action> visitedWayPoints, List<Action> leaves) {
+        for (Action visitedWayPoint : visitedWayPoints) {
+            for (Action leaf : leaves) {
+                if (visitedWayPoint.equals(leaf)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

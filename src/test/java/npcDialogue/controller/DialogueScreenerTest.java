@@ -209,7 +209,11 @@ public class DialogueScreenerTest {
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
 
         List<Path> paths = new DialogueScreener(dialogueData).screenForPaths();
+        AssertUtil.hasSize(2, paths);
         AssertUtil.containsExact(Arrays.asList("A", "B", "D", "A", "C"), paths.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
         AssertUtil.containsExact(Arrays.asList("A", "C"), paths.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+
+
+        //AssertUtil.containsExact(Arrays.asList(new String[]{"A", "C"}, new String[]{"A", "B", "D", "A", "C"} ), paths, Path.PATH_WAYPOINT_NAME_EQUALS_CHECKER);
     }
 }

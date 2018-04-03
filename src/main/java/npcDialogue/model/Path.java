@@ -17,4 +17,21 @@ public class Path {
     public List<Action> getWayPoints() {
         return wayPoints;
     }
+
+    public void removeWayPoint(Action action) {
+        wayPoints.remove(action);
+    }
+
+    /**
+     * Creates a new path object which is a copy of the first path object and thus, has the same waypoints.
+     *
+     * @return
+     */
+    public Path copy() {
+        Path copiedPath = new Path();
+        for (Action wayPoint : getWayPoints()) {
+            copiedPath.addWayPoint(wayPoint);
+        }
+        return copiedPath;
+    }
 }
