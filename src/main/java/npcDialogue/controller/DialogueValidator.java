@@ -26,7 +26,7 @@ public class DialogueValidator {
     }
 
     public boolean isValid() {
-        if (screenForEndActions().isEmpty()) {
+        if (findEndActions().isEmpty()) {
             new ConsoleReaderWriter().printErrorMessage("Error in loaded dialogue. Dialogue will never reach a desired end.");
             return false;
         }
@@ -38,7 +38,7 @@ public class DialogueValidator {
      *
      * @return a list of actions where the dialogue stops.
      */
-    public List<Action> screenForLeaves() {
+    public List<Action> findLeaves() {
         List<Action> leaves = new ArrayList<>();
 
         addAllLeavesByDepthFirstSearch(dialogueData.getStartAction(), leaves);
@@ -69,7 +69,7 @@ public class DialogueValidator {
      *
      * @return a list of reachable end points of the dialogue.
      */
-    public List<Action> screenForEndActions() {
+    public List<Action> findEndActions() {
         List<Action> endActions = new ArrayList<>();
 
         addEndActionsByDepthFirstSearch(dialogueData.getStartAction(), endActions);
@@ -96,24 +96,29 @@ public class DialogueValidator {
     }
 
     /**
-     * Gets a list of paths that lead from an action to an endAction of the dialogue.
+     * Gets a list of paths that lead from a currentAction to any endAction.
      *
-     * @return a list of paths the player can take to endActions.
+     * @return a list of paths the player can take to all endActions.
      */
-    public List<Path> screenForPaths() {
-        screenForEndActions();
+    public List<Path> findPaths() {
+        findEndActions();
         List<Path> paths = new ArrayList<>();
-        for (Action endAction : screenForEndActions()) {
+        for (Action endAction : findEndActions()) {
             Path path = new Path();
             path.addWayPoint(dialogueData.getStartAction());
-            getAllPathsToEndAction(dialogueData.getStartAction(), endAction, path, paths);
+            addAllPathsToEndActionToList(dialogueData.getStartAction(), endAction, path, paths);
         }
         return paths;
     }
 
-    private void getAllPathsToEndAction(Action currentAction, Action endAction, Path path, List<Path> paths) {
+    /**
+     * Adds each patch that leads from the currentAction to an endAction to a list of paths.
+     *
+     * @return a list of paths the player can take to one endAction.
+     */
+    private void addAllPathsToEndActionToList(Action currentAction, Action endAction, Path path, List<Path> paths) {
         List<Action> visitedWayPoints = new ArrayList<>(path.getWayPoints());
-        visitedWayPoints.add(currentAction); //A is now twice in visitedWayPoints!
+        visitedWayPoints.add(currentAction);
         if (currentAction.equals(endAction)) {
             Path newPath = new Path();
             for (Action action : path.getWayPoints()) {
@@ -124,7 +129,7 @@ public class DialogueValidator {
         for (Action targetAction : currentAction.getTargetActions()) {
             if (!visitedWayPoints.contains(targetAction)) {
                 path.addWayPoint(targetAction);
-                getAllPathsToEndAction(targetAction, endAction, path, paths);
+                addAllPathsToEndActionToList(targetAction, endAction, path, paths);
                 path.removeWayPoint(targetAction);
             }
         }
@@ -134,56 +139,57 @@ public class DialogueValidator {
     /**
      * Gets every possible path to to any endAction in a dialogue.
      *
-     * @param currentAction
-     * @return
+     * @return a list of paths to all endActions that have been completely traversed.
      */
-    public List<Path> findAllPathsToAllEndActionsFrom(Action currentAction) {
+    public List<Path> findAllPathsToAllEndActionsFrom() {
         List<Path> paths = new ArrayList<>();
         Path path = new Path();
-        path.addWayPoint(currentAction);
-        return addPathToPathList(currentAction, path, paths);
+        path.addWayPoint(dialogueData.getStartAction());
+        return addPathToPathList(dialogueData.getStartAction(), path, paths);
     }
 
-    private List<Path> addPathToPathList(Action currentAction, Path path, List<Path> paths) { //TODO: look for cycles
-        if (screenForEndActions().contains(currentAction)) {
+    /**
+     * Adds a path to a list of paths when an endAction is reached.
+     * When no endAction is found it continues to travel through the graph and adds new waypoints to the path.
+     * Each time the graph branches out, the former path is copied.
+     *
+     * @param currentAction
+     * @param path          a list of actions that have already been visited
+     * @param paths         a list of paths that have been completely traversed
+     * @return a list of paths that have been completely traversed.
+     */
+    private List<Path> addPathToPathList(Action currentAction, Path path, List<Path> paths) {
+        if (currentAction.isEndAction()) { //wenn currentAction eine endAction ist, dann ist der Pfad vollständig und kann der Liste hinzugefügt werden
             paths.add(path);
-        }else{
-            for (Action targetAction : currentAction.getTargetActions()){
-                path.addWayPoint(targetAction);
-                addPathToPathList(targetAction, path.copy(), paths);
+        } else {
+            for (Action targetAction : currentAction.getTargetActions()) {
+                if (!targetAction.hasBackEdgeIntoCycle()) { //wenn die targetAction kein Ausgangspunkt für eine Rückwärtskante ist
+                    if (path.getWayPoints().contains(targetAction)) { //wenn der Pfad bereits die targetAction enthält
+                        targetAction.setHasBackEdgeIntoCycle(true); //markiere die targetAction als Ausgangspunkt einer Rückwärtskante
+                    }
+                    Path newPath = path.copy(); //kopiere den bisherigen Pfad
+                    newPath.addWayPoint(targetAction); //füge die targetAction dem Pfad hinzu
+                    addPathToPathList(targetAction, newPath, paths); //arbeite mit dem neuen Pfad weiter
+                }
             }
         }
         return paths;
     }
 
     /**
-     * Only gets paths that lead to a certain endAction.
+     * Only gets paths that lead to a certain action.
      *
-     * @param endAction
+     * @param action
      * @return
      */
-    public List<Path> findAllPathsToSpecificEndActionFrom(Action endAction) {
-        //List<Path> allPaths= getAllPathsToAllEndActions();
-        List<Path> pathsToEndAction = new ArrayList<>();
-        //get every path in allPaths that ends with endAction and add to pathsToEndAction
-        return pathsToEndAction;
-    }
-
-    /**
-     * Checks whether a leaf has already been visited.
-     *
-     * @param visitedWayPoints
-     * @param leaves
-     * @return
-     */
-    private boolean containsVisitedLeaf(List<Action> visitedWayPoints, List<Action> leaves) {
-        for (Action visitedWayPoint : visitedWayPoints) {
-            for (Action leaf : leaves) {
-                if (visitedWayPoint.equals(leaf)) {
-                    return true;
-                }
+    public List<Path> findAllPathsTo(Action action) {
+        List<Path> allPaths = findAllPathsToAllEndActionsFrom();
+        List<Path> pathsToAction = new ArrayList<>();
+        for (Path path : allPaths) {
+            if (path.getLastAction().equals(action)) {
+                pathsToAction.add(path);
             }
         }
-        return false;
+        return pathsToAction;
     }
 }

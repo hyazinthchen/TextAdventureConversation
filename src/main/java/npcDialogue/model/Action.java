@@ -12,11 +12,12 @@ import java.util.stream.Collectors;
 public abstract class Action {
     private final ArrayList<Action> targetActions;
     private final Map<String, Object> actionConditions; // example: action "buyStuff" can only be used when npcAttribute "reputation" = 60
-    private final Role role; // not using generics because content is read from text file
+    private final Role role;
     private final Role targetActionsRole; // all targetActionRoles must be of same type
     private final String actionText;
     private final String name;
     private final Map<String, Object> npcAttributeModifications;
+    private boolean hasBackEdgeIntoCycle;
 
     public Action(Role role, Role targetActionRole, String actionText, String name) {
         this.actionText = actionText;
@@ -26,6 +27,7 @@ public abstract class Action {
         this.targetActionsRole = targetActionRole;
         this.name = name;
         this.npcAttributeModifications = new HashMap<>();
+        this.hasBackEdgeIntoCycle = false;
     }
 
     public Map<String, Object> getActionConditions() {
@@ -42,6 +44,14 @@ public abstract class Action {
 
     public String getActionText() {
         return actionText;
+    }
+
+    public boolean hasBackEdgeIntoCycle() {
+        return hasBackEdgeIntoCycle;
+    }
+
+    public void setHasBackEdgeIntoCycle(boolean value) {
+        this.hasBackEdgeIntoCycle = value;
     }
 
     /**
@@ -120,11 +130,7 @@ public abstract class Action {
         return npcAttributeModifications;
     }
 
-    public boolean isLeaf(){
-        return false; //TODO
-    }
-
-    public boolean isEndAction(){
+    public boolean isEndAction() {
         return getTargetActions().isEmpty();
     }
 }

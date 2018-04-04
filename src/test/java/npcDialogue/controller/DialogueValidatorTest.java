@@ -38,7 +38,7 @@ public class DialogueValidatorTest {
         actionC.addActionCondition("reputation", 60);
 
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
-        List<Action> leaves = new DialogueValidator(dialogueData).screenForLeaves();
+        List<Action> leaves = new DialogueValidator(dialogueData).findLeaves();
 
         AssertUtil.containsExact(Arrays.asList("B"), leaves, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
@@ -62,7 +62,7 @@ public class DialogueValidatorTest {
         actionD.addActionCondition("reputation", 60);
 
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
-        List<Action> leaves = new DialogueValidator(dialogueData).screenForLeaves();
+        List<Action> leaves = new DialogueValidator(dialogueData).findLeaves();
 
         AssertUtil.containsExact(Arrays.asList("B", "C"), leaves, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
@@ -89,7 +89,7 @@ public class DialogueValidatorTest {
 
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
 
-        AssertUtil.isEmpty(new DialogueValidator(dialogueData).screenForEndActions());
+        AssertUtil.isEmpty(new DialogueValidator(dialogueData).findEndActions());
     }
 
     /**
@@ -110,7 +110,7 @@ public class DialogueValidatorTest {
 
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
 
-        List<Action> endActions = new DialogueValidator(dialogueData).screenForEndActions();
+        List<Action> endActions = new DialogueValidator(dialogueData).findEndActions();
         AssertUtil.containsExact("C", endActions, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
 
@@ -139,7 +139,7 @@ public class DialogueValidatorTest {
 
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
 
-        List<Action> endActions = new DialogueValidator(dialogueData).screenForEndActions();
+        List<Action> endActions = new DialogueValidator(dialogueData).findEndActions();
         assertEquals(2, endActions.size());
         AssertUtil.containsExact(Arrays.asList("E", "F"), endActions, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
@@ -159,7 +159,7 @@ public class DialogueValidatorTest {
 
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
 
-        List<Path> paths = new DialogueValidator(dialogueData).screenForPaths();
+        List<Path> paths = new DialogueValidator(dialogueData).findAllPathsToAllEndActionsFrom();
         assertEquals(2, paths.size());
         AssertUtil.containsExact(Arrays.asList("A", "B"), paths.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
         AssertUtil.containsExact(Arrays.asList("A", "C"), paths.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
@@ -183,7 +183,7 @@ public class DialogueValidatorTest {
 
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
 
-        List<Path> paths = new DialogueValidator(dialogueData).screenForPaths();
+        List<Path> paths = new DialogueValidator(dialogueData).findAllPathsToAllEndActionsFrom();
         assertEquals(2, paths.size());
         AssertUtil.containsExact(Arrays.asList("A", "B", "D"), paths.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
         AssertUtil.containsExact(Arrays.asList("A", "C", "D"), paths.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
@@ -192,7 +192,6 @@ public class DialogueValidatorTest {
     /**
      * A[B, C], B[D], D[A]
      */
-    @Ignore
     @Test
     public void testScreenForPaths_OneEnd_TwoPaths_WithCircle() {
         NpcAttributes attributes = new NpcAttributes();
@@ -208,12 +207,92 @@ public class DialogueValidatorTest {
 
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
 
-        List<Path> paths = new DialogueValidator(dialogueData).screenForPaths();
+        List<Path> paths = new DialogueValidator(dialogueData).findAllPathsToAllEndActionsFrom();
         AssertUtil.hasSize(2, paths);
         AssertUtil.containsExact(Arrays.asList("A", "B", "D", "A", "C"), paths.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
         AssertUtil.containsExact(Arrays.asList("A", "C"), paths.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
 
 
         //AssertUtil.containsExact(Arrays.asList(new String[]{"A", "C"}, new String[]{"A", "B", "D", "A", "C"} ), paths, Path.PATH_WAYPOINT_NAME_EQUALS_CHECKER);
+    }
+
+    /**
+     * A[B, C, D], B[A]
+     */
+    @Test
+    public void testScreenForPaths_TwoEnds_FourPaths_WithCircle() {
+        NpcAttributes attributes = new NpcAttributes();
+
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
+        Action actionD = generateTestAction("D");
+        actionA.addTargetAction(actionB);
+        actionA.addTargetAction(actionC);
+        actionA.addTargetAction(actionD);
+        actionB.addTargetAction(actionA);
+
+        NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
+
+        List<Path> paths = new DialogueValidator(dialogueData).findAllPathsToAllEndActionsFrom();
+        AssertUtil.hasSize(4, paths);
+        AssertUtil.containsExact(Arrays.asList("A", "B", "A", "C"), paths.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("A", "B", "A", "D"), paths.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("A", "C"), paths.get(2).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("A", "D"), paths.get(3).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+    }
+
+    /**
+     * A[B, C, D], B[A], C[A]
+     */
+    @Test
+    public void testScreenForPaths_OneEnd_FivePaths_WithTwoCircles() {
+        NpcAttributes attributes = new NpcAttributes();
+
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
+        Action actionD = generateTestAction("D");
+        actionA.addTargetAction(actionB);
+        actionA.addTargetAction(actionC);
+        actionA.addTargetAction(actionD);
+        actionB.addTargetAction(actionA);
+        actionC.addTargetAction(actionA);
+
+        NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
+
+        List<Path> paths = new DialogueValidator(dialogueData).findAllPathsToAllEndActionsFrom();
+        AssertUtil.hasSize(5, paths);
+        AssertUtil.containsExact(Arrays.asList("A", "B", "A", "D"), paths.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("A", "C", "A", "D"), paths.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("A", "B", "A", "C", "A", "D"), paths.get(2).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("A", "D"), paths.get(3).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("A", "C", "A", "B", "A", "D"), paths.get(4).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+    }
+
+    /**
+     * A[B, C], B[D, A], D[B]
+     */
+    @Test
+    public void testScreenForPaths_OneEnd_tHREEPaths_WithTwoCircles() {
+        NpcAttributes attributes = new NpcAttributes();
+
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
+        Action actionD = generateTestAction("D");
+        actionA.addTargetAction(actionB);
+        actionA.addTargetAction(actionC);
+        actionB.addTargetAction(actionD);
+        actionB.addTargetAction(actionA);
+        actionD.addTargetAction(actionB);
+
+        NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
+
+        List<Path> paths = new DialogueValidator(dialogueData).findAllPathsToAllEndActionsFrom();
+        AssertUtil.hasSize(3, paths);
+        AssertUtil.containsExact(Arrays.asList("A", "B", "D", "B", "A", "C"), paths.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("A", "C"), paths.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        AssertUtil.containsExact(Arrays.asList("A", "B", "A", "C"), paths.get(2).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
 }
