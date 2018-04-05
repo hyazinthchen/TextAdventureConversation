@@ -116,14 +116,12 @@ public class DialogueLoader {
      */
     private void addTargetActions(Map<String, Object> npcActions, Map<String, Object> playerActions, Map<String, Action> dialogueMap) {
         for (Map.Entry<String, Action> entry : dialogueMap.entrySet()) {
-            // Add targetActions to npcActions in dialogueMap
             if (npcActions.containsKey(entry.getKey())) {
                 ArrayList<String> npcTargetActionList = (ArrayList<String>) npcActions.get(entry.getKey());
                 for (String targetActionName : npcTargetActionList) {
                     entry.getValue().addTargetAction(dialogueMap.get(targetActionName));
                 }
             }
-            // Add targetActions to playerActions in dialogueMap
             if (playerActions.containsKey(entry.getKey())) {
                 ArrayList<String> playerTargetActionList = (ArrayList<String>) playerActions.get(entry.getKey());
                 for (String targetActionName : playerTargetActionList) {
@@ -167,7 +165,7 @@ public class DialogueLoader {
                 } else {
                     dialogueMap.put(npcEntry.getKey(), new NpcAction(Role.PLAYER, actionContents.get(npcEntry.getKey()), npcEntry.getKey()));
                 }
-            } else { //When this npcAction is one possible ending of the dialogue
+            } else {
                 dialogueMap.put(npcEntry.getKey(), new NpcAction(Role.PLAYER, actionContents.get(npcEntry.getKey()), npcEntry.getKey()));
             }
         }
@@ -190,7 +188,7 @@ public class DialogueLoader {
                 } else {
                     dialogueMap.put(playerEntry.getKey(), new PlayerAction(Role.NPC, actionContents.get(playerEntry.getKey()), playerEntry.getKey()));
                 }
-            } else { //When this playerAction is one possible ending of the dialogue
+            } else {
                 dialogueMap.put(playerEntry.getKey(), new PlayerAction(Role.NPC, actionContents.get(playerEntry.getKey()), playerEntry.getKey()));
             }
         }

@@ -13,11 +13,11 @@ import java.util.List;
  */
 public class DialogueValidator {
 
-    private NpcDialogueData dialogueData;
-
     private List<Action> visitedActions; //TODO: put in method as local variable
 
     private DialogueNavigator navigator;
+
+    private NpcDialogueData dialogueData;
 
     public DialogueValidator(NpcDialogueData dialogueData) {
         this.dialogueData = dialogueData;
@@ -26,7 +26,7 @@ public class DialogueValidator {
     }
 
     public boolean isValid() {
-        if (findEndActions().isEmpty()) {
+        if (findEndActionsFrom(dialogueData.getStartAction()).isEmpty()) {
             new ConsoleReaderWriter().printErrorMessage("Error in loaded dialogue. Dialogue will never reach a desired end.");
             return false;
         }
@@ -38,10 +38,10 @@ public class DialogueValidator {
      *
      * @return a list of actions where the dialogue stops.
      */
-    public List<Action> findLeaves() {
+    public List<Action> findLeavesFrom(Action startAction) {
         List<Action> leaves = new ArrayList<>();
 
-        addAllLeavesByDepthFirstSearch(dialogueData.getStartAction(), leaves);
+        addAllLeavesByDepthFirstSearch(startAction, leaves);
 
         return leaves;
     }
@@ -66,13 +66,14 @@ public class DialogueValidator {
 
     /**
      * Gets a list of reachable actions that do not have targetActions.
+     * Some endActions might not be reachable because an action ahead of it doesn't fulfill its conditions. Such unreachable actions won't be returned.
      *
      * @return a list of reachable end points of the dialogue.
      */
-    public List<Action> findEndActions() {
+    public List<Action> findEndActionsFrom(Action startAction) {
         List<Action> endActions = new ArrayList<>();
 
-        addEndActionsByDepthFirstSearch(dialogueData.getStartAction(), endActions);
+        addEndActionsByDepthFirstSearch(startAction, endActions);
 
         return endActions;
     }
@@ -96,56 +97,17 @@ public class DialogueValidator {
     }
 
     /**
-     * Gets a list of paths that lead from a currentAction to any endAction.
-     *
-     * @return a list of paths the player can take to all endActions.
-     */
-    public List<Path> findPaths() {
-        findEndActions();
-        List<Path> paths = new ArrayList<>();
-        for (Action endAction : findEndActions()) {
-            Path path = new Path();
-            path.addWayPoint(dialogueData.getStartAction());
-            addAllPathsToEndActionToList(dialogueData.getStartAction(), endAction, path, paths);
-        }
-        return paths;
-    }
-
-    /**
-     * Adds each patch that leads from the currentAction to an endAction to a list of paths.
-     *
-     * @return a list of paths the player can take to one endAction.
-     */
-    private void addAllPathsToEndActionToList(Action currentAction, Action endAction, Path path, List<Path> paths) {
-        List<Action> visitedWayPoints = new ArrayList<>(path.getWayPoints());
-        visitedWayPoints.add(currentAction);
-        if (currentAction.equals(endAction)) {
-            Path newPath = new Path();
-            for (Action action : path.getWayPoints()) {
-                newPath.addWayPoint(action);
-            }
-            paths.add(newPath);
-        }
-        for (Action targetAction : currentAction.getTargetActions()) {
-            if (!visitedWayPoints.contains(targetAction)) {
-                path.addWayPoint(targetAction);
-                addAllPathsToEndActionToList(targetAction, endAction, path, paths);
-                path.removeWayPoint(targetAction);
-            }
-        }
-        visitedWayPoints.remove(currentAction);
-    }
-
-    /**
      * Gets every possible path to to any endAction in a dialogue.
      *
      * @return a list of paths to all endActions that have been completely traversed.
      */
-    public List<Path> findAllPathsToAllEndActionsFrom() {
+    private List<Path> findAllPathsToAllEndActionsFrom(Action startAction) {
         List<Path> paths = new ArrayList<>();
         Path path = new Path();
-        path.addWayPoint(dialogueData.getStartAction());
-        return addPathToPathList(dialogueData.getStartAction(), path, paths);
+        path.addWayPoint(startAction);
+        List<Action> wayPointsWithBackEdges = new ArrayList<>();
+        List<Action> reachableEndActions = findEndActionsFrom(startAction);
+        return addPathToPathList(startAction, path, paths, wayPointsWithBackEdges, reachableEndActions);
     }
 
     /**
@@ -158,18 +120,19 @@ public class DialogueValidator {
      * @param paths         a list of paths that have been completely traversed
      * @return a list of paths that have been completely traversed.
      */
-    private List<Path> addPathToPathList(Action currentAction, Path path, List<Path> paths) {
-        if (currentAction.isEndAction()) { //wenn currentAction eine endAction ist, dann ist der Pfad vollständig und kann der Liste hinzugefügt werden
+    private List<Path> addPathToPathList(Action currentAction, Path path, List<Path> paths, List<Action> wayPointsWithBackEdges, List<Action> reachableEndActions) {
+        if (reachableEndActions.contains(currentAction)) {
             paths.add(path);
+            wayPointsWithBackEdges.clear();
         } else {
             for (Action targetAction : currentAction.getTargetActions()) {
-                if (!targetAction.hasBackEdgeIntoCycle()) { //wenn die targetAction kein Ausgangspunkt für eine Rückwärtskante ist
+                if (!wayPointsWithBackEdges.contains(targetAction)) { //wenn die targetAction kein Ausgangspunkt für eine Rückwärtskante ist
                     if (path.getWayPoints().contains(targetAction)) { //wenn der Pfad bereits die targetAction enthält
-                        targetAction.setHasBackEdgeIntoCycle(true); //markiere die targetAction als Ausgangspunkt einer Rückwärtskante
+                        wayPointsWithBackEdges.add(currentAction); //markiere die currentAction als Ausgangspunkt einer Rückwärtskante
                     }
                     Path newPath = path.copy(); //kopiere den bisherigen Pfad
                     newPath.addWayPoint(targetAction); //füge die targetAction dem Pfad hinzu
-                    addPathToPathList(targetAction, newPath, paths); //arbeite mit dem neuen Pfad weiter
+                    addPathToPathList(targetAction, newPath, paths, wayPointsWithBackEdges, reachableEndActions); //arbeite mit dem neuen Pfad weiter
                 }
             }
         }
@@ -177,16 +140,16 @@ public class DialogueValidator {
     }
 
     /**
-     * Only gets paths that lead to a certain action.
+     * Only gets paths that lead to a certain endAction from a certain startAction.
      *
-     * @param action
+     * @param endAction
      * @return
      */
-    public List<Path> findAllPathsTo(Action action) {
-        List<Path> allPaths = findAllPathsToAllEndActionsFrom();
+    public List<Path> findAllPathsTo(Action endAction, Action startAction) {
+        List<Path> allPaths = findAllPathsToAllEndActionsFrom(startAction);
         List<Path> pathsToAction = new ArrayList<>();
         for (Path path : allPaths) {
-            if (path.getLastAction().equals(action)) {
+            if (path.getLastAction().equals(endAction)) {
                 pathsToAction.add(path);
             }
         }

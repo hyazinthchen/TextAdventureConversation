@@ -22,8 +22,8 @@ public class Path {
         wayPoints.remove(action);
     }
 
-    public Action getLastAction(){
-        return wayPoints.get(wayPoints.size()-1); //TODO use or throw away
+    public Action getLastAction() {
+        return wayPoints.get(wayPoints.size() - 1);
     }
 
     /**
@@ -38,4 +38,8 @@ public class Path {
         }
         return copiedPath;
     }
+
+    /*public static final EqualsChecker<String, Action> PATH_WAYPOINT_NAME_EQUALS_CHECKER =
+            (String wayPointText, Action action) -> action.getActionText().equals(wayPointText);
+    */
 }

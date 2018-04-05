@@ -17,7 +17,6 @@ public abstract class Action {
     private final String actionText;
     private final String name;
     private final Map<String, Object> npcAttributeModifications;
-    private boolean hasBackEdgeIntoCycle;
 
     public Action(Role role, Role targetActionRole, String actionText, String name) {
         this.actionText = actionText;
@@ -27,7 +26,6 @@ public abstract class Action {
         this.targetActionsRole = targetActionRole;
         this.name = name;
         this.npcAttributeModifications = new HashMap<>();
-        this.hasBackEdgeIntoCycle = false;
     }
 
     public Map<String, Object> getActionConditions() {
@@ -44,14 +42,6 @@ public abstract class Action {
 
     public String getActionText() {
         return actionText;
-    }
-
-    public boolean hasBackEdgeIntoCycle() {
-        return hasBackEdgeIntoCycle;
-    }
-
-    public void setHasBackEdgeIntoCycle(boolean value) {
-        this.hasBackEdgeIntoCycle = value;
     }
 
     /**
@@ -128,9 +118,5 @@ public abstract class Action {
 
     public Map<String, Object> getNpcAttributeModifications() {
         return npcAttributeModifications;
-    }
-
-    public boolean isEndAction() {
-        return getTargetActions().isEmpty();
     }
 }
