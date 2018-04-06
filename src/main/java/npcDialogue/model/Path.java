@@ -1,5 +1,7 @@
 package npcDialogue.model;
 
+import com.queomedia.commons.equals.EqualsChecker;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +18,6 @@ public class Path {
 
     public List<Action> getWayPoints() {
         return wayPoints;
-    }
-
-    public void removeWayPoint(Action action) {
-        wayPoints.remove(action);
     }
 
     public Action getLastAction() {
@@ -39,7 +37,5 @@ public class Path {
         return copiedPath;
     }
 
-    /*public static final EqualsChecker<String, Action> PATH_WAYPOINT_NAME_EQUALS_CHECKER =
-            (String wayPointText, Action action) -> action.getActionText().equals(wayPointText);
-    */
+    public static final EqualsChecker<String[], Path> PATH_WAYPOINT_NAME_EQUALS_CHECKER = null;
 }
