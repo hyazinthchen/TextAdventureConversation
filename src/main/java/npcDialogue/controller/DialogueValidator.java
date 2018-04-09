@@ -39,6 +39,7 @@ public class DialogueValidator {
     /**
      * Gets a list of actions that do not have available targetActions.
      *
+     * @param startAction the action from which the search for leaves should commence
      * @return a list of actions where the dialogue stops.
      */
     public List<Action> findLeavesFrom(Action startAction) {
@@ -52,7 +53,9 @@ public class DialogueValidator {
     /**
      * Performs a recursive depth first search and adds actions that do not have available targetActions to a list of actions. (leaves of the tree)
      *
-     * @param currentAction the action from which the search for leaves should commence
+     * @param currentAction  the action from which the search for leaves should commence
+     * @param leaves
+     * @param visitedActions
      */
     private void addAllLeavesByDepthFirstSearch(final Action currentAction, List<Action> leaves, List<Action> visitedActions) {
         visitedActions.add(currentAction);
@@ -70,6 +73,7 @@ public class DialogueValidator {
     /**
      * Gets a list of actions that do not have targetActions.
      *
+     * @param startAction the action from which the search for endActions should commence
      * @return a list of end points of the dialogue.
      */
     public List<Action> findEndActionsFrom(Action startAction) {
@@ -84,6 +88,8 @@ public class DialogueValidator {
      * Performs a recursive depth first search and adds actions that can be reached and do not have targetActions to a list of actions.
      *
      * @param currentAction
+     * @param endActions     a list of endActions (actions that have no targetActions) that have been found while traversing the dialogue
+     * @param visitedActions a list of actions the algorithm has already visited
      */
     private void addEndActionsByDepthFirstSearch(final Action currentAction, List<Action> endActions, List<Action> visitedActions) {
         visitedActions.add(currentAction);
@@ -101,6 +107,7 @@ public class DialogueValidator {
     /**
      * Gets every possible path to to any endAction in a dialogue.
      *
+     * @param startAction the action from which the search for paths should commence
      * @return a list of paths to all endActions that have been completely traversed.
      */
     private List<Path> findAllPathsToAllEndActionsFrom(Action startAction) {
@@ -119,7 +126,9 @@ public class DialogueValidator {
      * When no endAction is found it continues to travel through the graph and adds new waypoints to the path.
      * Each time the graph branches out, the former path is copied.
      *
-     * @param path a list of actions that have already been visited. At first call it only contains the startAction of the dialogue.
+     * @param path                   a list of actions that have already been visited. At first call it only contains the startAction of the dialogue.
+     * @param wayPointsWithBackEdges a list of actions that have already been visited and lead back to an already visited action.
+     * @param reachableEndActions    a list of endActions that a player is able to reach while navigating through the dialogue.
      * @return a list of paths that have been completely traversed.
      */
     private List<Path> addPathToPathList(Path path, List<Action> wayPointsWithBackEdges, List<Action> reachableEndActions) {
@@ -128,15 +137,15 @@ public class DialogueValidator {
             return Arrays.asList(path);
         } else {
             List<Path> result = new ArrayList<>();
-            for (Action targetAction : path.getLastAction().getTargetActions()) { //TODO: nur für targetActions die condition fulfillen oder keine condition haben(?)
-                if (!wayPointsWithBackEdges.contains(targetAction)) { //wenn die targetAction kein Ausgangspunkt für eine Rückwärtskante ist
-                    if (path.getWayPoints().contains(targetAction)) { //wenn der Pfad bereits die targetAction enthält
-                        wayPointsWithBackEdges.add(path.getLastAction()); //markiere die currentAction als Ausgangspunkt einer Rückwärtskante
+            for (Action targetAction : navigator.getAvailableTargetActions(path.getLastAction().getTargetActions())) {
+                if (!wayPointsWithBackEdges.contains(targetAction)) {
+                    if (path.getWayPoints().contains(targetAction)) {
+                        wayPointsWithBackEdges.add(path.getLastAction());
                     }
-                    Path newPath = path.copy(); //kopiere den bisherigen Pfad
-                    newPath.addWayPoint(targetAction); //füge die targetAction dem Pfad hinzu
+                    Path newPath = path.copy();
+                    newPath.addWayPoint(targetAction);
 
-                    result.addAll(addPathToPathList(newPath, wayPointsWithBackEdges, reachableEndActions)); //arbeite mit dem neuen Pfad weiter
+                    result.addAll(addPathToPathList(newPath, wayPointsWithBackEdges, reachableEndActions));
                 }
             }
             return result;
@@ -146,10 +155,11 @@ public class DialogueValidator {
     /**
      * Only gets paths that lead to a certain endAction from a certain startAction.
      *
-     * @param endAction the endAction where any found path should lead to
+     * @param endAction   the endAction where any found path should lead to
+     * @param startAction the action from which the search for paths should commence
      * @return a list of paths that lead to endAction
      */
-    public List<Path> findAllPathsTo(Action endAction, Action startAction) {
+    public List<Path> findAllPathsToSpecificAction(Action startAction, Action endAction) {
         List<Path> allPaths = findAllPathsToAllEndActionsFrom(startAction);
         List<Path> pathsToAction = new ArrayList<>();
         for (Path path : allPaths) {
