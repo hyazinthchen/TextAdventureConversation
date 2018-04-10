@@ -28,7 +28,7 @@ public class DialogueValidator {
      *
      * @return true when the dialogue is valid
      */
-    public boolean isValid() { //TODO: if infinite cycle without any way out then invalid
+    public boolean isValid() {
         if (findAllPathsToAllEndActionsFrom(dialogueData.getStartAction()).isEmpty()) {
             new ConsoleReaderWriter().printErrorMessage("Error in loaded dialogue. Dialogue will never reach a desired end.");
             return false;
@@ -54,8 +54,8 @@ public class DialogueValidator {
      * Performs a recursive depth first search and adds actions that do not have available targetActions to a list of actions. (leaves of the tree)
      *
      * @param currentAction  the action from which the search for leaves should commence
-     * @param leaves
-     * @param visitedActions
+     * @param leaves         a list of actions that do not have available targetActions
+     * @param visitedActions a list of actions the algorithm has already visited
      */
     private void addAllLeavesByDepthFirstSearch(final Action currentAction, List<Action> leaves, List<Action> visitedActions) {
         visitedActions.add(currentAction);
@@ -87,7 +87,7 @@ public class DialogueValidator {
     /**
      * Performs a recursive depth first search and adds actions that can be reached and do not have targetActions to a list of actions.
      *
-     * @param currentAction
+     * @param currentAction  the action from which the search for endActions should commence
      * @param endActions     a list of endActions (actions that have no targetActions) that have been found while traversing the dialogue
      * @param visitedActions a list of actions the algorithm has already visited
      */

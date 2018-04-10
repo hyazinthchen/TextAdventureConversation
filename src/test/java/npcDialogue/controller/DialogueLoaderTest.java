@@ -45,7 +45,7 @@ public class DialogueLoaderTest {
     @Test
     public void testLoadingActionConditions() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
-        NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
+        NpcDialogueData dialogueData = new DialogueLoader().load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
         assertEquals(0, dialogueData.getStartAction().getActionConditions().size());
         assertEquals(0, dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer1").getActionConditions().size());

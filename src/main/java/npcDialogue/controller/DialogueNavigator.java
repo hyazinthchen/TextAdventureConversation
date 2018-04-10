@@ -28,7 +28,7 @@ public class DialogueNavigator {
      *
      * @param consoleReaderWriter the class that prints the text of the actions to the console.
      */
-    public void navigate(ConsoleReaderWriter consoleReaderWriter) { //TODO: detect cycles
+    public void navigate(ConsoleReaderWriter consoleReaderWriter) {
         modifyNpcAttributes();
         consoleReaderWriter.printSingleActionText(currentAction);
         while (!currentAction.getTargetActions().isEmpty()) {
