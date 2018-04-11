@@ -3,6 +3,7 @@ package npcDialogue.model;
 import com.queomedia.commons.equals.EqualsChecker;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Path {
@@ -10,6 +11,10 @@ public class Path {
 
     public Path() {
         this.wayPoints = new ArrayList<>();
+    }
+
+    public Path(Action... actions) {
+        this.wayPoints = Arrays.asList(actions);
     }
 
     public void addWayPoint(Action action) {

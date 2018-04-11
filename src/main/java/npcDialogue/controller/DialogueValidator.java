@@ -29,6 +29,9 @@ public class DialogueValidator {
      * @return true when the dialogue is valid
      */
     public boolean isValid() {
+        if (findCyclesWithoutExit(dialogueData.getStartAction())) {
+            new ConsoleReaderWriter().printErrorMessage("Error in loaded dialogue. Dialogue contains loops which the player can never exit. Loop has been cut off and can't be traversed by player."); //TODO: Ausgabe wo Cycle ist
+        }
         if (findAllPathsToAllEndActionsFrom(dialogueData.getStartAction()).isEmpty()) {
             new ConsoleReaderWriter().printErrorMessage("Error in loaded dialogue. Dialogue will never reach a desired end.");
             return false;
@@ -96,6 +99,7 @@ public class DialogueValidator {
         if (currentAction.getTargetActions().isEmpty()) {
             endActions.add(currentAction);
         }
+        navigator.modifyNpcAttributes(currentAction);
         List<Action> availableActions = navigator.getAvailableTargetActions(currentAction.getTargetActions());
         for (Action availableTargetAction : availableActions) {
             if (!visitedActions.contains(availableTargetAction)) {
@@ -132,23 +136,22 @@ public class DialogueValidator {
      * @return a list of paths that have been completely traversed.
      */
     private List<Path> addPathToPathList(Path path, List<Action> wayPointsWithBackEdges, List<Action> reachableEndActions) {
-        if (reachableEndActions.contains(path.getLastAction())) {
+        if (reachableEndActions.contains(path.getLastAction())) { //is currentAction an endAction?
             wayPointsWithBackEdges.clear();
-            return Arrays.asList(path);
+            return Arrays.asList(path); //return List with Path
         } else {
-            List<Path> result = new ArrayList<>();
-            for (Action targetAction : navigator.getAvailableTargetActions(path.getLastAction().getTargetActions())) {
-                if (!wayPointsWithBackEdges.contains(targetAction)) {
-                    if (path.getWayPoints().contains(targetAction)) {
-                        wayPointsWithBackEdges.add(path.getLastAction());
+            List<Path> pathList = new ArrayList<>(); //make new list of paths
+            for (Action targetAction : navigator.getAvailableTargetActions(path.getLastAction().getTargetActions())) { // for each availableTargetAction of currentAction
+                if (!wayPointsWithBackEdges.contains(targetAction)) { // if targetAction doesn't have a backEdge
+                    if (path.getWayPoints().contains(targetAction)) { // if path already contains targetAction
+                        wayPointsWithBackEdges.add(path.getLastAction()); // add currentAction to list of actions with backEdges
                     }
-                    Path newPath = path.copy();
-                    newPath.addWayPoint(targetAction);
-
-                    result.addAll(addPathToPathList(newPath, wayPointsWithBackEdges, reachableEndActions));
+                    Path newPath = path.copy(); // copy the current path
+                    newPath.addWayPoint(targetAction); // add the targetAction to the copied path
+                    pathList.addAll(addPathToPathList(newPath, wayPointsWithBackEdges, reachableEndActions)); // continue with new path
                 }
             }
-            return result;
+            return pathList;
         }
     }
 
@@ -168,5 +171,13 @@ public class DialogueValidator {
             }
         }
         return pathsToAction;
+    }
+
+    public boolean findCyclesWithoutExit(Action startAction) {
+        return findCyclesWithoutExitByDepthFirstSearch(startAction);
+    }
+
+    private boolean findCyclesWithoutExitByDepthFirstSearch(Action currentAction) { //TODO: implement
+        return true;
     }
 }

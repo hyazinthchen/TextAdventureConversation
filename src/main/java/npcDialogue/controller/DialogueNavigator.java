@@ -29,7 +29,7 @@ public class DialogueNavigator {
      * @param consoleReaderWriter the class that prints the text of the actions to the console.
      */
     public void navigate(ConsoleReaderWriter consoleReaderWriter) {
-        modifyNpcAttributes();
+        modifyNpcAttributes(currentAction);
         consoleReaderWriter.printSingleActionText(currentAction);
         while (!currentAction.getTargetActions().isEmpty()) {
             List<Action> availableTargetActions = getAvailableTargetActions(currentAction.getTargetActions());
@@ -55,7 +55,7 @@ public class DialogueNavigator {
     /**
      * Modifies the npcAttributes if the currentAction has one or more npcAttributeModifications.
      */
-    private void modifyNpcAttributes() {
+    public void modifyNpcAttributes(Action currentAction) {
         for (Map.Entry<String, Object> modification : currentAction.getNpcAttributeModifications().entrySet()) {
             npcAttributes.modifyAttribute(modification.getKey(), modification.getValue());
         }
