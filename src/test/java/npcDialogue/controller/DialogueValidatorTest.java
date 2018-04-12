@@ -518,7 +518,7 @@ public class DialogueValidatorTest {
     }
 
     /**
-     * A[B, D], B[C, A], D[E]
+     * A[B, D], B[A, C], D[E], entering B blocks the way to C but unlocks the way to E
      */
     @Test
     public void testFindAllPathsTo_withModificationAndConditionAndCycle_ThreePaths() {

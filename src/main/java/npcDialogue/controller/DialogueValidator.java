@@ -119,7 +119,7 @@ public class DialogueValidator {
         path.addWayPoint(startAction);
         List<Action> wayPointsWithBackEdges = new ArrayList<>();
 
-        List<Action> reachableEndActions = findEndActionsFrom(startAction);
+        List<Action> reachableEndActions = findEndActionsFrom(startAction); //hier werden Modifikationen vorgenommen
         reachableEndActions.retainAll(findLeavesFrom(startAction));
 
         return addPathToPathList(path, wayPointsWithBackEdges, reachableEndActions);
