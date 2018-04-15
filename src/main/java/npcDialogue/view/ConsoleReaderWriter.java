@@ -1,6 +1,5 @@
 package npcDialogue.view;
 
-import com.queomedia.commons.checks.Check;
 import npcDialogue.model.Action;
 import npcDialogue.model.Role;
 
@@ -20,7 +19,10 @@ public class ConsoleReaderWriter {
      * @return the chosen action by the player.
      */
     public Action chooseByPlayerInput(List<Action> availableActions) {
-        Check.notNullArgument(availableActions, "availableActions");
+        if(availableActions == null){
+            throw new IllegalArgumentException("AvailableActions is null.");
+        }
+
         if (availableActions.isEmpty()) {
             throw new IllegalArgumentException("AvailableActions list must have at least one element.");
         }

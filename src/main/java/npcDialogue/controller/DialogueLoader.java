@@ -1,6 +1,5 @@
 package npcDialogue.controller;
 
-import com.queomedia.commons.checks.Check;
 import npcDialogue.model.*;
 import org.yaml.snakeyaml.Yaml;
 
@@ -201,7 +200,9 @@ public class DialogueLoader {
      * @return the file.
      */
     public File getFileFromClassPath(final String fileName) {
-        Check.notNullArgument(fileName, "fileName");
+        if(fileName == null){
+            throw new IllegalArgumentException("Filename is null.");
+        }
 
         String absoluteFileName;
         if (fileName.startsWith("/")) {

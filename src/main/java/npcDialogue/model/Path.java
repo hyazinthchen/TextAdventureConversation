@@ -1,7 +1,5 @@
 package npcDialogue.model;
 
-import com.queomedia.commons.equals.EqualsChecker;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +39,4 @@ public class Path {
         }
         return copiedPath;
     }
-
-    public static final EqualsChecker<String[], Path> PATH_WAYPOINT_NAME_EQUALS_CHECKER = null;
 }
