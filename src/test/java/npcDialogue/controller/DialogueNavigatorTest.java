@@ -1,16 +1,17 @@
 package npcDialogue.controller;
 
-import com.queomedia.commons.asserts.AssertUtil;
 import npcDialogue.model.*;
 import npcDialogue.view.ConsoleReaderWriter;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
+
 
 public class DialogueNavigatorTest {
 
@@ -50,7 +51,8 @@ public class DialogueNavigatorTest {
         DialogueNavigator navigator = new DialogueNavigator(new NpcAttributes(), actionA);
         List<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
-        AssertUtil.isEmpty(availableTargetActionsOfA);
+        assertTrue(availableTargetActionsOfA.isEmpty());
+
     }
 
     /**
@@ -66,8 +68,9 @@ public class DialogueNavigatorTest {
         List<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionA.getTargetActions());
         List<Action> availableTargetActionsOfB = navigator.getAvailableTargetActions(actionB.getTargetActions());
 
-        AssertUtil.containsExact(Arrays.asList("B"), availableTargetActionsOfA, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.isEmpty(availableTargetActionsOfB);
+        assertEquals(1, availableTargetActionsOfA.size());
+        assertTrue(availableTargetActionsOfA.contains(actionB));
+        assertTrue(availableTargetActionsOfB.isEmpty());
     }
 
     /**
@@ -92,10 +95,16 @@ public class DialogueNavigatorTest {
         List<Action> availableTargetActionsOfC = navigator.getAvailableTargetActions(actionC.getTargetActions());
         List<Action> availableTargetActionsOfD = navigator.getAvailableTargetActions(actionD.getTargetActions());
 
-        AssertUtil.containsExact(Arrays.asList("B", "C"), availableTargetActionsOfA, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("D"), availableTargetActionsOfB, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("D"), availableTargetActionsOfC, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.isEmpty(availableTargetActionsOfD);
+        assertEquals(2, availableTargetActionsOfA.size());
+        assertTrue(availableTargetActionsOfA.containsAll(asList(actionB, actionC)));
+
+        assertEquals(1, availableTargetActionsOfB.size());
+        assertTrue(availableTargetActionsOfB.contains(actionD));
+
+        assertEquals(1, availableTargetActionsOfC.size());
+        assertTrue(availableTargetActionsOfC.contains(actionD));
+
+        assertTrue(availableTargetActionsOfD.isEmpty());
     }
 
     /**
@@ -119,10 +128,17 @@ public class DialogueNavigatorTest {
         List<Action> availableTargetActionsOfC = navigator.getAvailableTargetActions(actionC.getTargetActions());
         List<Action> availableTargetActionsOfD = navigator.getAvailableTargetActions(actionD.getTargetActions());
 
-        AssertUtil.containsExact(Arrays.asList("B", "C"), availableTargetActionsOfA, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("D"), availableTargetActionsOfB, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("B"), availableTargetActionsOfC, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.isEmpty(availableTargetActionsOfD);
+        assertEquals(2, availableTargetActionsOfA.size());
+        assertTrue(availableTargetActionsOfA.containsAll(asList(actionB, actionC)));
+
+
+        assertEquals(1, availableTargetActionsOfB.size());
+        assertTrue(availableTargetActionsOfB.contains(actionD));
+
+        assertEquals(1, availableTargetActionsOfC.size());
+        assertTrue(availableTargetActionsOfC.contains(actionB));
+
+        assertTrue(availableTargetActionsOfD.isEmpty());
     }
 
     /**
@@ -146,10 +162,14 @@ public class DialogueNavigatorTest {
         List<Action> availableTargetActionsOfC = navigator.getAvailableTargetActions(actionC.getTargetActions());
         List<Action> availableTargetActionsOfD = navigator.getAvailableTargetActions(actionD.getTargetActions());
 
-        AssertUtil.containsExact(Arrays.asList("B", "C"), availableTargetActionsOfA, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("C", "D"), availableTargetActionsOfB, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.isEmpty(availableTargetActionsOfC);
-        AssertUtil.isEmpty(availableTargetActionsOfD);
+        assertEquals(2, availableTargetActionsOfA.size());
+        assertTrue(availableTargetActionsOfA.containsAll(asList(actionB, actionC)));
+
+        assertEquals(2, availableTargetActionsOfB.size());
+        assertTrue(availableTargetActionsOfB.containsAll(asList(actionC, actionD)));
+
+        assertTrue(availableTargetActionsOfC.isEmpty());
+        assertTrue(availableTargetActionsOfD.isEmpty());
     }
 
     /**
@@ -167,8 +187,12 @@ public class DialogueNavigatorTest {
         List<Action> availableTargetActionsOfA = navigator.getAvailableTargetActions(actionA.getTargetActions());
         List<Action> availableTargetActionsOfB = navigator.getAvailableTargetActions(actionB.getTargetActions());
 
-        AssertUtil.containsExact(Arrays.asList("B"), availableTargetActionsOfA, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("A"), availableTargetActionsOfB, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertEquals(1, availableTargetActionsOfA.size());
+        assertTrue(availableTargetActionsOfA.contains(actionB));
+
+        assertEquals(1, availableTargetActionsOfB.size());
+        assertTrue(availableTargetActionsOfB.contains(actionA));
+
     }
 
     /**
@@ -189,7 +213,8 @@ public class DialogueNavigatorTest {
 
         List<Action> availableTargetActions = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
-        AssertUtil.containsExact(Arrays.asList("B", "C"), availableTargetActions, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertEquals(2, availableTargetActions.size());
+        assertTrue(availableTargetActions.containsAll(asList(actionB, actionC)));
     }
 
     /**
@@ -210,7 +235,8 @@ public class DialogueNavigatorTest {
 
         List<Action> availableTargetActions = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
-        AssertUtil.containsExact(Arrays.asList("B"), availableTargetActions, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertEquals(1, availableTargetActions.size());
+        assertTrue(availableTargetActions.contains(actionB));
     }
 
     /**
@@ -231,7 +257,8 @@ public class DialogueNavigatorTest {
 
         List<Action> availableTargetActions = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
-        AssertUtil.containsExact(Arrays.asList("B"), availableTargetActions, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertEquals(1, availableTargetActions.size());
+        assertTrue(availableTargetActions.contains(actionB));
     }
 
     @Test

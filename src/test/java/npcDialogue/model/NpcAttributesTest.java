@@ -49,6 +49,20 @@ public class NpcAttributesTest {
         assertEquals("C", attributes.getNpcAttributes().get("A"));
     }
 
+    @Test
+    public void testModifyEntryByAddition() {
+        NpcAttributes attributes = generateTestNpcAttributes("A", 50);
+        attributes.modifyAttribute("A", "+10");
+        assertEquals(60, attributes.getNpcAttributes().get("A"));
+    }
+
+    @Test
+    public void testModifyEntryBySubtraction() {
+        NpcAttributes attributes = generateTestNpcAttributes("A", 50);
+        attributes.modifyAttribute("A", "-10");
+        assertEquals(40, attributes.getNpcAttributes().get("A"));
+    }
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 

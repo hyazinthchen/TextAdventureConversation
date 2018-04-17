@@ -1,14 +1,14 @@
 package npcDialogue.controller;
 
-import com.queomedia.commons.asserts.AssertUtil;
 import npcDialogue.model.Action;
 import npcDialogue.model.NpcDialogueData;
 import npcDialogue.model.ParsingException;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 
+import static java.util.Arrays.asList;
 import static junit.framework.TestCase.assertEquals;
 
 public class DialogueLoaderTest {
@@ -30,17 +30,28 @@ public class DialogueLoaderTest {
         assertEquals("Welcome!", dialogueData.getStartAction().getActionText());
     }
 
+
     @Test
     public void testLoadingActionTexts() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
-        AssertUtil.containsExact(Arrays.asList("The weather is nice today.", "I heard it will snow today."), dialogueData.getStartAction().getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("I heard the sun will shine all day."), dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer1").getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("I heard the sun will shine all day."), dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer2").getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("I want to buy a potion.", "I want to buy a special potion."), dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer2").getTargetActionByName("smallTalkNpc").getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(Arrays.asList("Here you go. See you!"), dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer2").getTargetActionByName("smallTalkNpc").getTargetActionByName("buyPotion").getTargetActions(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        Action smallTalkPlayer1 = dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer1");
+        Action smallTalkPlayer2 = dialogueData.getStartAction().getTargetActionByName("smallTalkPlayer2");
+        Action buySpecialPotion = smallTalkPlayer2.getTargetActionByName("smallTalkNpc").getTargetActionByName("buySpecialPotion");
+        Action buyPotion = smallTalkPlayer2.getTargetActionByName("smallTalkNpc").getTargetActionByName("buyPotion");
+        Action bye = buyPotion.getTargetActionByName("bye");
+
+        Assert.assertTrue(dialogueData.getStartAction().getTargetActions().containsAll(asList(smallTalkPlayer1, smallTalkPlayer2)));
+
+        Assert.assertTrue(smallTalkPlayer1.getTargetActions().contains(smallTalkPlayer2.getTargetActionByName("smallTalkNpc")));
+        Assert.assertTrue(smallTalkPlayer2.getTargetActions().contains(smallTalkPlayer2.getTargetActionByName("smallTalkNpc")));
+
+        Assert.assertTrue(smallTalkPlayer2.getTargetActionByName("smallTalkNpc").getTargetActions().containsAll(asList(buyPotion, buySpecialPotion)));
+
+        Assert.assertTrue(buyPotion.getTargetActions().contains(bye));
     }
+
 
     @Test
     public void testLoadingActionConditions() throws FileNotFoundException, ParsingException {

@@ -95,12 +95,12 @@ public class DialogueLoader {
      * @param npcAttributeModifications a map of modifications.
      * @param dialogueMap               a map with actions from Npc and Player
      */
-    private void addNpcAttributeModifications(Map<String, LinkedHashMap> npcAttributeModifications, Map<String, Action> dialogueMap) { //TODO: subtraction and addition of npcAttributes
-        for (Map.Entry<String, Action> entry : dialogueMap.entrySet()) { //für jede Aktion im Dialog
-            if (npcAttributeModifications.containsKey(entry.getKey())) { //wenn Modifikationen die Aktion enthält
+    private void addNpcAttributeModifications(Map<String, LinkedHashMap> npcAttributeModifications, Map<String, Action> dialogueMap) {
+        for (Map.Entry<String, Action> entry : dialogueMap.entrySet()) {
+            if (npcAttributeModifications.containsKey(entry.getKey())) {
                 LinkedHashMap<String, Object> mapOfNpcAttributeModifications = npcAttributeModifications.get(entry.getKey());
-                for (Map.Entry<String, Object> npcAttributeModification : mapOfNpcAttributeModifications.entrySet()) { //für jede Modification
-                    entry.getValue().addNpcAttributeModification(npcAttributeModification.getKey(), npcAttributeModification.getValue()); //füge die Modifikation ihrer passenden Action hinzu
+                for (Map.Entry<String, Object> npcAttributeModification : mapOfNpcAttributeModifications.entrySet()) {
+                    entry.getValue().addNpcAttributeModification(npcAttributeModification.getKey(), npcAttributeModification.getValue());
                 }
             }
         }
@@ -200,7 +200,7 @@ public class DialogueLoader {
      * @return the file.
      */
     public File getFileFromClassPath(final String fileName) {
-        if(fileName == null){
+        if (fileName == null) {
             throw new IllegalArgumentException("Filename is null.");
         }
 

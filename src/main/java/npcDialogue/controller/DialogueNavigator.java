@@ -36,7 +36,7 @@ public class DialogueNavigator {
             if (availableTargetActions.size() == 1) {
                 consoleReaderWriter.printSingleActionText(availableTargetActions.get(0));
                 reassignCurrentAction(availableTargetActions.get(0));
-            } else if (availableTargetActions.isEmpty()) { //dead end. stop dialogue
+            } else if (availableTargetActions.isEmpty()) {
                 break;
             } else {
                 if (currentAction.getTargetActionsRole() == Role.NPC) {

@@ -119,7 +119,7 @@ public class DialogueValidator {
         path.addWayPoint(startAction);
         List<Action> wayPointsWithBackEdges = new ArrayList<>();
 
-        List<Action> reachableEndActions = findEndActionsFrom(startAction); //hier werden Modifikationen vorgenommen
+        List<Action> reachableEndActions = findEndActionsFrom(startAction);
         reachableEndActions.retainAll(findLeavesFrom(startAction));
 
         return addPathToPathList(path, wayPointsWithBackEdges, reachableEndActions);
@@ -136,19 +136,19 @@ public class DialogueValidator {
      * @return a list of paths that have been completely traversed.
      */
     private List<Path> addPathToPathList(Path path, List<Action> wayPointsWithBackEdges, List<Action> reachableEndActions) {
-        if (reachableEndActions.contains(path.getLastAction())) { //is currentAction an endAction?
+        if (reachableEndActions.contains(path.getLastAction())) {
             wayPointsWithBackEdges.clear();
-            return Arrays.asList(path); //return List with Path
+            return Arrays.asList(path);
         } else {
-            List<Path> pathList = new ArrayList<>(); //make new list of paths
-            for (Action targetAction : navigator.getAvailableTargetActions(path.getLastAction().getTargetActions())) { // for each availableTargetAction of currentAction
-                if (!wayPointsWithBackEdges.contains(targetAction)) { // if targetAction doesn't have a backEdge
-                    if (path.getWayPoints().contains(targetAction)) { // if path already contains targetAction
-                        wayPointsWithBackEdges.add(path.getLastAction()); // add currentAction to list of actions with backEdges
+            List<Path> pathList = new ArrayList<>();
+            for (Action targetAction : navigator.getAvailableTargetActions(path.getLastAction().getTargetActions())) {
+                if (!wayPointsWithBackEdges.contains(targetAction)) {
+                    if (path.getWayPoints().contains(targetAction)) {
+                        wayPointsWithBackEdges.add(path.getLastAction());
                     }
-                    Path newPath = path.copy(); // copy the current path
-                    newPath.addWayPoint(targetAction); // add the targetAction to the copied path
-                    pathList.addAll(addPathToPathList(newPath, wayPointsWithBackEdges, reachableEndActions)); // continue with new path
+                    Path newPath = path.copy();
+                    newPath.addWayPoint(targetAction);
+                    pathList.addAll(addPathToPathList(newPath, wayPointsWithBackEdges, reachableEndActions));
                 }
             }
             return pathList;

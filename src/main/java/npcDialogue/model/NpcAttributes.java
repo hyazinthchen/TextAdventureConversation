@@ -31,8 +31,21 @@ public class NpcAttributes {
      * @param value the new value of the attribute.
      */
     public void modifyAttribute(String key, Object value) { //TODO: maybe wrong place for error detection, better put it in the DialogueValidator
-        if (npcAttributes.get(key).getClass() == value.getClass()) {
-            npcAttributes.put(key, value);
+        if (npcAttributes.get(key).getClass() == value.getClass() || npcAttributes.get(key).getClass() == Integer.class && value.getClass() == String.class) {
+            if (value instanceof String) { //TODO: NO NO NO there is a better way!
+                if (((String) value).startsWith("+")) {
+                    int summand = Integer.parseInt(((String) value).replace("+", ""));
+                    int newValue = (int) npcAttributes.get(key) + summand;
+                    npcAttributes.put(key, newValue);
+                }
+                if (((String) value).startsWith("-")) {
+                    int subtrahend = Integer.parseInt(((String) value).replace("-", ""));
+                    int newValue = (int) npcAttributes.get(key) - subtrahend;
+                    npcAttributes.put(key, newValue);
+                }
+            } else {
+                npcAttributes.put(key, value);
+            }
         } else {
             throw new IllegalArgumentException("Attribute " + key + " is of type " + npcAttributes.get(key).getClass() + " and can't be changed to " + value.getClass());
         }
@@ -56,5 +69,18 @@ public class NpcAttributes {
      */
     public boolean fulfill(Map<String, Object> requirements) {
         return fulfill(requirements.entrySet());
+    }
+
+    /**
+     * Gets an integer value of an attribute.
+     *
+     * @param key
+     * @return
+     */
+    public int getInt(String key) throws Exception { //TODO: better exception please
+        if (npcAttributes.get(key).getClass() == int.class) {
+            return (int) npcAttributes.get(key);
+        }
+        throw new Exception("NpcAttribute " + key + " is not of type int.");
     }
 }
