@@ -136,15 +136,15 @@ public class DialogueValidator {
      * @return a list of paths that have been completely traversed.
      */
     private List<Path> addPathToPathList(Path path, List<Action> wayPointsWithBackEdges, List<Action> reachableEndActions) {
-        if (reachableEndActions.contains(path.getLastAction())) {
+        if (reachableEndActions.contains(path.getLastWayPoint())) {
             wayPointsWithBackEdges.clear();
             return Arrays.asList(path);
         } else {
             List<Path> pathList = new ArrayList<>();
-            for (Action targetAction : navigator.getAvailableTargetActions(path.getLastAction().getTargetActions())) {
+            for (Action targetAction : navigator.getAvailableTargetActions(path.getLastWayPoint().getTargetActions())) {
                 if (!wayPointsWithBackEdges.contains(targetAction)) {
                     if (path.getWayPoints().contains(targetAction)) {
-                        wayPointsWithBackEdges.add(path.getLastAction());
+                        wayPointsWithBackEdges.add(path.getLastWayPoint());
                     }
                     Path newPath = path.copy();
                     newPath.addWayPoint(targetAction);
@@ -166,7 +166,7 @@ public class DialogueValidator {
         List<Path> allPaths = findAllPathsToAllEndActionsFrom(startAction);
         List<Path> pathsToAction = new ArrayList<>();
         for (Path path : allPaths) {
-            if (path.getLastAction().equals(endAction)) {
+            if (path.getLastWayPoint().equals(endAction)) {
                 pathsToAction.add(path);
             }
         }

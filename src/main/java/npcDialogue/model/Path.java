@@ -31,7 +31,7 @@ public class Path {
         return wayPoints;
     }
 
-    public Action getLastAction() {
+    public Action getLastWayPoint() {
         if (wayPoints.isEmpty()) {
             throw new NotFoundRuntimeException("Path is empty, therefore there is no last element");
         }
@@ -43,9 +43,27 @@ public class Path {
     /**
      * Creates a new path object which is a copy of the first path object and thus, has the same waypoints.
      *
-     * @return
+     * @return the copied path.
      */
     public Path copy() {
         return new Path(this.getWayPoints());
+    }
+
+    public List<Edge> getEdges() {
+        return getListOfEdges();
+    }
+
+    /**
+     * Gets a list of edges in the current path.
+     *
+     * @return a list of edges.
+     */
+    private List<Edge> getListOfEdges() {
+        List<Edge> edges = new ArrayList<>();
+        for (int i = 0; i < this.wayPoints.size() - 1; i++) {
+            Edge edge = new Edge(this.wayPoints.get(i), this.wayPoints.get(i + 1));
+            edges.add(edge);
+        }
+        return edges;
     }
 }

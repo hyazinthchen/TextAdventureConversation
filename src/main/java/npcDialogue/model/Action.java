@@ -15,6 +15,7 @@ public abstract class Action {
     private final String actionText;
     private final String name;
     private final Map<String, Object> npcAttributeModifications;
+    private String actionName;
 
     public Action(Role role, Role targetActionRole, String actionText, String name) {
         this.actionText = actionText;
@@ -113,5 +114,9 @@ public abstract class Action {
 
     public Map<String, Object> getNpcAttributeModifications() {
         return npcAttributeModifications;
+    }
+
+    public String getActionName() {
+        return actionName;
     }
 }
