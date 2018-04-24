@@ -581,11 +581,11 @@ public class DialogueValidatorTest {
         Assert.assertEquals(3, pathsToC.get(0).getWayPoints().size());
         Assert.assertTrue(pathsToC.get(0).getWayPoints().containsAll(expectedWayPointsToC));
 
-        Path p1 = new Path(actionA, actionB, actionC); //TODO: better than with equalsChecker because its independent from cardinality
+        Path p1 = new Path(actionA, actionB, actionC);
 
         List<Path> expectedPathList = new ArrayList<>();
         expectedPathList.add(p1);
-        CollectionUtils.isEqualCollection(expectedPathList, pathsToC);
+        CollectionUtils.isEqualCollection(expectedPathList, pathsToC); // TODO: use in all tests where it fits
     }
 
     /**

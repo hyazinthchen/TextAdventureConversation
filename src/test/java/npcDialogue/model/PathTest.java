@@ -52,4 +52,19 @@ public class PathTest {
         Path path = new Path();
         Assert.assertTrue(path.getEdges().isEmpty());
     }
+
+    /**
+     * A[B], B[C, D], C[A]
+     */
+    @Test
+    public void testGetEdgeTraversalCount() {
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
+        Action actionD = generateTestAction("D");
+
+        Path path = new Path(actionA, actionB, actionC, actionA, actionB, actionD);
+
+        Assert.assertEquals(2, path.getEdgeCount(actionA, actionB));
+    }
 }

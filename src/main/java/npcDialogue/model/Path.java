@@ -66,4 +66,21 @@ public class Path {
         }
         return edges;
     }
+
+    /**
+     * Gets the number of occurrences of an Edge in the current Path.
+     *
+     * @param startAction       the start of the edge
+     * @param destinationAction the end of the edge
+     * @return a number of occurrences of an Edge.
+     */
+    public int getEdgeCount(Action startAction, Action destinationAction) {
+        int count = 0;
+        for (Edge edge : getListOfEdges()) {
+            if (edge.getStartAction().equals(startAction) && edge.getDestinationAction().equals(destinationAction)) {
+                count = count + 1;
+            }
+        }
+        return count;
+    }
 }
