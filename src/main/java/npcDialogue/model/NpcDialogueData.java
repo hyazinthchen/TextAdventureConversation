@@ -39,4 +39,8 @@ public class NpcDialogueData {
     public DialogueNavigator getDialogueNavigator() {
         return dialogueNavigator;
     }
+
+    public NpcDialogueData copy() {
+        return new NpcDialogueData(this.getNpcAttributes(), this.getStartAction());
+    }
 }

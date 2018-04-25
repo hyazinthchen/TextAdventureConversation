@@ -18,9 +18,12 @@ public class DialogueValidator {
 
     private NpcDialogueData dialogueData;
 
+    private final NpcDialogueData initialDialogueData;
+
     public DialogueValidator(NpcDialogueData dialogueData) {
         this.dialogueData = dialogueData;
         this.navigator = new DialogueNavigator(dialogueData.getNpcAttributes(), dialogueData.getStartAction());
+        this.initialDialogueData = dialogueData.copy();
     }
 
     /**
@@ -117,12 +120,13 @@ public class DialogueValidator {
     private List<Path> findAllPathsToAllEndActionsFrom(Action startAction) {
         Path path = new Path();
         path.addWayPoint(startAction);
-        List<Action> wayPointsWithBackEdges = new ArrayList<>();
 
         List<Action> reachableEndActions = findEndActionsFrom(startAction);
-        reachableEndActions.retainAll(findLeavesFrom(startAction));
 
-        return addPathToPathList(path, wayPointsWithBackEdges, reachableEndActions);
+        //TODO: reset npcAttributes
+        dialogueData = initialDialogueData;
+
+        return addPathToPathList(path, reachableEndActions);
     }
 
     /**
@@ -130,25 +134,24 @@ public class DialogueValidator {
      * When no endAction is found it continues to travel through the graph and adds new waypoints to the path.
      * Each time the graph branches out, the former path is copied.
      *
-     * @param path                   a list of actions that have already been visited. At first call it only contains the startAction of the dialogue.
-     * @param wayPointsWithBackEdges a list of actions that have already been visited and lead back to an already visited action.
-     * @param reachableEndActions    a list of endActions that a player is able to reach while navigating through the dialogue.
+     * @param path                a list of actions that have already been visited. At first call it only contains the startAction of the dialogue.
+     * @param reachableEndActions a list of endActions that a player is able to reach while navigating through the dialogue.
      * @return a list of paths that have been completely traversed.
      */
-    private List<Path> addPathToPathList(Path path, List<Action> wayPointsWithBackEdges, List<Action> reachableEndActions) {
+    private List<Path> addPathToPathList(Path path, List<Action> reachableEndActions) {
         if (reachableEndActions.contains(path.getLastWayPoint())) {
-            wayPointsWithBackEdges.clear();
+
+            //TODO: reset npcAttributes
+            dialogueData = initialDialogueData;
+
             return Arrays.asList(path);
         } else {
             List<Path> pathList = new ArrayList<>();
             for (Action targetAction : navigator.getAvailableTargetActions(path.getLastWayPoint().getTargetActions())) {
-                if (!wayPointsWithBackEdges.contains(targetAction)) {
-                    if (path.getWayPoints().contains(targetAction)) {
-                        wayPointsWithBackEdges.add(path.getLastWayPoint());
-                    }
+                if (path.getEdgeCount(path.getLastWayPoint(), targetAction) < 1) {
                     Path newPath = path.copy();
                     newPath.addWayPoint(targetAction);
-                    pathList.addAll(addPathToPathList(newPath, wayPointsWithBackEdges, reachableEndActions));
+                    pathList.addAll(addPathToPathList(newPath, reachableEndActions));
                 }
             }
             return pathList;
@@ -179,5 +182,5 @@ public class DialogueValidator {
 
     private boolean findCyclesWithoutExitByDepthFirstSearch(Action currentAction) { //TODO: implement
         return true;
-    } //TODO: implement
+    }
 }

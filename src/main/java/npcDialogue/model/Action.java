@@ -1,6 +1,8 @@
 package npcDialogue.model;
 
 
+import com.queomedia.commons.equals.EqualsChecker;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -119,4 +121,7 @@ public abstract class Action {
     public String getActionName() {
         return actionName;
     }
+
+    public static final EqualsChecker<String, Action> ACTION_BY_TEXT_EQUALS_CHECKER =
+            (String actionText, Action action) -> action.getActionText().equals(actionText);
 }

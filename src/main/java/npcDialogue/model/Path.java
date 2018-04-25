@@ -31,13 +31,16 @@ public class Path {
         return wayPoints;
     }
 
+    /**
+     * Gets the last waypoint in the current path.
+     *
+     * @return the last waypoint
+     */
     public Action getLastWayPoint() {
         if (wayPoints.isEmpty()) {
             throw new NotFoundRuntimeException("Path is empty, therefore there is no last element");
         }
         return wayPoints.get(wayPoints.size() - 1);
-
-        //return wayPoints.stream().reduce(null, (a,b)->b);
     }
 
     /**
@@ -77,10 +80,20 @@ public class Path {
     public int getEdgeCount(Action startAction, Action destinationAction) {
         int count = 0;
         for (Edge edge : getListOfEdges()) {
-            if (edge.getStartAction().equals(startAction) && edge.getDestinationAction().equals(destinationAction)) {
-                count = count + 1;
+            if (edge.equals(new Edge(startAction, destinationAction))) {
+                count++;
             }
         }
         return count;
+    }
+
+    /**
+     * Gets the number of occurrences of an Edge in the current Path.
+     *
+     * @param edge the edge to count in the path
+     * @return a number of occurrences of an Edge.
+     */
+    public int getEdgeCount(Edge edge) {
+        return getEdgeCount(edge.getStartAction(), edge.getDestinationAction());
     }
 }

@@ -1,5 +1,6 @@
 package npcDialogue.model;
 
+import com.queomedia.commons.asserts.AssertUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,7 +33,7 @@ public class PathTest {
         Path path = new Path(actionA, actionB, actionC, actionD);
 
         Assert.assertTrue(path.getEdges().size() == 3);
-        Assert.assertEquals(asList(new Edge(actionA, actionB), new Edge(actionB, actionC), new Edge(actionC, actionD)).toString(), path.getEdges().toString());
+        AssertUtil.sameOrder(asList(new Edge(actionA, actionB), new Edge(actionB, actionC), new Edge(actionC, actionD)), path.getEdges());
     }
 
     /**
@@ -44,18 +45,16 @@ public class PathTest {
 
         Path path = new Path(actionA);
 
-        Assert.assertTrue(path.getEdges().isEmpty());
+        AssertUtil.isEmpty(path.getEdges());
     }
 
     @Test
     public void testGetEdgesNoElement() {
         Path path = new Path();
-        Assert.assertTrue(path.getEdges().isEmpty());
+        AssertUtil.isEmpty(path.getEdges());
     }
 
-    /**
-     * A[B], B[C, D], C[A]
-     */
+
     @Test
     public void testGetEdgeTraversalCount() {
         Action actionA = generateTestAction("A");
@@ -65,6 +64,6 @@ public class PathTest {
 
         Path path = new Path(actionA, actionB, actionC, actionA, actionB, actionD);
 
-        Assert.assertEquals(2, path.getEdgeCount(actionA, actionB));
+        Assert.assertEquals(2, path.getEdgeCount(new Edge(actionA, actionB)));
     }
 }
