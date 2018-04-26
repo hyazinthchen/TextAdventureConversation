@@ -18,12 +18,11 @@ public class DialogueValidator {
 
     private NpcDialogueData dialogueData;
 
-    private final NpcDialogueData initialDialogueData;
+    private boolean cycleFound;
 
     public DialogueValidator(NpcDialogueData dialogueData) {
         this.dialogueData = dialogueData;
         this.navigator = new DialogueNavigator(dialogueData.getNpcAttributes(), dialogueData.getStartAction());
-        this.initialDialogueData = dialogueData.copy();
     }
 
     /**
@@ -32,48 +31,14 @@ public class DialogueValidator {
      * @return true when the dialogue is valid
      */
     public boolean isValid() {
-        if (findCyclesWithoutExit(dialogueData.getStartAction())) {
-            new ConsoleReaderWriter().printErrorMessage("Error in loaded dialogue. Dialogue contains loops which the player can never exit. Loop has been cut off and can't be traversed by player."); //TODO: Ausgabe wo Cycle ist
-        }
         if (findAllPathsToAllEndActionsFrom(dialogueData.getStartAction()).isEmpty()) {
+            if (cycleFound) {
+                new ConsoleReaderWriter().printErrorMessage("Error in loaded dialogue. Dialogue contains loops which the player might never exit.");
+            }
             new ConsoleReaderWriter().printErrorMessage("Error in loaded dialogue. Dialogue will never reach a desired end.");
             return false;
         }
         return true;
-    }
-
-    /**
-     * Gets a list of actions that do not have available targetActions.
-     *
-     * @param startAction the action from which the search for leaves should commence
-     * @return a list of actions where the dialogue stops.
-     */
-    public List<Action> findLeavesFrom(Action startAction) {
-        List<Action> leaves = new ArrayList<>();
-        List<Action> visitedActions = new ArrayList<>();
-        addAllLeavesByDepthFirstSearch(startAction, leaves, visitedActions);
-
-        return leaves;
-    }
-
-    /**
-     * Performs a recursive depth first search and adds actions that do not have available targetActions to a list of actions. (leaves of the tree)
-     *
-     * @param currentAction  the action from which the search for leaves should commence
-     * @param leaves         a list of actions that do not have available targetActions
-     * @param visitedActions a list of actions the algorithm has already visited
-     */
-    private void addAllLeavesByDepthFirstSearch(final Action currentAction, List<Action> leaves, List<Action> visitedActions) {
-        visitedActions.add(currentAction);
-        List<Action> availableActions = navigator.getAvailableTargetActions(currentAction.getTargetActions());
-        if (availableActions.isEmpty() || currentAction.getTargetActions().isEmpty()) {
-            leaves.add(currentAction);
-        }
-        for (Action targetAction : availableActions) {
-            if (!visitedActions.contains(targetAction)) {
-                addAllLeavesByDepthFirstSearch(targetAction, leaves, visitedActions);
-            }
-        }
     }
 
     /**
@@ -124,7 +89,6 @@ public class DialogueValidator {
         List<Action> reachableEndActions = findEndActionsFrom(startAction);
 
         //TODO: reset npcAttributes
-        dialogueData = initialDialogueData;
 
         return addPathToPathList(path, reachableEndActions);
     }
@@ -141,8 +105,7 @@ public class DialogueValidator {
     private List<Path> addPathToPathList(Path path, List<Action> reachableEndActions) {
         if (reachableEndActions.contains(path.getLastWayPoint())) {
 
-            //TODO: reset npcAttributes
-            dialogueData = initialDialogueData;
+            //TODO: reset npcAttributes, Problem: breadth-first search, not depth-first search
 
             return Arrays.asList(path);
         } else {
@@ -152,6 +115,8 @@ public class DialogueValidator {
                     Path newPath = path.copy();
                     newPath.addWayPoint(targetAction);
                     pathList.addAll(addPathToPathList(newPath, reachableEndActions));
+                } else {
+                    cycleFound = true;
                 }
             }
             return pathList;
@@ -174,13 +139,5 @@ public class DialogueValidator {
             }
         }
         return pathsToAction;
-    }
-
-    public boolean findCyclesWithoutExit(Action startAction) {
-        return findCyclesWithoutExitByDepthFirstSearch(startAction);
-    }
-
-    private boolean findCyclesWithoutExitByDepthFirstSearch(Action currentAction) { //TODO: implement
-        return true;
     }
 }

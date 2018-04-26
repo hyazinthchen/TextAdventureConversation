@@ -3,7 +3,6 @@ package npcDialogue.controller;
 import com.queomedia.commons.asserts.AssertUtil;
 import npcDialogue.model.*;
 import org.apache.commons.collections4.CollectionUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -19,31 +18,6 @@ public class DialogueValidatorTest {
      */
     private Action generateTestAction(String actionText) {
         return new NpcAction(Role.NPC, actionText, actionText);
-    }
-
-    /**
-     * A[B, C], B[D], conditions for D will not be fulfilled
-     */
-    @Test
-    public void testFindLeavesFrom() {
-        NpcAttributes attributes = new NpcAttributes();
-        attributes.addAttribute("reputation", 50);
-
-        Action actionA = generateTestAction("A");
-        Action actionB = generateTestAction("B");
-        Action actionC = generateTestAction("C");
-        Action actionD = generateTestAction("D");
-        actionA.addTargetAction(actionB);
-        actionA.addTargetAction(actionC);
-        actionB.addTargetAction(actionD);
-
-        actionD.addActionCondition("reputation", 60);
-
-        NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
-        List<Action> leaves = new DialogueValidator(dialogueData).findLeavesFrom(dialogueData.getStartAction());
-
-        AssertUtil.hasSize(2, leaves);
-        AssertUtil.containsExact(Arrays.asList("B", "C"), leaves, Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
 
     /**
@@ -373,8 +347,6 @@ public class DialogueValidatorTest {
 
         AssertUtil.hasSize(1, pathsToC);
         AssertUtil.containsExact(Arrays.asList("A", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-
-        Assert.assertTrue(new DialogueValidator(dialogueData).findCyclesWithoutExit(dialogueData.getStartAction()));
     }
 
     /**
@@ -399,8 +371,6 @@ public class DialogueValidatorTest {
 
         AssertUtil.hasSize(1, pathsToC);
         AssertUtil.containsExact(Arrays.asList("A", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-
-        Assert.assertTrue(new DialogueValidator(dialogueData).findCyclesWithoutExit(dialogueData.getStartAction()));
     }
 
     /**
@@ -430,8 +400,6 @@ public class DialogueValidatorTest {
 
         AssertUtil.hasSize(1, pathsToC);
         AssertUtil.containsExact(Arrays.asList("A", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-
-        Assert.assertTrue(new DialogueValidator(dialogueData).findCyclesWithoutExit(dialogueData.getStartAction()));
     }
 
     /**
@@ -582,4 +550,5 @@ public class DialogueValidatorTest {
         AssertUtil.containsExact(Arrays.asList("A", "B", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
         AssertUtil.containsExact(Arrays.asList("A", "D"), pathsToD.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
+
 }
