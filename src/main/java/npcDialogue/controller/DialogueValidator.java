@@ -1,6 +1,7 @@
 package npcDialogue.controller;
 
 import npcDialogue.model.Action;
+import npcDialogue.model.NpcAttributes;
 import npcDialogue.model.NpcDialogueData;
 import npcDialogue.model.Path;
 import npcDialogue.view.ConsoleReaderWriter;
@@ -14,15 +15,12 @@ import java.util.List;
  */
 public class DialogueValidator {
 
-    private DialogueNavigator navigator;
-
     private NpcDialogueData dialogueData;
 
     private boolean cycleFound;
 
     public DialogueValidator(NpcDialogueData dialogueData) {
         this.dialogueData = dialogueData;
-        this.navigator = new DialogueNavigator(dialogueData.getNpcAttributes(), dialogueData.getStartAction());
     }
 
     /**
@@ -32,11 +30,11 @@ public class DialogueValidator {
      */
     public boolean isValid() {
         if (findAllPathsToAllEndActionsFrom(dialogueData.getStartAction()).isEmpty()) {
-            if (cycleFound) {
-                new ConsoleReaderWriter().printErrorMessage("Error in loaded dialogue. Dialogue contains loops which the player might never exit.");
-            }
             new ConsoleReaderWriter().printErrorMessage("Error in loaded dialogue. Dialogue will never reach a desired end.");
             return false;
+        }
+        if (cycleFound) {
+            new ConsoleReaderWriter().printErrorMessage("Error in loaded dialogue. Dialogue contains loops which the player might never exit. Dialogue can be played regardless.");
         }
         return true;
     }
@@ -67,6 +65,7 @@ public class DialogueValidator {
         if (currentAction.getTargetActions().isEmpty()) {
             endActions.add(currentAction);
         }
+        DialogueNavigator navigator = new DialogueNavigator(dialogueData.getNpcAttributes(), dialogueData.getStartAction());
         navigator.modifyNpcAttributes(currentAction);
         List<Action> availableActions = navigator.getAvailableTargetActions(currentAction.getTargetActions());
         for (Action availableTargetAction : availableActions) {
@@ -86,9 +85,9 @@ public class DialogueValidator {
         Path path = new Path();
         path.addWayPoint(startAction);
 
+        NpcAttributes initialAttributes = dialogueData.getNpcAttributes().copy();
         List<Action> reachableEndActions = findEndActionsFrom(startAction);
-
-        //TODO: reset npcAttributes
+        dialogueData.setNpcAttributes(initialAttributes);
 
         return addPathToPathList(path, reachableEndActions);
     }
@@ -103,13 +102,13 @@ public class DialogueValidator {
      * @return a list of paths that have been completely traversed.
      */
     private List<Path> addPathToPathList(Path path, List<Action> reachableEndActions) {
+        NpcAttributes initialAttributes = dialogueData.getNpcAttributes().copy();
         if (reachableEndActions.contains(path.getLastWayPoint())) {
-
-            //TODO: reset npcAttributes, Problem: breadth-first search, not depth-first search
-
             return Arrays.asList(path);
         } else {
             List<Path> pathList = new ArrayList<>();
+            DialogueNavigator navigator = new DialogueNavigator(dialogueData.getNpcAttributes(), dialogueData.getStartAction());
+            navigator.modifyNpcAttributes(path.getLastWayPoint());
             for (Action targetAction : navigator.getAvailableTargetActions(path.getLastWayPoint().getTargetActions())) {
                 if (path.getEdgeCount(path.getLastWayPoint(), targetAction) < 1) {
                     Path newPath = path.copy();
@@ -119,6 +118,7 @@ public class DialogueValidator {
                     cycleFound = true;
                 }
             }
+            dialogueData.setNpcAttributes(initialAttributes);
             return pathList;
         }
     }

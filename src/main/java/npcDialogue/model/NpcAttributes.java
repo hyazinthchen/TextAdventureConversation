@@ -10,6 +10,13 @@ import java.util.Set;
 public class NpcAttributes {
     private Map<String, Object> npcAttributes = new HashMap<>();
 
+    public NpcAttributes(Map<String, Object> npcAttributes) {
+        this.npcAttributes = new HashMap<>(npcAttributes);
+    }
+
+    public NpcAttributes() {
+    }
+
     /**
      * Adds a new attribute to the NPC.
      *
@@ -69,5 +76,9 @@ public class NpcAttributes {
      */
     public boolean fulfill(Map<String, Object> requirements) {
         return fulfill(requirements.entrySet());
+    }
+
+    public NpcAttributes copy() {
+        return new NpcAttributes(this.npcAttributes);
     }
 }

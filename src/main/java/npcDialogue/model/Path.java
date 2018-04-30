@@ -2,15 +2,10 @@ package npcDialogue.model;
 
 import com.queomedia.commons.exceptions.NotFoundRuntimeException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Path {
     private List<Action> wayPoints;
-
-    private NpcAttributes npcAttributes;
 
     public Path(List<Action> wayPoints) {
         this.wayPoints = new ArrayList<>(wayPoints);
@@ -24,6 +19,14 @@ public class Path {
         this(Collections.emptyList());
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Path)) {
+            return false;
+        }
+        Path other = (Path) obj;
+        return Objects.equals(wayPoints, other.wayPoints);
+    }
 
     public void addWayPoint(Action action) {
         wayPoints.add(action);
@@ -97,13 +100,5 @@ public class Path {
      */
     public int getEdgeCount(Edge edge) {
         return getEdgeCount(edge.getStartAction(), edge.getDestinationAction());
-    }
-
-    public NpcAttributes getNpcAttributes() {
-        return npcAttributes;
-    }
-
-    public void setNpcAttributes(NpcAttributes npcAttributes) {
-        this.npcAttributes = npcAttributes;
     }
 }

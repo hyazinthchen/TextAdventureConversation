@@ -5,6 +5,7 @@ import npcDialogue.model.Role;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Responsible for reading the players input from the console and printing ActionTexts to the console.
@@ -19,7 +20,7 @@ public class ConsoleReaderWriter {
      * @return the chosen action by the player.
      */
     public Action chooseByPlayerInput(List<Action> availableActions) {
-        if(availableActions == null){
+        if (availableActions == null) {
             throw new IllegalArgumentException("AvailableActions is null.");
         }
 
@@ -55,6 +56,11 @@ public class ConsoleReaderWriter {
      * @param action the action of which the actionText should be printed.
      */
     public void printSingleActionText(Action action) {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException ex) {
+            printErrorMessage(ex.getMessage());
+        }
         if (action.getRole() == Role.PLAYER) {
             System.out.println("You: " + action.getActionText());
         } else {

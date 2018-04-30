@@ -9,7 +9,7 @@ import npcDialogue.view.ConsoleReaderWriter;
  * Later: Save ActionGraph (stateful!) and npcAttributes in DB
  */
 public class NpcDialogueData {
-    private final NpcAttributes npcAttributes;
+    private NpcAttributes npcAttributes;
     private final Action startAction; //TODO make stateless and save all states to npcAttributes ?
     private DialogueNavigator dialogueNavigator; //TODO keep this between npc conversions ?
 
@@ -21,7 +21,7 @@ public class NpcDialogueData {
     /**
      * Starts a new DialogueNavigator.
      */
-    public void start() {
+    public void start() throws CloneNotSupportedException {
         if (new DialogueValidator(this).isValid()) {
             dialogueNavigator = new DialogueNavigator(npcAttributes, startAction);
             dialogueNavigator.navigate(new ConsoleReaderWriter());
@@ -38,5 +38,9 @@ public class NpcDialogueData {
 
     public DialogueNavigator getDialogueNavigator() {
         return dialogueNavigator;
+    }
+
+    public void setNpcAttributes(NpcAttributes npcAttributes) {
+        this.npcAttributes = npcAttributes;
     }
 }

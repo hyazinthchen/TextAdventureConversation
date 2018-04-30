@@ -1,5 +1,6 @@
 package npcDialogue.model;
 
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -107,6 +108,17 @@ public class NpcAttributesTest {
         conditionSet.add(new AbstractMap.SimpleEntry<>("A", 5));
 
         assertFalse(testNpcAttributes.fulfill(conditionSet));
+    }
+
+    @Test
+    public void testCopy() {
+        NpcAttributes testNpcAttributes = new NpcAttributes();
+        testNpcAttributes.addAttribute("A", 10);
+
+        NpcAttributes clonedNpcAttributes = testNpcAttributes.copy();
+        testNpcAttributes.modifyAttribute("A", 20);
+
+        Assert.assertEquals(clonedNpcAttributes.getNpcAttributes().get("A"), 10);
     }
 
 }
