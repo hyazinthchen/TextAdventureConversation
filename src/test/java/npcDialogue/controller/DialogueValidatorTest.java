@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static org.junit.Assert.assertTrue;
 
 public class DialogueValidatorTest {
     /**
@@ -67,7 +68,7 @@ public class DialogueValidatorTest {
 
         List<Action> endActions = new DialogueValidator(dialogueData).findEndActionsFrom(dialogueData.getStartAction());
         AssertUtil.hasSize(1, endActions);
-        Assert.assertTrue(CollectionUtils.isEqualCollection(asList(actionC), endActions));
+        assertTrue(CollectionUtils.isEqualCollection(asList(actionC), endActions));
     }
 
     /**
@@ -97,7 +98,7 @@ public class DialogueValidatorTest {
 
         List<Action> endActions = new DialogueValidator(dialogueData).findEndActionsFrom(dialogueData.getStartAction());
         AssertUtil.hasSize(2, endActions);
-        Assert.assertTrue(CollectionUtils.isEqualCollection(asList(actionE, actionF), endActions));
+        assertTrue(CollectionUtils.isEqualCollection(asList(actionE, actionF), endActions));
     }
 
     /**
@@ -119,12 +120,12 @@ public class DialogueValidatorTest {
         AssertUtil.hasSize(1, pathsToB);
         AssertUtil.hasSize(1, pathsToC);
 
-        Assert.assertTrue(CollectionUtils.isEqualCollection(asList(actionA, actionB), pathsToB.get(0).getWayPoints()));
-        Assert.assertTrue(CollectionUtils.isEqualCollection(asList(actionA, actionC), pathsToC.get(0).getWayPoints()));
+        assertTrue(CollectionUtils.isEqualCollection(asList(actionA, actionB), pathsToB.get(0).getWayPoints()));
+        assertTrue(CollectionUtils.isEqualCollection(asList(actionA, actionC), pathsToC.get(0).getWayPoints()));
     }
 
     /**
-     * A[B, C], B[D], C[D] //TODO: why are the collections not equal?
+     * A[B, C], B[D], C[D]
      */
     @Test
     public void testFindAllPathsTo_OneEnd_TwoPaths() {
@@ -140,12 +141,12 @@ public class DialogueValidatorTest {
         NpcDialogueData dialogueData = new NpcDialogueData(new NpcAttributes(), actionA);
 
         List<Path> pathsToD = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionD);
+        List<Path> expectedPathsToD = asList(new Path(actionA, actionB, actionD), new Path(actionA, actionC, actionD));
 
         AssertUtil.hasSize(2, pathsToD);
-        AssertUtil.containsExact(asList("A", "B", "D"), pathsToD.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "C", "D"), pathsToD.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        Assert.assertTrue(CollectionUtils.isEqualCollection(asList(new Path(actionA, actionB, actionD), new Path(actionA, actionC, actionD)), pathsToD));
-    }
+        assertTrue(pathsToD.containsAll(expectedPathsToD));
+        assertTrue(expectedPathsToD.containsAll(pathsToD));
+        }
 
     /**
      * A[B, C], B[D], D[A]
@@ -510,11 +511,10 @@ public class DialogueValidatorTest {
         List<Path> pathsToE = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionE);
 
         AssertUtil.hasSize(1, pathsToC);
-        AssertUtil.hasSize(2, pathsToE);
+        AssertUtil.hasSize( 1, pathsToE);
 
         AssertUtil.containsExact(asList("A", "B", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
         AssertUtil.containsExact(asList("A", "D", "E"), pathsToE.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "B", "A", "D", "E"), pathsToE.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
     }
 
     /**
@@ -547,5 +547,33 @@ public class DialogueValidatorTest {
 
         AssertUtil.containsExact(asList("A", "B", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
         AssertUtil.containsExact(asList("A", "D"), pathsToD.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+    }
+
+    /**
+     *
+     */
+    @Test
+    public void testFindEndActionsFrom_withModification() {
+        NpcAttributes attributes = new NpcAttributes();
+        attributes.addAttribute("reputation", 50);
+
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
+        Action actionD = generateTestAction("D");
+        Action actionE = generateTestAction("E");
+        actionA.addTargetAction(actionB);
+        actionB.addTargetAction(actionC);
+        actionA.addTargetAction(actionD);
+        actionD.addTargetAction(actionE);
+
+        actionB.addNpcAttributeModification("reputation", 60);
+        actionE.addActionCondition("reputation", 50);
+
+        NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
+
+        List<Action> endActions = new DialogueValidator(dialogueData).findEndActionsFrom(dialogueData.getStartAction());
+        AssertUtil.hasSize(2, endActions);
+        assertTrue(CollectionUtils.isEqualCollection(asList(actionC, actionE), endActions));
     }
 }
