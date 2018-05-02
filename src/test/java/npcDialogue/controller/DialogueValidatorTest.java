@@ -3,7 +3,6 @@ package npcDialogue.controller;
 import com.queomedia.commons.asserts.AssertUtil;
 import npcDialogue.model.*;
 import org.apache.commons.collections4.CollectionUtils;
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -27,7 +26,7 @@ public class DialogueValidatorTest {
      * A[B, C], B[D], C[D], conditions for B and C will not be fulfilled
      */
     @Test
-    public void testFindEndActionsFrom_noWayThrough() {
+    public void testFindEndActionsFrom_NoWayThrough() {
         NpcAttributes attributes = new NpcAttributes();
         attributes.addAttribute("reputation", 50);
 
@@ -41,7 +40,7 @@ public class DialogueValidatorTest {
         actionC.addTargetAction(actionD);
 
         actionB.addActionCondition("reputation", 60);
-        actionC.addActionCondition("reputation", 70);
+        actionC.addActionCondition("reputation", 60);
 
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
 
@@ -52,7 +51,7 @@ public class DialogueValidatorTest {
      * A[B, C], conditions for B will not be fulfilled
      */
     @Test
-    public void testFindEndActionsFrom_oneWayThrough() {
+    public void testFindEndActionsFrom_OneWayThrough() {
         NpcAttributes attributes = new NpcAttributes();
         attributes.addAttribute("reputation", 50);
 
@@ -75,7 +74,7 @@ public class DialogueValidatorTest {
      * A[B, C, D], B[E], C[E], D[F], conditions for B will not be fulfilled
      */
     @Test
-    public void testFindEndActionsFrom_multipleWaysThrough() {
+    public void testFindEndActionsFrom_MultipleWaysThrough() {
         NpcAttributes attributes = new NpcAttributes();
         attributes.addAttribute("reputation", 50);
 
@@ -102,6 +101,34 @@ public class DialogueValidatorTest {
     }
 
     /**
+     * A[B, D], B[C], D[E], B locks E
+     */
+    @Test
+    public void testFindEndActionsFrom_WithModification() {
+        NpcAttributes attributes = new NpcAttributes();
+        attributes.addAttribute("reputation", 50);
+
+        Action actionA = generateTestAction("A");
+        Action actionB = generateTestAction("B");
+        Action actionC = generateTestAction("C");
+        Action actionD = generateTestAction("D");
+        Action actionE = generateTestAction("E");
+        actionA.addTargetAction(actionB);
+        actionB.addTargetAction(actionC);
+        actionA.addTargetAction(actionD);
+        actionD.addTargetAction(actionE);
+
+        actionB.addNpcAttributeModification("reputation", 60);
+        actionE.addActionCondition("reputation", 50);
+
+        NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
+
+        List<Action> endActions = new DialogueValidator(dialogueData).findEndActionsFrom(dialogueData.getStartAction());
+        AssertUtil.hasSize(2, endActions);
+        assertTrue(CollectionUtils.isEqualCollection(asList(actionC, actionE), endActions));
+    }
+
+    /**
      * A[B, C]
      */
     @Test
@@ -116,12 +143,17 @@ public class DialogueValidatorTest {
 
         List<Path> pathsToB = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionB);
         List<Path> pathsToC = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionC);
+        List<Path> expectedPathsToB = asList(new Path(actionA, actionB));
+        List<Path> expectedPathsToC = asList(new Path(actionA, actionC));
 
         AssertUtil.hasSize(1, pathsToB);
         AssertUtil.hasSize(1, pathsToC);
 
-        assertTrue(CollectionUtils.isEqualCollection(asList(actionA, actionB), pathsToB.get(0).getWayPoints()));
-        assertTrue(CollectionUtils.isEqualCollection(asList(actionA, actionC), pathsToC.get(0).getWayPoints()));
+        assertTrue(pathsToB.containsAll(expectedPathsToB));
+        assertTrue(expectedPathsToB.containsAll(pathsToB));
+
+        assertTrue(pathsToC.containsAll(expectedPathsToC));
+        assertTrue(expectedPathsToC.containsAll(pathsToC));
     }
 
     /**
@@ -146,7 +178,7 @@ public class DialogueValidatorTest {
         AssertUtil.hasSize(2, pathsToD);
         assertTrue(pathsToD.containsAll(expectedPathsToD));
         assertTrue(expectedPathsToD.containsAll(pathsToD));
-        }
+    }
 
     /**
      * A[B, C], B[D], D[A]
@@ -165,10 +197,11 @@ public class DialogueValidatorTest {
         NpcDialogueData dialogueData = new NpcDialogueData(new NpcAttributes(), actionA);
 
         List<Path> pathsToC = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionC);
+        List<Path> expectedPathsToC = asList(new Path(actionA, actionB, actionD, actionA, actionC), new Path(actionA, actionC));
 
         AssertUtil.hasSize(2, pathsToC);
-        AssertUtil.containsExact(asList("A", "B", "D", "A", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "C"), pathsToC.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertTrue(pathsToC.containsAll(expectedPathsToC));
+        assertTrue(expectedPathsToC.containsAll(pathsToC));
     }
 
     /**
@@ -189,15 +222,17 @@ public class DialogueValidatorTest {
 
         List<Path> pathsToC = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionC);
         List<Path> pathsToD = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionD);
+        List<Path> expectedPathsToC = asList(new Path(actionA, actionB, actionA, actionC), new Path(actionA, actionC));
+        List<Path> expectedPathsToD = asList(new Path(actionA, actionB, actionA, actionD), new Path(actionA, actionD));
 
         AssertUtil.hasSize(2, pathsToC);
         AssertUtil.hasSize(2, pathsToD);
 
-        AssertUtil.containsExact(asList("A", "B", "A", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "C"), pathsToC.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertTrue(pathsToC.containsAll(expectedPathsToC));
+        assertTrue(expectedPathsToC.containsAll(pathsToC));
 
-        AssertUtil.containsExact(asList("A", "B", "A", "D"), pathsToD.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "D"), pathsToD.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertTrue(pathsToD.containsAll(expectedPathsToD));
+        assertTrue(expectedPathsToD.containsAll(pathsToD));
     }
 
     /**
@@ -218,20 +253,18 @@ public class DialogueValidatorTest {
         NpcDialogueData dialogueData = new NpcDialogueData(new NpcAttributes(), actionA);
 
         List<Path> pathsToD = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionD);
+        List<Path> expectedPathsToD = asList(new Path(actionA, actionB, actionA, actionC, actionA, actionD), new Path(actionA, actionB, actionA, actionD), new Path(actionA, actionC, actionA, actionB, actionA, actionD), new Path(actionA, actionC, actionA, actionD), new Path(actionA, actionD));
 
         AssertUtil.hasSize(5, pathsToD);
-        AssertUtil.containsExact(asList("A", "B", "A", "C", "A", "D"), pathsToD.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "B", "A", "D"), pathsToD.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "C", "A", "B", "A", "D"), pathsToD.get(2).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "C", "A", "D"), pathsToD.get(3).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "D"), pathsToD.get(4).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertTrue(pathsToD.containsAll(expectedPathsToD));
+        assertTrue(expectedPathsToD.containsAll(pathsToD));
     }
 
     /**
      * A[B, C], B[D, A], D[B]
      */
     @Test
-    public void testFindAllPathsTo_OneEnd_threePaths_WithTwoCircles() {
+    public void testFindAllPathsTo_OneEnd_ThreePaths_WithTwoCircles() {
         Action actionA = generateTestAction("A");
         Action actionB = generateTestAction("B");
         Action actionC = generateTestAction("C");
@@ -245,18 +278,18 @@ public class DialogueValidatorTest {
         NpcDialogueData dialogueData = new NpcDialogueData(new NpcAttributes(), actionA);
 
         List<Path> pathsToC = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionC);
+        List<Path> expectedPathsToC = asList(new Path(actionA, actionB, actionD, actionB, actionA, actionC), new Path(actionA, actionB, actionA, actionC), new Path(actionA, actionC));
 
         AssertUtil.hasSize(3, pathsToC);
-        AssertUtil.containsExact(asList("A", "B", "D", "B", "A", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "B", "A", "C"), pathsToC.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "C"), pathsToC.get(2).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertTrue(pathsToC.containsAll(expectedPathsToC));
+        assertTrue(expectedPathsToC.containsAll(pathsToC));
     }
 
     /**
      * A[B, C, D], B[C], C[A]
      */
     @Test
-    public void testFindAllPathsTo_OneEnd_ThreePaths_OneCircle() {
+    public void testFindAllPathsTo_OneEnd_ThreePaths_WithCircle() {
         Action actionA = generateTestAction("A");
         Action actionB = generateTestAction("B");
         Action actionC = generateTestAction("C");
@@ -270,18 +303,18 @@ public class DialogueValidatorTest {
         NpcDialogueData dialogueData = new NpcDialogueData(new NpcAttributes(), actionA);
 
         List<Path> pathsToD = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionD);
+        List<Path> expectedPathsToD = asList(new Path(actionA, actionB, actionC, actionA, actionD), new Path(actionA, actionC, actionA, actionD), new Path(actionA, actionD));
 
         AssertUtil.hasSize(3, pathsToD);
-        AssertUtil.containsExact(asList("A", "B", "C", "A", "D"), pathsToD.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "C", "A", "D"), pathsToD.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "D"), pathsToD.get(2).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertTrue(pathsToD.containsAll(expectedPathsToD));
+        assertTrue(expectedPathsToD.containsAll(pathsToD));
     }
 
     /**
      * A[B, C], B[D], C[D], conditions for B  will not be fulfilled
      */
     @Test
-    public void testFindAllPathsTo_oneWayThrough() {
+    public void testFindAllPathsTo_OneWayThrough() {
         NpcAttributes attributes = new NpcAttributes();
         attributes.addAttribute("reputation", 50);
 
@@ -299,16 +332,18 @@ public class DialogueValidatorTest {
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
 
         List<Path> pathsToD = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionD);
+        List<Path> expectedPathsToD = asList(new Path(actionA, actionC, actionD));
 
         AssertUtil.hasSize(1, pathsToD);
-        AssertUtil.containsExact(asList("A", "C", "D"), pathsToD.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertTrue(pathsToD.containsAll(expectedPathsToD));
+        assertTrue(expectedPathsToD.containsAll(pathsToD));
     }
 
     /**
      * A[B, C, D], C[A], conditions for B will not be fulfilled
      */
     @Test
-    public void testFindAllPathsTo_twoWaysThrough() {
+    public void testFindAllPathsTo_TwoWaysThrough_WithCircle() {
         NpcAttributes attributes = new NpcAttributes();
         attributes.addAttribute("reputation", 50);
 
@@ -326,17 +361,18 @@ public class DialogueValidatorTest {
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
 
         List<Path> pathsToD = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionD);
+        List<Path> expectedPathsToD = asList(new Path(actionA, actionC, actionA, actionD), new Path(actionA, actionD));
 
         AssertUtil.hasSize(2, pathsToD);
-        AssertUtil.containsExact(asList("A", "C", "A", "D"), pathsToD.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "D"), pathsToD.get(1).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertTrue(pathsToD.containsAll(expectedPathsToD));
+        assertTrue(expectedPathsToD.containsAll(pathsToD));
     }
 
     /**
      * A[B, C], B[D], D[B]
      */
     @Test
-    public void testFindAllPathsTo_twoActionCycle() {
+    public void testFindAllPathsTo_OneWayThrough_WithCircle1() {
         Action actionA = generateTestAction("A");
         Action actionB = generateTestAction("B");
         Action actionC = generateTestAction("C");
@@ -349,16 +385,18 @@ public class DialogueValidatorTest {
         NpcDialogueData dialogueData = new NpcDialogueData(new NpcAttributes(), actionA);
 
         List<Path> pathsToC = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionC);
+        List<Path> expectedPathsToC = asList(new Path(actionA, actionC));
 
         AssertUtil.hasSize(1, pathsToC);
-        AssertUtil.containsExact(asList("A", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertTrue(pathsToC.containsAll(expectedPathsToC));
+        assertTrue(expectedPathsToC.containsAll(pathsToC));
     }
 
     /**
      * A[B, C], B[D], D[E], E[B]
      */
     @Test
-    public void testFindAllPathsTo_threeActionCycle() {
+    public void testFindAllPathsTo_OneWayThrough_WithCircle2() {
         Action actionA = generateTestAction("A");
         Action actionB = generateTestAction("B");
         Action actionC = generateTestAction("C");
@@ -373,16 +411,18 @@ public class DialogueValidatorTest {
         NpcDialogueData dialogueData = new NpcDialogueData(new NpcAttributes(), actionA);
 
         List<Path> pathsToC = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionC);
+        List<Path> expectedPathsToC = asList(new Path(actionA, actionC));
 
         AssertUtil.hasSize(1, pathsToC);
-        AssertUtil.containsExact(asList("A", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertTrue(pathsToC.containsAll(expectedPathsToC));
+        assertTrue(expectedPathsToC.containsAll(pathsToC));
     }
 
     /**
      * A[B, C], B[D, E], D[B], conditions for E will not be fulfilled
      */
     @Test
-    public void testFindAllPathsTo_twoActionCycle_withCondition() {
+    public void testFindAllPathsTo_OneWayThrough_WithCircle_WithCondition() {
         NpcAttributes attributes = new NpcAttributes();
         attributes.addAttribute("reputation", 50);
 
@@ -402,42 +442,18 @@ public class DialogueValidatorTest {
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
 
         List<Path> pathsToC = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionC);
+        List<Path> expectedPathsToC = asList(new Path(actionA, actionC));
 
         AssertUtil.hasSize(1, pathsToC);
-        AssertUtil.containsExact(asList("A", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-    }
-
-    /**
-     * A[B, C], B[D, A], D[E, A]
-     */
-    @Ignore
-    @Test
-    public void testFindAllPathsTo_twoNestedCycles() {
-
-        Action actionA = generateTestAction("A");
-        Action actionB = generateTestAction("B");
-        Action actionC = generateTestAction("C");
-        Action actionD = generateTestAction("D");
-        Action actionE = generateTestAction("E");
-        actionA.addTargetAction(actionB);
-        actionA.addTargetAction(actionC);
-        actionB.addTargetAction(actionD);
-        actionB.addTargetAction(actionA);
-        actionD.addTargetAction(actionA);
-        actionD.addTargetAction(actionE);
-
-        NpcDialogueData dialogueData = new NpcDialogueData(new NpcAttributes(), actionA);
-
-        List<Path> pathsToC = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionC);
-
-        AssertUtil.hasSize(6, pathsToC);
+        assertTrue(pathsToC.containsAll(expectedPathsToC));
+        assertTrue(expectedPathsToC.containsAll(pathsToC));
     }
 
     /**
      * A[B], B[C], condition of C is only fulfilled when B is reached
      */
     @Test
-    public void testFindAllPathsTo_withModificationAndCondition_onePath() {
+    public void testFindAllPathsTo_WithModificationAndCondition_OneWayThrough() {
         NpcAttributes attributes = new NpcAttributes();
         attributes.addAttribute("reputation", 50);
 
@@ -453,16 +469,18 @@ public class DialogueValidatorTest {
         NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
 
         List<Path> pathsToC = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionC);
+        List<Path> expectedPathsToC = asList(new Path(actionA, actionB, actionC));
 
         AssertUtil.hasSize(1, pathsToC);
-        AssertUtil.containsExact(asList("A", "B", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertTrue(pathsToC.containsAll(expectedPathsToC));
+        assertTrue(expectedPathsToC.containsAll(pathsToC));
     }
 
     /**
      * A[B], B[C], condition of C is not fulfilled because B changes the attributes beforehand
      */
     @Test
-    public void testFindAllPathsTo_withModificationAndCondition_noPath() {
+    public void testFindAllPathsTo_WithModificationAndCondition_NoWayThrough() {
         NpcAttributes attributes = new NpcAttributes();
         attributes.addAttribute("reputation", 50);
 
@@ -486,7 +504,7 @@ public class DialogueValidatorTest {
      * A[B, D], B[C, A], D[E], B unlocks C and locks E
      */
     @Test
-    public void testFindAllPathsTo_withModificationAndConditionAndCycle_ThreePaths() {
+    public void testFindAllPathsTo_WithModificationAndCondition_ThreeWaysThrough() {
         NpcAttributes attributes = new NpcAttributes();
         attributes.addAttribute("reputation", 50);
 
@@ -497,7 +515,6 @@ public class DialogueValidatorTest {
         Action actionE = generateTestAction("E");
         actionA.addTargetAction(actionB);
         actionA.addTargetAction(actionD);
-        actionB.addTargetAction(actionA);
         actionB.addTargetAction(actionC);
         actionD.addTargetAction(actionE);
 
@@ -509,53 +526,25 @@ public class DialogueValidatorTest {
 
         List<Path> pathsToC = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionC);
         List<Path> pathsToE = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionE);
+        List<Path> expectedPathsToC = asList(new Path(actionA, actionB, actionC));
+        List<Path> expectedPathsToE = asList(new Path(actionA, actionD, actionE));
 
         AssertUtil.hasSize(1, pathsToC);
-        AssertUtil.hasSize( 1, pathsToE);
+        AssertUtil.hasSize(1, pathsToE);
 
-        AssertUtil.containsExact(asList("A", "B", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "D", "E"), pathsToE.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
+        assertTrue(pathsToC.containsAll(expectedPathsToC));
+        assertTrue(expectedPathsToC.containsAll(pathsToC));
+
+        assertTrue(pathsToE.containsAll(expectedPathsToE));
+        assertTrue(expectedPathsToE.containsAll(pathsToE));
     }
 
     /**
-     * A[B, D], B[C], B unlocks C and locks D
+     * A[B, C], B[D, A], D[E, A]
      */
+    @Ignore
     @Test
-    public void testFindAllPathsTo_withModificationAndCondition_TwoPaths() {
-        NpcAttributes attributes = new NpcAttributes();
-        attributes.addAttribute("reputation", 50);
-
-        Action actionA = generateTestAction("A");
-        Action actionB = generateTestAction("B");
-        Action actionC = generateTestAction("C");
-        Action actionD = generateTestAction("D");
-        actionA.addTargetAction(actionB);
-        actionA.addTargetAction(actionD);
-        actionB.addTargetAction(actionC);
-
-        actionB.addNpcAttributeModification("reputation", 60);
-        actionC.addActionCondition("reputation", 60);
-        actionD.addActionCondition("reputation", 50);
-
-        NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
-
-        List<Path> pathsToC = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionC);
-        List<Path> pathsToD = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionD);
-
-        AssertUtil.hasSize(1, pathsToC);
-        AssertUtil.hasSize(1, pathsToD);
-
-        AssertUtil.containsExact(asList("A", "B", "C"), pathsToC.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-        AssertUtil.containsExact(asList("A", "D"), pathsToD.get(0).getWayPoints(), Action.ACTION_BY_TEXT_EQUALS_CHECKER);
-    }
-
-    /**
-     *
-     */
-    @Test
-    public void testFindEndActionsFrom_withModification() {
-        NpcAttributes attributes = new NpcAttributes();
-        attributes.addAttribute("reputation", 50);
+    public void testFindAllPathsTo_TwoNestedCircles() {
 
         Action actionA = generateTestAction("A");
         Action actionB = generateTestAction("B");
@@ -563,17 +552,16 @@ public class DialogueValidatorTest {
         Action actionD = generateTestAction("D");
         Action actionE = generateTestAction("E");
         actionA.addTargetAction(actionB);
-        actionB.addTargetAction(actionC);
-        actionA.addTargetAction(actionD);
+        actionA.addTargetAction(actionC);
+        actionB.addTargetAction(actionD);
+        actionB.addTargetAction(actionA);
+        actionD.addTargetAction(actionA);
         actionD.addTargetAction(actionE);
 
-        actionB.addNpcAttributeModification("reputation", 60);
-        actionE.addActionCondition("reputation", 50);
+        NpcDialogueData dialogueData = new NpcDialogueData(new NpcAttributes(), actionA);
 
-        NpcDialogueData dialogueData = new NpcDialogueData(attributes, actionA);
+        List<Path> pathsToC = new DialogueValidator(dialogueData).findAllPathsToSpecificAction(dialogueData.getStartAction(), actionC);
 
-        List<Action> endActions = new DialogueValidator(dialogueData).findEndActionsFrom(dialogueData.getStartAction());
-        AssertUtil.hasSize(2, endActions);
-        assertTrue(CollectionUtils.isEqualCollection(asList(actionC, actionE), endActions));
+        AssertUtil.hasSize(6, pathsToC);
     }
 }

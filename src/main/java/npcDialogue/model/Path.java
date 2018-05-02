@@ -7,6 +7,8 @@ import java.util.*;
 public class Path {
     private List<Action> wayPoints;
 
+    private NpcAttributes npcAttributes;
+
     public Path(List<Action> wayPoints) {
         this.wayPoints = new ArrayList<>(wayPoints);
     }
@@ -100,5 +102,13 @@ public class Path {
      */
     public int getEdgeCount(Edge edge) {
         return getEdgeCount(edge.getStartAction(), edge.getDestinationAction());
+    }
+
+    public void setNpcAttributes(NpcAttributes npcAttributes) {
+        this.npcAttributes = npcAttributes;
+    }
+
+    public NpcAttributes getNpcAttributes() {
+        return npcAttributes;
     }
 }
