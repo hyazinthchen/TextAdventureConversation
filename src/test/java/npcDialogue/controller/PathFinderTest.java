@@ -54,40 +54,4 @@ public class PathFinderTest {
         assertTrue(paths.containsAll(expectedPaths));
         assertTrue(expectedPaths.containsAll(paths));
     }
-
-    @Test
-    public void testPathContainsSuccessiveSequence1() {
-        Action actionA = generateTestAction("A");
-        Action actionB = generateTestAction("B");
-        Action actionC = generateTestAction("C");
-        Action actionD = generateTestAction("D");
-
-        Path path1 = new Path(actionA, actionB, actionC, actionA, actionB, actionD);
-        Path path2 = new Path(actionA, actionB, actionC, actionA, actionB, actionC);
-        Path path3 = new Path(actionA, actionB, actionA, actionB, actionA, actionB);
-        Path path4 = new Path(actionA, actionB, actionA, actionB, actionA, actionC);
-        Path path5 = new Path(actionA, actionB, actionB, actionB, actionB, actionB);
-
-        NpcDialogueData dialogueData = new NpcDialogueData(new NpcAttributes(), actionA);
-
-        PathFinder pathFinder = new PathFinder(dialogueData);
-        Assert.assertFalse(pathFinder.pathContainsSuccessiveSequence1(path1));
-        Assert.assertTrue(pathFinder.pathContainsSuccessiveSequence1(path2));
-        Assert.assertTrue(pathFinder.pathContainsSuccessiveSequence1(path3));
-        Assert.assertTrue(pathFinder.pathContainsSuccessiveSequence1(path4));
-        Assert.assertTrue(pathFinder.pathContainsSuccessiveSequence1(path5));
-    }
-
-    @Test
-    public void testGetSequenceToSearchFor() {
-        Action actionA = generateTestAction("A");
-        Action actionB = generateTestAction("B");
-
-        Path path = new Path(actionA, actionB, actionA, actionB, actionA, actionB);
-
-        NpcDialogueData dialogueData = new NpcDialogueData(new NpcAttributes(), actionA);
-
-        PathFinder pathFinder = new PathFinder(dialogueData);
-        Assert.assertEquals(asList(actionA, actionB), pathFinder.getSequenceToSearchFor(path));
-    }
 }

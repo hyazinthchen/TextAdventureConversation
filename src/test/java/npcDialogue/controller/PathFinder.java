@@ -33,7 +33,7 @@ public class PathFinder {
             pathsThroughDialogue.add(path);
         } else {
             for (Action availableTargetWayPoint : getAvailableTargetWayPoints(path)) {
-                if (!pathContainsSuccessiveSequence1(path)) {
+                if (path.getWayPoints().size() < 500) {
                     Path newPath = path.copy();
                     newPath.addWayPoint(availableTargetWayPoint);
                     getAllPathsThroughDialogueByDFS(pathsThroughDialogue, newPath);
@@ -43,57 +43,12 @@ public class PathFinder {
         return pathsThroughDialogue;
     }
 
-    public boolean pathContainsSuccessiveSequence1(Path path) {
-        Action firstElement = path.getWayPoints().get(0);
-        Action secondElement = path.getWayPoints().get(1);
-        Action thirdElement = path.getWayPoints().get(2);
-        Action fourthElement = path.getWayPoints().get(3);
-        Action fifthElement = path.getWayPoints().get(4);
-        Action sixthElement = path.getWayPoints().get(5);
-        if (firstElement.equals(secondElement)) {
-            return true;
-        }
-        if (firstElement.equals(thirdElement) && secondElement.equals(fourthElement)) {
-            return true;
-        }
-        if (firstElement.equals(fourthElement) && secondElement.equals(fifthElement) && thirdElement.equals(sixthElement)) {
-            return true;
-        }
-        if (secondElement.equals(thirdElement)) {
-            return true;
-        }
-        if (secondElement.equals(fourthElement) && thirdElement.equals(fifthElement)) {
-            return true;
-        }
-        if (thirdElement.equals(fourthElement)) {
-            return true;
-        }
-        if (thirdElement.equals(fifthElement) && fourthElement.equals(sixthElement)) {
-            return true;
-        }
-        if (fourthElement.equals(fifthElement)) {
-            return true;
-        }
-        if (fifthElement.equals(sixthElement)) {
-            return true;
-        }
-        return false;
-    }
-
-    public List<Action> getSequenceToSearchFor(Path path) {
-        List<Action> sequence = new ArrayList<>();
-        int x = path.getWayPoints().size() / 3;
-        for (int i = 0; i <= x - 1; i++) {
-            sequence.add(path.getWayPoints().get(i));
-        }
-        return sequence;
-    }
 
     private List<Action> getAvailableTargetWayPoints(Path path) {
         List<Action> availableTargetWayPoints = new ArrayList<>();
-        for (Action targetWaypoint : path.getLastWayPoint().getTargetActions()) {
-            if (path.getNpcAttributes().fulfill(targetWaypoint.getActionConditions())) {
-                availableTargetWayPoints.add(targetWaypoint);
+        for (Action targetWayPoint : path.getLastWayPoint().getTargetActions()) {
+            if (path.getNpcAttributes().fulfill(targetWayPoint.getActionConditions())) {
+                availableTargetWayPoints.add(targetWayPoint);
             }
         }
         return availableTargetWayPoints;
