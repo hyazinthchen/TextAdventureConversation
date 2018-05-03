@@ -3,27 +3,25 @@ package npcDialogue.controller;
 import npcDialogue.model.Action;
 import npcDialogue.model.NpcDialogueData;
 import npcDialogue.model.Path;
+import npcDialogue.view.ConsoleReaderWriter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class PathFinder {
+public class DialogueStraightener {
 
     private NpcDialogueData dialogueData;
 
-    public PathFinder(NpcDialogueData dialogueData) {
+    public DialogueStraightener(NpcDialogueData dialogueData) {
         this.dialogueData = dialogueData;
     }
 
     public List<Path> findAllPathsThroughDialogue() {
-        List<Path> pathsThroughDialogue = new ArrayList<>(); //new PathList
-        Path path = new Path(); //new Path
-
-        path.setNpcAttributes(dialogueData.getNpcAttributes()); //set npcAttributes of new Path
-
-        path.addWayPoint(dialogueData.getStartAction()); //add first WayPoint to new Path
-
+        List<Path> pathsThroughDialogue = new ArrayList<>();
+        Path path = new Path();
+        path.setNpcAttributes(dialogueData.getNpcAttributes());
+        path.addWayPoint(dialogueData.getStartAction());
         return getAllPathsThroughDialogueByDFS(pathsThroughDialogue, path);
     }
 
@@ -37,12 +35,13 @@ public class PathFinder {
                     Path newPath = path.copy();
                     newPath.addWayPoint(availableTargetWayPoint);
                     getAllPathsThroughDialogueByDFS(pathsThroughDialogue, newPath);
+                } else {
+                    new ConsoleReaderWriter().printErrorMessage("Dialogue is invalid because it contains a path longer than 500 waypoints.");
                 }
             }
         }
         return pathsThroughDialogue;
     }
-
 
     private List<Action> getAvailableTargetWayPoints(Path path) {
         List<Action> availableTargetWayPoints = new ArrayList<>();

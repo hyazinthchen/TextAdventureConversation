@@ -13,6 +13,11 @@ public class Path {
         this.wayPoints = new ArrayList<>(wayPoints);
     }
 
+    public Path(List<Action> wayPoints, NpcAttributes npcAttributes) {
+        this.wayPoints = new ArrayList<>(wayPoints);
+        this.npcAttributes = new NpcAttributes(npcAttributes.getNpcAttributes());
+    }
+
     public Path(Action... actions) {
         this(Arrays.asList(actions));
     }
@@ -56,7 +61,7 @@ public class Path {
      * @return the copied path.
      */
     public Path copy() {
-        return new Path(this.getWayPoints());
+        return new Path(this.wayPoints, this.npcAttributes);
     }
 
     public List<Edge> getEdges() {
