@@ -10,13 +10,13 @@
         queo basic persistence - based on JPA (Hibernate) and Spring Data
     </description>
     <organization>
-        <name>queo</name>
+        <id>queo</id>
         <url>http://www.queo.com</url>
     </organization>
     <developers>
         <developer>
             <organization>queo</organization>
-            <name>Lena Goldmann</name>
+            <id>Lena Goldmann</id>
             <email>lena.goldmann@queo-flow.com</email>
         </developer>
     </developers>

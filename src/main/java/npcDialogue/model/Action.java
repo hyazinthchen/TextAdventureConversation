@@ -1,6 +1,5 @@
 package npcDialogue.model;
 
-
 import com.queomedia.commons.equals.EqualsChecker;
 
 import java.util.*;
@@ -11,26 +10,25 @@ import java.util.stream.Collectors;
  */
 public abstract class Action {
     private final ArrayList<Action> targetActions;
-    private final Map<String, Object> actionConditions; // example: action "buyStuff" can only be used when npcAttribute "reputation" = 60
+    private final List<Condition> conditions;
     private final Role role;
     private final Role targetActionsRole; // all targetActionRoles must be of same type
     private final String actionText;
-    private final String name;
-    private final Map<String, Object> npcAttributeModifications;
-    private String actionName;
+    private final String id;
+    private final List<Modification> npcAttributeModifications;
 
-    public Action(Role role, Role targetActionRole, String actionText, String name) {
+    public Action(Role role, Role targetActionRole, String actionText, String id) {
         this.actionText = actionText;
         this.targetActions = new ArrayList<>();
-        this.actionConditions = new HashMap<>();
+        this.conditions = new ArrayList<>();
         this.role = role;
         this.targetActionsRole = targetActionRole;
-        this.name = name;
-        this.npcAttributeModifications = new HashMap<>();
+        this.id = id;
+        this.npcAttributeModifications = new ArrayList<>();
     }
 
-    public Map<String, Object> getActionConditions() {
-        return actionConditions;
+    public List<Condition> getConditions() {
+        return conditions;
     }
 
     public Role getTargetActionsRole() {
@@ -46,37 +44,58 @@ public abstract class Action {
     }
 
     /**
-     * Adds a targetAction to the actions list of targetActions if the role of the action you wish to add the targetActionsRole of the action match.
+     * Adds a targetAction to the actions list of targetActions if the role of the action you wish to add the targetActionsRole of the action fulfills.
      *
      * @param targetAction the action to be added as a targetAction.
-     * @throws IllegalArgumentException when the role of the action to be added and the targetActionsRole of the action don't match.
+     * @throws IllegalArgumentException when the role of the action to be added and the targetActionsRole of the action don't fulfills.
      */
     public void addTargetAction(Action targetAction) throws IllegalArgumentException {
         if (targetAction.role == targetActionsRole) {
             targetActions.add(targetAction);
         } else {
-            throw new IllegalArgumentException("Role of new action does not match. Can't build dialogue. Got: " + targetAction.role + ". Expected: " + this.targetActionsRole);
+            throw new IllegalArgumentException("Role of new action does not fulfills. Can't build dialogue. Got: " + targetAction.role + ". Expected: " + this.targetActionsRole);
         }
     }
 
     /**
      * Adds a condition to an action. For example: action "buyStuff" can only be used when npcAttribute "reputation" = 60.
-     *
-     * @param key   the key of an npcAttribute
-     * @param value the value the npcAttribute should have
      */
-    public void addActionCondition(String key, Object value) {
-        actionConditions.put(key, value);
+    public void addCondition(String npcAttribute, String relationalOperator, int value) {
+        switch(relationalOperator){
+            case "<":
+                conditions.add(new Condition(npcAttribute, RelationalOperator.LESS, value));
+                break;
+            case ">":
+                conditions.add(new Condition(npcAttribute, RelationalOperator.GREATER, value));
+                break;
+            case "<=":
+                conditions.add(new Condition(npcAttribute, RelationalOperator.LESSEQUAL, value));
+                break;
+            case ">=":
+                conditions.add(new Condition(npcAttribute, RelationalOperator.GREATEREQUAL, value));
+                break;
+            case "==":
+                conditions.add(new Condition(npcAttribute, RelationalOperator.EQUAL, value));
+                break;
+            case "!=":
+                conditions.add(new Condition(npcAttribute, RelationalOperator.NOTEQUAL, value));
+                break;
+        }
     }
 
     /**
      * Adds a modification to an action. The modification will change the npcAttributes once the action is currentAction.
-     *
-     * @param key   the key of an npcAttribute
-     * @param value the value the npcAttribute will have
      */
-    public void addNpcAttributeModification(String key, Object value) {
-        npcAttributeModifications.put(key, value);
+    public void addNpcAttributeModification(String npcAttribute, String operator, int value) {
+        switch (operator){
+            case "+":
+                npcAttributeModifications.add(new Modification(npcAttribute, Operator.PLUS, value));
+                break;
+            case "-":{
+                npcAttributeModifications.add(new Modification(npcAttribute, Operator.MINUS, value));
+                break;
+            }
+        }
     }
 
     public List<Action> getTargetActions() {
@@ -84,18 +103,18 @@ public abstract class Action {
     }
 
     /**
-     * Gets a targetAction by its name from the List of targetActions.
+     * Gets a targetAction by its id from the List of targetActions.
      *
-     * @param actionName the name of the action that is looked for.
-     * @return the targetAction with the specific name.
+     * @param id the id of the action that is looked for.
+     * @return the targetAction with the specific id.
      */
-    public Action getTargetActionByName(String actionName) {
+    public Action getTargetActionById(String id) {
         for (Action targetAction : targetActions) {
-            if (targetAction.name.equals(actionName)) {
+            if (targetAction.id.equals(id)) {
                 return targetAction;
             }
         }
-        throw new NoSuchElementException("No targetAction with name '" + actionName + "' found in the targetActions of action '" + name + "'.");
+        throw new NoSuchElementException("No targetAction with id '" + id + "' found in the targetActions of action '" + this.id + "'.");
     }
 
     @Override
@@ -114,12 +133,8 @@ public abstract class Action {
                 '}';
     }
 
-    public Map<String, Object> getNpcAttributeModifications() {
+    public List<Modification> getNpcAttributeModifications() {
         return npcAttributeModifications;
-    }
-
-    public String getActionName() {
-        return actionName;
     }
 
     public static final EqualsChecker<String, Action> ACTION_BY_TEXT_EQUALS_CHECKER =

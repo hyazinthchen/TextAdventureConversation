@@ -23,91 +23,49 @@ public class NpcAttributesTest {
      * @param value the value of the attribute.
      * @return an NpcAttributes object.
      */
-    private NpcAttributes generateTestNpcAttributes(String key, Object value) {
+    private NpcAttributes generateTestNpcAttributes(String key, Integer value) {
         NpcAttributes testNpcAttributes = new NpcAttributes();
         testNpcAttributes.addAttribute(key, value);
         return testNpcAttributes;
     }
 
     @Test
-    public void testModifyEntryByBoolean() {
-        NpcAttributes attributes = generateTestNpcAttributes("A", false);
-        attributes.modifyAttribute("A", true);
-        assertEquals(true, attributes.getNpcAttributes().get("A"));
-    }
-
-    @Test
-    public void testModifyEntryByInteger() {
-        NpcAttributes attributes = generateTestNpcAttributes("A", 50);
-        attributes.modifyAttribute("A", 60);
-        assertEquals(60, attributes.getNpcAttributes().get("A"));
-    }
-
-    @Test
-    public void testModifyEntryByString() {
-        NpcAttributes attributes = generateTestNpcAttributes("A", "B");
-        attributes.modifyAttribute("A", "C");
-        assertEquals("C", attributes.getNpcAttributes().get("A"));
-    }
-
-    @Test
     public void testModifyEntryByAddition() {
-        NpcAttributes attributes = generateTestNpcAttributes("A", 50);
-        attributes.modifyAttribute("A", "+10");
-        assertEquals(60, attributes.getNpcAttributes().get("A"));
+        NpcAttributes attributes = generateTestNpcAttributes("A", 10);
+        attributes.modifyAttribute("A", Operator.PLUS, 10);
+        assertEquals(new Integer(20), attributes.getNpcAttributes().get("A"));
     }
 
     @Test
     public void testModifyEntryBySubtraction() {
-        NpcAttributes attributes = generateTestNpcAttributes("A", 50);
-        attributes.modifyAttribute("A", "-10");
-        assertEquals(40, attributes.getNpcAttributes().get("A"));
-    }
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Test
-    public void testModifyEntryByMismatchingTypes() throws IllegalArgumentException {
-        NpcAttributes attributes = generateTestNpcAttributes("A", 50);
-
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Attribute A is of type class java.lang.Integer and can't be changed to class java.lang.Boolean");
-        attributes.modifyAttribute("A", false);
+        NpcAttributes attributes = generateTestNpcAttributes("A", 10);
+        attributes.modifyAttribute("A", Operator.MINUS, 10);
+        assertEquals(new Integer(0), attributes.getNpcAttributes().get("A"));
     }
 
     @Test
-    public void testContain() {
+    public void testSingleMatch() {
         NpcAttributes testNpcAttributes = new NpcAttributes();
         testNpcAttributes.addAttribute("A", 50);
-        testNpcAttributes.addAttribute("B", false);
+        testNpcAttributes.addAttribute("B", 30);
 
         NpcAction actionX = new NpcAction(Role.NPC, "X", "X");
-        actionX.addActionCondition("A", 50);
+        actionX.addCondition("A", "==", 50);
 
-        assertTrue(testNpcAttributes.fulfill(actionX.getActionConditions().entrySet()));
+        assertTrue(testNpcAttributes.match(actionX.getConditions()));
     }
 
     @Test
-    public void testContain_singleMatch() {
+    public void testNoMatch() {
         NpcAttributes testNpcAttributes = new NpcAttributes();
-        testNpcAttributes.addAttribute("A", 10);
+        testNpcAttributes.addAttribute("A", 50);
+        testNpcAttributes.addAttribute("B", 30);
 
-        Set<Map.Entry<String, Object>> conditionSet = new HashSet<>();
-        conditionSet.add(new AbstractMap.SimpleEntry<>("A", 10));
+        NpcAction actionX = new NpcAction(Role.NPC, "X", "X");
+        actionX.addCondition("A", "==", 50);
+        actionX.addCondition("B", "==", 40);
 
-        assertTrue(testNpcAttributes.fulfill(conditionSet));
-    }
-
-    @Test
-    public void testContain_singleMismatch() {
-        NpcAttributes testNpcAttributes = new NpcAttributes();
-        testNpcAttributes.addAttribute("A", 10);
-
-        Set<Map.Entry<String, Object>> conditionSet = new HashSet<>();
-        conditionSet.add(new AbstractMap.SimpleEntry<>("A", 5));
-
-        assertFalse(testNpcAttributes.fulfill(conditionSet));
+        assertFalse(testNpcAttributes.match(actionX.getConditions()));
     }
 
     @Test
@@ -116,9 +74,9 @@ public class NpcAttributesTest {
         testNpcAttributes.addAttribute("A", 10);
 
         NpcAttributes clonedNpcAttributes = testNpcAttributes.copy();
-        testNpcAttributes.modifyAttribute("A", 20);
+        testNpcAttributes.modifyAttribute("A", Operator.PLUS, 10);
 
-        Assert.assertEquals(clonedNpcAttributes.getNpcAttributes().get("A"), 10);
+        Assert.assertEquals(clonedNpcAttributes.getNpcAttributes().get("A"), new Integer(10));
     }
 
 }

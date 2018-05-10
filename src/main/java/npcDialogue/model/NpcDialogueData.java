@@ -1,7 +1,7 @@
 package npcDialogue.model;
 
 import npcDialogue.controller.DialogueNavigator;
-import npcDialogue.controller.DialogueValidator;
+import npcDialogue.controller.DialogueValidator_old;
 import npcDialogue.view.ConsoleReaderWriter;
 
 /**
@@ -21,8 +21,8 @@ public class NpcDialogueData {
     /**
      * Starts a new DialogueNavigator.
      */
-    public void start() throws CloneNotSupportedException {
-        if (new DialogueValidator(this).isValid()) {
+    public void start(){
+        if (new DialogueValidator_old(this).isValid()) {
             dialogueNavigator = new DialogueNavigator(npcAttributes, startAction);
             dialogueNavigator.navigate(new ConsoleReaderWriter());
         }

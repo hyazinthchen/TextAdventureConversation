@@ -2,7 +2,6 @@
 # example dialogue content and rules for one NPC
 
 npcAttributes:
-   bribePaid: 0
    reputation: 50
    
 actionGraph:
@@ -20,12 +19,11 @@ actionGraph:
 
    actionConditions:
       byeNice:
-        reputation: 60
+        - {attribute: reputation, operator: "==", value: 60}
 
    npcAttributeModifications:
       welcome:
-        reputation: 70
-
+         - {attribute: reputation, operator: "+", value: 10}
 
 actionContent:
    # npc

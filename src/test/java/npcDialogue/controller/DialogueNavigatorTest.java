@@ -34,7 +34,7 @@ public class DialogueNavigatorTest {
      * @param secondValue the value of the second attribute.
      * @return an npcAttributes object with two entries.
      */
-    private NpcAttributes generateTestNpcAttributes(Object firstValue, Object secondValue) {
+    private NpcAttributes generateTestNpcAttributes(Integer firstValue, Integer secondValue) {
         NpcAttributes attributes = new NpcAttributes();
         attributes.addAttribute("D", firstValue);
         attributes.addAttribute("E", secondValue);
@@ -206,10 +206,10 @@ public class DialogueNavigatorTest {
 
         actionA.addTargetAction(actionB);
         actionA.addTargetAction(actionC);
-        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(50, true), actionA);
+        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(50, 25), actionA);
 
-        actionC.addActionCondition("D", 50);
-        actionC.addActionCondition("E", true);
+        actionC.addCondition("D", "==", 50);
+        actionC.addCondition("E", "==", 25);
 
         List<Action> availableTargetActions = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
@@ -228,10 +228,10 @@ public class DialogueNavigatorTest {
 
         actionA.addTargetAction(actionB);
         actionA.addTargetAction(actionC);
-        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(60, true), actionA);
+        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(60, 30), actionA);
 
-        actionC.addActionCondition("D", 50);
-        actionC.addActionCondition("E", true);
+        actionC.addCondition("D", "==", 50);
+        actionC.addCondition("E", "==", 25);
 
         List<Action> availableTargetActions = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
@@ -250,10 +250,10 @@ public class DialogueNavigatorTest {
 
         actionA.addTargetAction(actionB);
         actionA.addTargetAction(actionC);
-        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(60, false), actionA);
+        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(60, 25), actionA);
 
-        actionC.addActionCondition("D", 50);
-        actionC.addActionCondition("E", true);
+        actionC.addCondition("D","==", 50);
+        actionC.addCondition("E", "==", 30);
 
         List<Action> availableTargetActions = navigator.getAvailableTargetActions(actionA.getTargetActions());
 
@@ -262,7 +262,7 @@ public class DialogueNavigatorTest {
     }
 
     @Test
-    public void testNavigateByLastCurrentAction() throws FileNotFoundException, ParsingException, CloneNotSupportedException {
+    public void testNavigateByLastCurrentAction() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant2Dialogue.yml"));
         dialogueData.start();
@@ -280,9 +280,9 @@ public class DialogueNavigatorTest {
         Action actionB = generateTestAction("B");
 
         actionA.addTargetAction(actionB);
-        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(50, true), actionA);
-        actionB.addActionCondition("D", 99);
-        actionB.addActionCondition("E", false);
+        DialogueNavigator navigator = new DialogueNavigator(generateTestNpcAttributes(50, 25), actionA);
+        actionB.addCondition("D", "==",99);
+        actionB.addCondition("E", "==", 30);
 
         navigator.navigate(new ConsoleReaderWriter());
 

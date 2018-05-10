@@ -1,16 +1,18 @@
 package npcDialogue.model;
 
+import npcDialogue.view.ConsoleReaderWriter;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Describes the relationship of the NPC to the player. Actions are visible to the player depending on the npcAttributes.
  */
 public class NpcAttributes {
-    private Map<String, Object> npcAttributes = new HashMap<>();
+    private Map<String, Integer> npcAttributes = new HashMap<>();
 
-    public NpcAttributes(Map<String, Object> npcAttributes) {
+    public NpcAttributes(Map<String, Integer> npcAttributes) {
         this.npcAttributes = new HashMap<>(npcAttributes);
     }
 
@@ -23,59 +25,45 @@ public class NpcAttributes {
      * @param key   the name of the attribute.
      * @param value the value of the attribute.
      */
-    public void addAttribute(String key, Object value) {
+    public void addAttribute(String key, Integer value) {
         npcAttributes.put(key, value);
     }
 
-    public Map<String, Object> getNpcAttributes() {
+    public Map<String, Integer> getNpcAttributes() {
         return npcAttributes;
     }
 
     /**
      * Changes the value of one npcAttribute.
-     *
-     * @param key   the name of the attribute.
-     * @param value the new value of the attribute.
      */
-    public void modifyAttribute(String key, Object value) { //TODO: maybe wrong place for error detection, better put it in the DialogueValidator
-        if (npcAttributes.get(key).getClass() == value.getClass() || npcAttributes.get(key).getClass() == Integer.class && value.getClass() == String.class) {
-            if (value instanceof String) { //TODO: there is a better way!
-                if (((String) value).startsWith("+")) {
-                    int summand = Integer.parseInt(((String) value).replace("+", ""));
-                    int newValue = (int) npcAttributes.get(key) + summand;
-                    npcAttributes.put(key, newValue);
-                }
-                if (((String) value).startsWith("-")) {
-                    int subtrahend = Integer.parseInt(((String) value).replace("-", ""));
-                    int newValue = (int) npcAttributes.get(key) - subtrahend;
-                    npcAttributes.put(key, newValue);
-                }
-            } else {
-                npcAttributes.put(key, value);
+    public void modifyAttribute(String npcAttribute, Operator operator, int value) {
+        if(npcAttributes.containsKey(npcAttribute)){
+            int oldAttributeValue = npcAttributes.get(npcAttribute);
+            int newAttributeValue;
+            if(operator == Operator.MINUS){
+                newAttributeValue = oldAttributeValue - value;
+            }else{
+                newAttributeValue = oldAttributeValue + value;
             }
-        } else {
-            throw new IllegalArgumentException("Attribute " + key + " is of type " + npcAttributes.get(key).getClass() + " and can't be changed to " + value.getClass());
+            npcAttributes.put(npcAttribute, newAttributeValue);
+        }else{
+            new ConsoleReaderWriter().printErrorMessage("Can't modify attribute " + npcAttribute + "because it doesn't exist.");
         }
     }
 
     /**
-     * Evaluates if a set of requirements matches the set of npcAttributes.
+     * Evaluates if a set of conditions matches the set of npcAttributes.
      *
-     * @param requirementSet the conditions of an action.
+     * @param conditions the conditions of an action.
      * @return true if the conditions are fulfilled.
      */
-    public boolean fulfill(Set<Map.Entry<String, Object>> requirementSet) {
-        return getNpcAttributes().entrySet().containsAll(requirementSet);
-    }
-
-    /**
-     * Evaluates if a map of requirements matches the npcAttributes.
-     *
-     * @param requirements the conditions of an action.
-     * @return true if the conditions are fulfilled.
-     */
-    public boolean fulfill(Map<String, Object> requirements) {
-        return fulfill(requirements.entrySet());
+    public boolean match(List<Condition> conditions) {
+        for(Condition condition : conditions){
+            if(!condition.fulfills(npcAttributes)){
+                return false;
+            }
+        }
+        return true;
     }
 
     public NpcAttributes copy() {

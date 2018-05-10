@@ -1,13 +1,13 @@
 package npcDialogue.controller;
 
 import npcDialogue.model.Action;
+import npcDialogue.model.Modification;
 import npcDialogue.model.NpcAttributes;
 import npcDialogue.model.Role;
 import npcDialogue.view.ConsoleReaderWriter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -56,8 +56,8 @@ public class DialogueNavigator {
      * Modifies the npcAttributes if the currentAction has one or more npcAttributeModifications.
      */
     public void modifyNpcAttributes(Action currentAction) {
-        for (Map.Entry<String, Object> modification : currentAction.getNpcAttributeModifications().entrySet()) {
-            npcAttributes.modifyAttribute(modification.getKey(), modification.getValue());
+        for (Modification modification :currentAction.getNpcAttributeModifications()) {
+            npcAttributes.modifyAttribute(modification.getNpcAttribute(), modification.getOperator(), modification.getValue());
         }
     }
 
@@ -74,7 +74,7 @@ public class DialogueNavigator {
     }
 
     /**
-     * Only gets the targetActions that do not depend on any npcAttributes and those that depend on npcAttributes but fulfill their condition.
+     * Only gets the targetActions that do not depend on any npcAttributes and those that depend on npcAttributes but fulfills their condition.
      *
      * @param targetActions all targetActions.
      * @return only targetActions that should be available.
@@ -82,7 +82,7 @@ public class DialogueNavigator {
     public List<Action> getAvailableTargetActions(List<Action> targetActions) {
         List<Action> result = new ArrayList<>();
         for (Action targetAction : targetActions) {
-            if (npcAttributes.fulfill(targetAction.getActionConditions())) {
+            if (npcAttributes.match(targetAction.getConditions())) {
                 result.add(targetAction);
             }
         }

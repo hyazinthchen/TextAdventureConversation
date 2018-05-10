@@ -10,10 +10,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Loads the dialogue between one NPC and the player from a yaml file.
@@ -31,7 +28,7 @@ public class DialogueLoader {
         InputStream inputStream = new FileInputStream(file);
         Yaml yaml = new Yaml();
         try {
-            LinkedHashMap yamlDataMap = yaml.load(inputStream);
+            Map< String, Object> yamlDataMap = yaml.load(inputStream);
 
             NpcAttributes npcAttributes = loadNpcAttributes(yamlDataMap);
             return loadNpcDialogue(yamlDataMap, npcAttributes);
@@ -46,11 +43,13 @@ public class DialogueLoader {
      * @param yamlContent the whole dialogue data read from a file
      * @return An NpcAttributes object.
      */
-    private NpcAttributes loadNpcAttributes(LinkedHashMap yamlContent) {//TODO: catch all errors in yaml
+    private NpcAttributes loadNpcAttributes(Map<String, Object> yamlContent) {
         NpcAttributes newNpcAttributes = new NpcAttributes();
         LinkedHashMap<String, Object> rawNpcAttributes = (LinkedHashMap) yamlContent.get("npcAttributes");
         for (Map.Entry<String, Object> entry : rawNpcAttributes.entrySet()) {
-            newNpcAttributes.addAttribute(entry.getKey(), entry.getValue());
+            if(entry.getValue() instanceof Integer){
+                newNpcAttributes.addAttribute(entry.getKey(), (Integer) entry.getValue());
+            }
         }
         return newNpcAttributes;
     }
@@ -61,7 +60,7 @@ public class DialogueLoader {
      * @param yamlContent the whole dialogue data read from a file
      * @return An NpcDialogueData object.
      */
-    private NpcDialogueData loadNpcDialogue(LinkedHashMap yamlContent, NpcAttributes npcAttributes) {//TODO: catch all errors in yaml
+    private NpcDialogueData loadNpcDialogue(Map<String, Object> yamlContent, NpcAttributes npcAttributes) {
         Map<String, Object> rawActionGraph = (LinkedHashMap) yamlContent.get("actionGraph");
         String startActionText = rawActionGraph.get("startAction").toString();
         Map<String, Object> npcActions = (LinkedHashMap) rawActionGraph.get("npcActions");
@@ -98,9 +97,9 @@ public class DialogueLoader {
     private void addNpcAttributeModifications(Map<String, LinkedHashMap> npcAttributeModifications, Map<String, Action> dialogueMap) {
         for (Map.Entry<String, Action> entry : dialogueMap.entrySet()) {
             if (npcAttributeModifications.containsKey(entry.getKey())) {
-                LinkedHashMap<String, Object> mapOfNpcAttributeModifications = npcAttributeModifications.get(entry.getKey());
-                for (Map.Entry<String, Object> npcAttributeModification : mapOfNpcAttributeModifications.entrySet()) {
-                    entry.getValue().addNpcAttributeModification(npcAttributeModification.getKey(), npcAttributeModification.getValue());
+                List<LinkedHashMap<String, Object>> listOfActionModifications = (List<LinkedHashMap<String, Object>>) npcAttributeModifications.get(entry.getKey());
+                for (LinkedHashMap<String, Object> npcAttributeModification : listOfActionModifications) {
+                    entry.getValue().addNpcAttributeModification((String) npcAttributeModification.get("attribute"), (String) npcAttributeModification.get("operator"), (Integer) npcAttributeModification.get("value"));
                 }
             }
         }
@@ -139,9 +138,9 @@ public class DialogueLoader {
     private void addActionConditions(Map<String, LinkedHashMap> actionConditions, Map<String, Action> dialogueMap) {
         for (Map.Entry<String, Action> entry : dialogueMap.entrySet()) {
             if (actionConditions.containsKey(entry.getKey())) {
-                LinkedHashMap<String, Object> mapOfActionConditions = actionConditions.get(entry.getKey());
-                for (Map.Entry<String, Object> actionConditionEntry : mapOfActionConditions.entrySet()) {
-                    entry.getValue().addActionCondition(actionConditionEntry.getKey(), actionConditionEntry.getValue());
+                List<LinkedHashMap<String, Object>> listOfActionConditions = (List<LinkedHashMap<String, Object>>) actionConditions.get(entry.getKey());
+                for(LinkedHashMap<String, Object> actionCondition : listOfActionConditions){
+                    entry.getValue().addCondition((String) actionCondition.get("attribute"), (String) actionCondition.get("operator"), (Integer) actionCondition.get("value"));;
                 }
             }
         }
