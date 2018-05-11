@@ -1,46 +1,54 @@
 package npcDialogue.model;
 
-import com.queomedia.commons.equals.EqualsChecker;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 /**
- * Describes something in a conversation that can be done or said. Each action has following actions or no following actions.
+ * Describes an act of the player or an NPC in a conversation where something is done or said. An action can have following actions or none, marking it as the end of the dialogue.
  */
 public abstract class Action {
-    private final ArrayList<Action> targetActions;
-    private final List<Condition> conditions;
     private final Role role;
-    private final Role targetActionsRole; // all targetActionRoles must be of same type
+    private final Role targetActionsRole;
     private final String actionText;
     private final String id;
+    private final List<Action> targetActions;
+    private final List<Condition> conditions;
     private final List<Modification> npcAttributeModifications;
 
     public Action(Role role, Role targetActionRole, String actionText, String id) {
-        this.actionText = actionText;
-        this.targetActions = new ArrayList<>();
-        this.conditions = new ArrayList<>();
         this.role = role;
         this.targetActionsRole = targetActionRole;
+        this.actionText = actionText;
         this.id = id;
+        this.targetActions = new ArrayList<>();
+        this.conditions = new ArrayList<>();
         this.npcAttributeModifications = new ArrayList<>();
-    }
-
-    public List<Condition> getConditions() {
-        return conditions;
-    }
-
-    public Role getTargetActionsRole() {
-        return targetActionsRole;
     }
 
     public Role getRole() {
         return role;
     }
 
+    public Role getTargetActionsRole() {
+        return targetActionsRole;
+    }
+
     public String getActionText() {
         return actionText;
+    }
+
+    public List<Action> getTargetActions() {
+        return targetActions;
+    }
+
+    public List<Condition> getConditions() {
+        return conditions;
+    }
+
+    public List<Modification> getNpcAttributeModifications() {
+        return npcAttributeModifications;
     }
 
     /**
@@ -58,10 +66,14 @@ public abstract class Action {
     }
 
     /**
-     * Adds a condition to an action. For example: action "buyStuff" can only be used when npcAttribute "reputation" = 60.
+     * Adds a condition to an action. For example: action "buyStuff" can only be used when npcAttribute "reputation" == 60.
+     *
+     * @param npcAttribute       the attribute which should fulfill the condition
+     * @param relationalOperator the operator of the condition, can be: less, greater, less equal, greater equal, equal, not equal
+     * @param value              the value the npcAttributes should have, according to the condition
      */
     public void addCondition(String npcAttribute, String relationalOperator, int value) {
-        switch(relationalOperator){
+        switch (relationalOperator) {
             case "<":
                 conditions.add(new Condition(npcAttribute, RelationalOperator.LESS, value));
                 break;
@@ -85,21 +97,21 @@ public abstract class Action {
 
     /**
      * Adds a modification to an action. The modification will change the npcAttributes once the action is currentAction.
+     *
+     * @param npcAttribute the npcAttribute which should later be changed
+     * @param operator     the operator which determines the change of the value, can be: "+" or "-"
+     * @param value        the value by which the value of the npcAttribute will change
      */
     public void addNpcAttributeModification(String npcAttribute, String operator, int value) {
-        switch (operator){
+        switch (operator) {
             case "+":
                 npcAttributeModifications.add(new Modification(npcAttribute, Operator.PLUS, value));
                 break;
-            case "-":{
+            case "-": {
                 npcAttributeModifications.add(new Modification(npcAttribute, Operator.MINUS, value));
                 break;
             }
         }
-    }
-
-    public List<Action> getTargetActions() {
-        return targetActions;
     }
 
     /**
@@ -132,11 +144,4 @@ public abstract class Action {
                 ", targetActions=" + actionTextList +
                 '}';
     }
-
-    public List<Modification> getNpcAttributeModifications() {
-        return npcAttributeModifications;
-    }
-
-    public static final EqualsChecker<String, Action> ACTION_BY_TEXT_EQUALS_CHECKER =
-            (String actionText, Action action) -> action.getActionText().equals(actionText);
 }

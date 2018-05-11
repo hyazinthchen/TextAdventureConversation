@@ -1,11 +1,11 @@
 package npcDialogue.model;
 
 public class Modification {
-    private String npcAttribute;
-    private Operator operator;
+    private final String npcAttribute;
+    private final Operator operator;
     private int value;
 
-    public Modification(String npcAttribute, Operator operator, int value) {
+    public Modification(final String npcAttribute, final Operator operator, final int value) {
         this.npcAttribute = npcAttribute;
         this.operator = operator;
         this.value = value;

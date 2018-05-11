@@ -3,11 +3,11 @@ package npcDialogue.model;
 import java.util.Map;
 
 public class Condition {
-    private String npcAttribute;
-    private RelationalOperator relationalOperator;
+    private final String npcAttribute;
+    private final RelationalOperator relationalOperator;
     private int value;
 
-    public Condition(String npcAttribute, RelationalOperator relationalOperator, int value) {
+    public Condition(final String npcAttribute, final RelationalOperator relationalOperator, final int value) {
         this.npcAttribute = npcAttribute;
         this.relationalOperator = relationalOperator;
         this.value = value;
@@ -22,7 +22,7 @@ public class Condition {
     }
 
     public boolean fulfills(Map<String, Integer> npcAttributes) {
-        switch (this.relationalOperator){
+        switch (this.relationalOperator) {
             case LESS:
                 return npcAttributes.get(npcAttribute) < value;
             case GREATER:
@@ -36,6 +36,6 @@ public class Condition {
             case NOTEQUAL:
                 return npcAttributes.get(npcAttribute) != value;
         }
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException(); //TODO: print illegal argument(?)
     }
 }

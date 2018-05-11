@@ -22,16 +22,15 @@ public class DialogueLoaderTest {
     }
 
     @Test
-    public void testLoadingStartAction() throws FileNotFoundException, ParsingException {
+    public void testLoadStartAction() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
         assertEquals("Welcome!", dialogueData.getStartAction().getActionText());
     }
 
-
     @Test
-    public void testLoadingActionTexts() throws FileNotFoundException, ParsingException {
+    public void testLoadActionTexts() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
@@ -53,7 +52,7 @@ public class DialogueLoaderTest {
 
 
     @Test
-    public void testLoadingActionConditions() throws FileNotFoundException, ParsingException {
+    public void testLoadActionConditions() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = new DialogueLoader().load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
@@ -68,7 +67,7 @@ public class DialogueLoaderTest {
     }
 
     @Test
-    public void testLoadingNpcAttributeModifications() throws FileNotFoundException, ParsingException {
+    public void testLoadNpcAttributeModifications() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
         NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 

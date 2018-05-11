@@ -23,7 +23,7 @@ actionGraph:
 
    npcAttributeModifications:
       welcome:
-         - {attribute: reputation, operator: "+", value: 10}
+         - {attribute: reputation, operator: "+", value: 5}
 
 actionContent:
    # npc

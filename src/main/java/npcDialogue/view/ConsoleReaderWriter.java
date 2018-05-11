@@ -81,6 +81,11 @@ public class ConsoleReaderWriter {
         }
     }
 
+    /**
+     * Prints a message in red colour to the console.
+     *
+     * @param message the message to be printed
+     */
     public void printErrorMessage(String message) {
         System.err.print(message);
     }

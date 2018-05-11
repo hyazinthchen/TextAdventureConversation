@@ -12,11 +12,15 @@ import java.util.Map;
 public class NpcAttributes {
     private Map<String, Integer> npcAttributes = new HashMap<>();
 
-    public NpcAttributes(Map<String, Integer> npcAttributes) {
+    public NpcAttributes(final Map<String, Integer> npcAttributes) {
         this.npcAttributes = new HashMap<>(npcAttributes);
     }
 
     public NpcAttributes() {
+    }
+
+    public Map<String, Integer> getNpcAttributes() {
+        return npcAttributes;
     }
 
     /**
@@ -29,24 +33,24 @@ public class NpcAttributes {
         npcAttributes.put(key, value);
     }
 
-    public Map<String, Integer> getNpcAttributes() {
-        return npcAttributes;
-    }
-
     /**
      * Changes the value of one npcAttribute.
+     *
+     * @param npcAttribute the attribute that will be changed
+     * @param operator     the operator which determines the value change
+     * @param value        the value by which the value will change, can be "+" or "-"
      */
     public void modifyAttribute(String npcAttribute, Operator operator, int value) {
-        if(npcAttributes.containsKey(npcAttribute)){
+        if (npcAttributes.containsKey(npcAttribute)) {
             int oldAttributeValue = npcAttributes.get(npcAttribute);
             int newAttributeValue;
-            if(operator == Operator.MINUS){
+            if (operator == Operator.MINUS) {
                 newAttributeValue = oldAttributeValue - value;
-            }else{
+            } else {
                 newAttributeValue = oldAttributeValue + value;
             }
             npcAttributes.put(npcAttribute, newAttributeValue);
-        }else{
+        } else {
             new ConsoleReaderWriter().printErrorMessage("Can't modify attribute " + npcAttribute + "because it doesn't exist.");
         }
     }
@@ -58,14 +62,19 @@ public class NpcAttributes {
      * @return true if the conditions are fulfilled.
      */
     public boolean match(List<Condition> conditions) {
-        for(Condition condition : conditions){
-            if(!condition.fulfills(npcAttributes)){
+        for (Condition condition : conditions) {
+            if (!condition.fulfills(npcAttributes)) {
                 return false;
             }
         }
         return true;
     }
 
+    /**
+     * Copies the npcAttributes.
+     *
+     * @return a copy of the npcAttributes
+     */
     public NpcAttributes copy() {
         return new NpcAttributes(this.npcAttributes);
     }

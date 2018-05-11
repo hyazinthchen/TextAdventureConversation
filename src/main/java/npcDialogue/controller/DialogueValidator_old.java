@@ -11,15 +11,15 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Checks for errors in a loaded dialogue. Errors can be: dead ends, where no available targetActions are available or cycles.
+ * Checks for errors in a loaded dialogue. Errors can be: dead ends, where no available targetActions are available or cycles without any exits.
  */
 public class DialogueValidator_old {
 
-    private NpcDialogueData dialogueData;
+    private final NpcDialogueData dialogueData;
 
     private boolean cycleFound;
 
-    public DialogueValidator_old(NpcDialogueData dialogueData) {
+    public DialogueValidator_old(final NpcDialogueData dialogueData) {
         this.dialogueData = dialogueData;
     }
 
@@ -110,7 +110,7 @@ public class DialogueValidator_old {
             DialogueNavigator navigator = new DialogueNavigator(dialogueData.getNpcAttributes(), dialogueData.getStartAction());
             navigator.modifyNpcAttributes(path.getLastWayPoint());
             for (Action targetAction : navigator.getAvailableTargetActions(path.getLastWayPoint().getTargetActions())) {
-                if (true) {
+                if (!path.getWayPoints().contains(targetAction)) {
                     Path newPath = path.copy();
                     newPath.addWayPoint(targetAction);
                     pathList.addAll(addPathToPathList(newPath, reachableEndActions));

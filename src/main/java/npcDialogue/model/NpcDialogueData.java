@@ -6,26 +6,16 @@ import npcDialogue.view.ConsoleReaderWriter;
 
 /**
  * Contains the npcAttributes and the startAction of the whole dialogue.
- * Later: Save ActionGraph (stateful!) and npcAttributes in DB
+ * Later: Save graph of actions (stateful!) and npcAttributes in DB
  */
 public class NpcDialogueData {
     private NpcAttributes npcAttributes;
-    private final Action startAction; //TODO make stateless and save all states to npcAttributes ?
-    private DialogueNavigator dialogueNavigator; //TODO keep this between npc conversions ?
+    private final Action startAction;
+    private DialogueNavigator dialogueNavigator;
 
-    public NpcDialogueData(NpcAttributes npcAttributes, Action startAction) {
+    public NpcDialogueData(final NpcAttributes npcAttributes, final Action startAction) {
         this.npcAttributes = npcAttributes;
         this.startAction = startAction;
-    }
-
-    /**
-     * Starts a new DialogueNavigator.
-     */
-    public void start(){
-        if (new DialogueValidator_old(this).isValid()) {
-            dialogueNavigator = new DialogueNavigator(npcAttributes, startAction);
-            dialogueNavigator.navigate(new ConsoleReaderWriter());
-        }
     }
 
     public Action getStartAction() {
@@ -42,5 +32,15 @@ public class NpcDialogueData {
 
     public void setNpcAttributes(NpcAttributes npcAttributes) {
         this.npcAttributes = npcAttributes;
+    }
+
+    /**
+     * Starts a new DialogueNavigator.
+     */
+    public void start() {
+        if (new DialogueValidator_old(this).isValid()) {
+            dialogueNavigator = new DialogueNavigator(npcAttributes, startAction);
+            dialogueNavigator.navigate(new ConsoleReaderWriter());
+        }
     }
 }

@@ -16,9 +16,9 @@ import java.util.Random;
 public class DialogueNavigator {
 
     private Action currentAction;
-    private NpcAttributes npcAttributes;
+    private final NpcAttributes npcAttributes;
 
-    public DialogueNavigator(NpcAttributes npcAttributes, Action startAction) {
+    public DialogueNavigator(final NpcAttributes npcAttributes, final Action startAction) {
         this.currentAction = startAction;
         this.npcAttributes = npcAttributes;
     }
@@ -56,7 +56,7 @@ public class DialogueNavigator {
      * Modifies the npcAttributes if the currentAction has one or more npcAttributeModifications.
      */
     public void modifyNpcAttributes(Action currentAction) {
-        for (Modification modification :currentAction.getNpcAttributeModifications()) {
+        for (Modification modification : currentAction.getNpcAttributeModifications()) {
             npcAttributes.modifyAttribute(modification.getNpcAttribute(), modification.getOperator(), modification.getValue());
         }
     }

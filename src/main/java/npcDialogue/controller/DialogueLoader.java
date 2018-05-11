@@ -28,7 +28,7 @@ public class DialogueLoader {
         InputStream inputStream = new FileInputStream(file);
         Yaml yaml = new Yaml();
         try {
-            Map< String, Object> yamlDataMap = yaml.load(inputStream);
+            Map<String, Object> yamlDataMap = yaml.load(inputStream);
 
             NpcAttributes npcAttributes = loadNpcAttributes(yamlDataMap);
             return loadNpcDialogue(yamlDataMap, npcAttributes);
@@ -47,7 +47,7 @@ public class DialogueLoader {
         NpcAttributes newNpcAttributes = new NpcAttributes();
         LinkedHashMap<String, Object> rawNpcAttributes = (LinkedHashMap) yamlContent.get("npcAttributes");
         for (Map.Entry<String, Object> entry : rawNpcAttributes.entrySet()) {
-            if(entry.getValue() instanceof Integer){
+            if (entry.getValue() instanceof Integer) {
                 newNpcAttributes.addAttribute(entry.getKey(), (Integer) entry.getValue());
             }
         }
@@ -68,6 +68,7 @@ public class DialogueLoader {
         Map<String, String> actionContents = (LinkedHashMap) yamlContent.get("actionContent");
         Map<String, LinkedHashMap> actionConditions = (LinkedHashMap) rawActionGraph.get("actionConditions");
         Map<String, LinkedHashMap> npcAttributeModifications = (LinkedHashMap) rawActionGraph.get("npcAttributeModifications");
+        Map<String, LinkedHashMap> decisions = (LinkedHashMap) rawActionGraph.get("decisions");
 
         Map<String, Action> dialogueMap = new HashMap<>();
 
@@ -85,7 +86,17 @@ public class DialogueLoader {
             addNpcAttributeModifications(npcAttributeModifications, dialogueMap);
         }
 
+        if (!decisions.isEmpty()) {
+            addDecisions(decisions, dialogueMap);
+        }
+
         return new NpcDialogueData(npcAttributes, dialogueMap.get(startActionText));
+    }
+
+    private void addDecisions(Map<String, LinkedHashMap> decisions, Map<String, Action> dialogueMap) {
+        for (Map.Entry<String, LinkedHashMap> decision : decisions.entrySet()) {
+            //TODO: implement
+        }
     }
 
     /**
@@ -139,8 +150,8 @@ public class DialogueLoader {
         for (Map.Entry<String, Action> entry : dialogueMap.entrySet()) {
             if (actionConditions.containsKey(entry.getKey())) {
                 List<LinkedHashMap<String, Object>> listOfActionConditions = (List<LinkedHashMap<String, Object>>) actionConditions.get(entry.getKey());
-                for(LinkedHashMap<String, Object> actionCondition : listOfActionConditions){
-                    entry.getValue().addCondition((String) actionCondition.get("attribute"), (String) actionCondition.get("operator"), (Integer) actionCondition.get("value"));;
+                for (LinkedHashMap<String, Object> actionCondition : listOfActionConditions) {
+                    entry.getValue().addCondition((String) actionCondition.get("attribute"), (String) actionCondition.get("operator"), (Integer) actionCondition.get("value"));
                 }
             }
         }

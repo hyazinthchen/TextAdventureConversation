@@ -8,13 +8,12 @@ import npcDialogue.view.ConsoleReaderWriter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class DialogueValidator {
 
-    private NpcDialogueData dialogueData;
+    private final NpcDialogueData dialogueData;
 
-    public DialogueValidator(NpcDialogueData dialogueData) {
+    public DialogueValidator(final NpcDialogueData dialogueData) {
         this.dialogueData = dialogueData;
     }
 
