@@ -1,8 +1,9 @@
 package npcDialogue.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Decision {
+public class Decision implements TreeNode{
     private final Action thenAction;
     private final Action elseAction;
     private final List<Condition> conditions;
@@ -18,5 +19,16 @@ public class Decision {
             return thenAction;
         }
         return elseAction;
+    }
+
+
+    @Override
+    public List<? extends TreeNode> getChildren() {
+        return new ArrayList<Decision>();
+    }
+
+    @Override
+    public TreeNode getNextChild() {
+        return this;
     }
 }
