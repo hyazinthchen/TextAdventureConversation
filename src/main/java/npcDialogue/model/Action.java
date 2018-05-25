@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 /**
  * Describes an act of the player or an NPC in a conversation where something is done or said. An action can have following actions or none, marking it as the end of the dialogue.
  */
-public abstract class Action {
+public abstract class Action implements TreeNode {
     private final Role role;
     private final Role targetActionsRole;
     private final String actionText;
@@ -40,6 +40,10 @@ public abstract class Action {
     }
 
     public List<Action> getTargetActions() {
+        return targetActions;
+    }
+
+    public List<Action> getChildren() {
         return targetActions;
     }
 
@@ -143,5 +147,16 @@ public abstract class Action {
                 ", targetActionsRole=" + targetActionsRole +
                 ", targetActions=" + actionTextList +
                 '}';
+    }
+
+    //TODO: implement
+    @Override
+    public TreeNode getNext() {
+        return null;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return this.getTargetActions().size() > 0;
     }
 }

@@ -3,7 +3,7 @@ package npcDialogue.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Decision implements TreeNode{
+public class Decision implements TreeNode {
     private final Action thenAction;
     private final Action elseAction;
     private final List<Condition> conditions;
@@ -27,8 +27,14 @@ public class Decision implements TreeNode{
         return new ArrayList<Decision>();
     }
 
+    //TODO: implement
     @Override
-    public TreeNode getNextChild() {
-        return this;
+    public TreeNode getNext() {
+        return null;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return true;
     }
 }
