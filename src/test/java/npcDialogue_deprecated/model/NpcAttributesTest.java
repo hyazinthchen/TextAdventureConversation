@@ -1,4 +1,4 @@
-package npcDialogue.model;
+package npcDialogue_deprecated.model;
 
 import org.junit.Assert;
 import org.junit.Test;

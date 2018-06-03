@@ -1,7 +1,12 @@
-package npcDialogue.controller;
+package npcDialogue_deprecated.controller;
 
+import npcDialogue_deprecated.model.Action;
+import npcDialogue_deprecated.model.NpcDialogueData;
+import npcDialogue_deprecated.model.ParsingException;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.FileNotFoundException;
 
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.assertEquals;
@@ -9,31 +14,31 @@ import static junit.framework.TestCase.assertEquals;
 public class DialogueLoaderTest {
 
     @Test
-    public void testLoadNpcAttributes(){
+    public void testLoadNpcAttributes() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
-        npcDialogue.model.NpcDialogueData dialogueData = loader.load("merchant1Dialogue.yml");
+        NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
         assertEquals(new Integer(50), dialogueData.getNpcAttributes().getNpcAttributes().get("reputation"));
     }
 
     @Test
-    public void testLoadStartAction(){
+    public void testLoadStartAction() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
-        npcDialogue.model.NpcDialogueData dialogueData = loader.load("merchant1Dialogue.yml");
+        NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
         assertEquals("Welcome!", dialogueData.getStartAction().getActionText());
     }
 
     @Test
-    public void testLoadActionTexts(){
+    public void testLoadActionTexts() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
-        npcDialogue.model.NpcDialogueData dialogueData = loader.load("merchant1Dialogue.yml");
+        NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
-        npcDialogue.model.Action smallTalkPlayer1 = dialogueData.getStartAction().getTargetActionById("smallTalkPlayer1");
-        npcDialogue.model.Action smallTalkPlayer2 = dialogueData.getStartAction().getTargetActionById("smallTalkPlayer2");
-        npcDialogue.model.Action buySpecialPotion = smallTalkPlayer2.getTargetActionById("smallTalkNpc").getTargetActionById("buySpecialPotion");
-        npcDialogue.model.Action buyPotion = smallTalkPlayer2.getTargetActionById("smallTalkNpc").getTargetActionById("buyPotion");
-        npcDialogue.model.Action bye = buyPotion.getTargetActionById("bye");
+        Action smallTalkPlayer1 = dialogueData.getStartAction().getTargetActionById("smallTalkPlayer1");
+        Action smallTalkPlayer2 = dialogueData.getStartAction().getTargetActionById("smallTalkPlayer2");
+        Action buySpecialPotion = smallTalkPlayer2.getTargetActionById("smallTalkNpc").getTargetActionById("buySpecialPotion");
+        Action buyPotion = smallTalkPlayer2.getTargetActionById("smallTalkNpc").getTargetActionById("buyPotion");
+        Action bye = buyPotion.getTargetActionById("bye");
 
         Assert.assertTrue(dialogueData.getStartAction().getTargetActions().containsAll(asList(smallTalkPlayer1, smallTalkPlayer2)));
 
@@ -47,9 +52,9 @@ public class DialogueLoaderTest {
 
 
     @Test
-    public void testLoadActionConditions(){
+    public void testLoadActionConditions() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
-        npcDialogue.model.NpcDialogueData dialogueData = loader.load("merchant1Dialogue.yml");
+        NpcDialogueData dialogueData = new DialogueLoader().load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
         assertEquals(0, dialogueData.getStartAction().getConditions().size());
         assertEquals(0, dialogueData.getStartAction().getTargetActionById("smallTalkPlayer1").getConditions().size());
@@ -62,9 +67,9 @@ public class DialogueLoaderTest {
     }
 
     @Test
-    public void testLoadNpcAttributeModifications() {
+    public void testLoadNpcAttributeModifications() throws FileNotFoundException, ParsingException {
         DialogueLoader loader = new DialogueLoader();
-        npcDialogue.model.NpcDialogueData dialogueData = loader.load("merchant1Dialogue.yml");
+        NpcDialogueData dialogueData = loader.load(loader.getFileFromClassPath("merchant1Dialogue.yml"));
 
         assertEquals(10, dialogueData.getStartAction().getTargetActionById("smallTalkPlayer1").getNpcAttributeModifications().get(0).getValue());
     }

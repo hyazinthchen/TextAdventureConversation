@@ -7,11 +7,7 @@ actionGraph:
    startAction:  welcome
    npcActions:
       welcome: [smallTalkPlayer1, smallTalkPlayer2]
-
-
       smallTalkNpc: [buyPotion, buySpecialPotion]
-
-
       bye: []
 
    playerActions:

@@ -1,7 +1,7 @@
-package npcDialogue.controller;
+package npcDialogue_deprecated.controller;
 
-import npcDialogue.model.*;
-import npcDialogue.view.ConsoleReaderWriter;
+import npcDialogue_deprecated.model.*;
+import npcDialogue_deprecated.view.ConsoleReaderWriter;
 import org.junit.Ignore;
 import org.junit.Test;
 

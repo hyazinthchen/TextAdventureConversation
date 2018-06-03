@@ -1,9 +1,9 @@
-package npcDialogue.controller;
+package npcDialogue_deprecated.controller;
 
-import npcDialogue.model.Action;
-import npcDialogue.model.NpcAction;
-import npcDialogue.model.Role;
-import npcDialogue.model.TreeNode;
+import npcDialogue_deprecated.model.Action;
+import npcDialogue_deprecated.model.NpcAction;
+import npcDialogue_deprecated.model.Role;
+import npcDialogue_deprecated.model.TreeNode;
 import org.junit.Assert;
 import org.junit.Test;
 

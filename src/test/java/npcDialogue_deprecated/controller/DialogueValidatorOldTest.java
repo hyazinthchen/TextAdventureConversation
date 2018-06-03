@@ -1,7 +1,7 @@
-package npcDialogue.controller;
+package npcDialogue_deprecated.controller;
 
 import com.queomedia.commons.asserts.AssertUtil;
-import npcDialogue.model.*;
+import npcDialogue_deprecated.model.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Ignore;
 import org.junit.Test;

@@ -1,61 +1,53 @@
 package npcDialogue.controller;
 
-import npcDialogue.model.Action;
-import npcDialogue.model.Modification;
-import npcDialogue.model.NpcDialogueData;
-import npcDialogue.model.Path;
-import npcDialogue.view.ConsoleReaderWriter;
+import npcDialogue.model.TreeNode;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class DialogueValidator {
 
-    private final NpcDialogueData dialogueData;
+    private TreeNode root;
+    private Set<TreeNode> done = new HashSet<>();
+    private Set<TreeNode> active = new HashSet<>();
+    private Set<TreeNode> active_temp = new HashSet<>();
 
-    public DialogueValidator(final NpcDialogueData dialogueData) {
-        this.dialogueData = dialogueData;
+    public DialogueValidator(TreeNode root) {
+        this.root = root;
     }
 
-    public List<Path> findAllPathsThroughDialogue() {
-        List<Path> pathsThroughDialogue = new ArrayList<>();
-        Path path = new Path();
-        path.setNpcAttributes(dialogueData.getNpcAttributes());
-        path.addWayPoint(dialogueData.getStartAction());
-        return getAllPathsThroughDialogueByDFS(pathsThroughDialogue, path);
+    public Set getDone() {
+        return done;
     }
 
-    private List<Path> getAllPathsThroughDialogueByDFS(List<Path> pathsThroughDialogue, Path path) {
-        modifyNpcAttributes(path);
-        if (path.getLastWayPoint().getTargetActions().isEmpty()) {
-            pathsThroughDialogue.add(path);
-        } else {
-            for (Action availableTargetWayPoint : getAvailableTargetWayPoints(path)) {
-                if (path.getWayPoints().size() < 500) {
-                    Path newPath = path.copy();
-                    newPath.addWayPoint(availableTargetWayPoint);
-                    getAllPathsThroughDialogueByDFS(pathsThroughDialogue, newPath);
-                } else {
-                    new ConsoleReaderWriter().printErrorMessage("Dialogue is invalid because it contains a path longer than 500 waypoints.");
+    public List<TreeNode> findBackEdges() {
+        active.add(root);
+        List<TreeNode> backEdgeList = new ArrayList<>();
+        do {
+            for (TreeNode activeNode : active) {
+                done.add(activeNode);
+                active_temp.addAll(activeNode.getChildren());
+            }
+            active_temp.removeAll(active);
+            for (TreeNode active_tempNode : active_temp) {
+                if (done.contains(active_tempNode)) {
+                    backEdgeList.add(active_tempNode);
+                    active_temp.remove(active_tempNode);
                 }
             }
-        }
-        return pathsThroughDialogue;
+            active = active_temp;
+            active_temp = new HashSet<>();
+        } while (!active.isEmpty());
+        return backEdgeList;
     }
 
-    private List<Action> getAvailableTargetWayPoints(Path path) {
-        List<Action> availableTargetWayPoints = new ArrayList<>();
-        for (Action targetWayPoint : path.getLastWayPoint().getTargetActions()) {
-            if (path.getNpcAttributes().match(targetWayPoint.getConditions())) {
-                availableTargetWayPoints.add(targetWayPoint);
-            }
-        }
-        return availableTargetWayPoints;
+    private void findLoops(){
+
     }
 
-    private void modifyNpcAttributes(Path path) {
-        for (Modification modification : path.getLastWayPoint().getNpcAttributeModifications()) {
-            path.getNpcAttributes().modifyAttribute(modification.getNpcAttribute(), modification.getOperator(), modification.getValue());
-        }
+    private void findWayOutOfLoop(){
+
     }
 }

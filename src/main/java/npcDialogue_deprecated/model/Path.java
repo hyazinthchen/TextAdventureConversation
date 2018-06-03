@@ -1,4 +1,4 @@
-package npcDialogue.model;
+package npcDialogue_deprecated.model;
 
 import com.queomedia.commons.exceptions.NotFoundRuntimeException;
 

@@ -1,10 +1,10 @@
-package npcDialogue.controller;
+package npcDialogue_deprecated.controller;
 
-import npcDialogue.model.Action;
-import npcDialogue.model.NpcAttributes;
-import npcDialogue.model.NpcDialogueData;
-import npcDialogue.model.Path;
-import npcDialogue.view.ConsoleReaderWriter;
+import npcDialogue_deprecated.model.Action;
+import npcDialogue_deprecated.model.NpcAttributes;
+import npcDialogue_deprecated.model.NpcDialogueData;
+import npcDialogue_deprecated.model.Path;
+import npcDialogue_deprecated.view.ConsoleReaderWriter;
 
 import java.util.ArrayList;
 import java.util.Arrays;

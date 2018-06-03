@@ -1,4 +1,4 @@
-package npcDialogue.model;
+package npcDialogue_deprecated.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,20 +21,8 @@ public class Decision implements TreeNode {
         return elseAction;
     }
 
-
     @Override
     public List<? extends TreeNode> getChildren() {
         return new ArrayList<Decision>();
-    }
-
-    //TODO: implement
-    @Override
-    public TreeNode getNext() {
-        return null;
-    }
-
-    @Override
-    public boolean hasNext() {
-        return true;
     }
 }

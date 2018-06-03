@@ -1,13 +1,14 @@
-package npcDialogue.model;
+package npcDialogue_deprecated.model;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 /**
  * Describes an act of the player or an NPC in a conversation where something is done or said. An action can have following actions or none, marking it as the end of the dialogue.
  */
-public abstract class Action extends TreeNode {
+public abstract class Action implements TreeNode {
     private final Role role;
     private final Role targetActionsRole;
     private final String actionText;
@@ -130,5 +131,21 @@ public abstract class Action extends TreeNode {
             }
         }
         throw new NoSuchElementException("No targetAction with id '" + id + "' found in the targetActions of action '" + this.id + "'.");
+    }
+
+    @Override
+    public String toString() {
+
+        final String actionTextList;
+        actionTextList = targetActions.stream()
+                .map(Action::getActionText)
+                .collect(Collectors.joining(", "));
+
+        return "Action{" +
+                "role=" + role +
+                ", actionText='" + actionText + "'" +
+                ", targetActionsRole=" + targetActionsRole +
+                ", targetActions=" + actionTextList +
+                '}';
     }
 }
