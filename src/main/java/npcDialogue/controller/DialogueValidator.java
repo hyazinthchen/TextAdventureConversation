@@ -1,5 +1,6 @@
 package npcDialogue.controller;
 
+import npcDialogue.model.Cycle;
 import npcDialogue.model.TreeNode;
 
 import java.util.ArrayList;
@@ -43,11 +44,20 @@ public class DialogueValidator {
         return backEdgeList;
     }
 
-    private void findLoops(){
-
+    //TODO: implement
+    private List<Cycle> findCycles() {
+        List<TreeNode> listOfBackEgdes = findBackEdges();
+        for (TreeNode backEdge : listOfBackEgdes) {
+        }
+        return new ArrayList<>();
     }
 
-    private void findWayOutOfLoop(){
+    //TODO: implement
+    private boolean determineIfThereAreWaysOutOfCycles(List<Cycle> cycles) {
+        for (Cycle cycle : cycles) {
 
+            return false;
+        }
+        return true;
     }
 }

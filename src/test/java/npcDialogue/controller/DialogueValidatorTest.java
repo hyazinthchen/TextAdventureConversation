@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 public class DialogueValidatorTest {
+
     /**
      * Helper method for generating a simple action without any conditions for test purposes.
      *
