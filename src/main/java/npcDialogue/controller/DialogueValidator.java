@@ -46,16 +46,15 @@ public class DialogueValidator {
 
     //TODO: implement
     private List<Cycle> findCycles() {
-        List<TreeNode> listOfBackEgdes = findBackEdges();
-        for (TreeNode backEdge : listOfBackEgdes) {
+        List<TreeNode> listOfBackEdges = findBackEdges();
+        for (TreeNode backEdge : listOfBackEdges) {
         }
         return new ArrayList<>();
     }
 
     //TODO: implement
-    private boolean determineIfThereAreWaysOutOfCycles(List<Cycle> cycles) {
+    private boolean wayOutExists(List<Cycle> cycles) {
         for (Cycle cycle : cycles) {
-
             return false;
         }
         return true;

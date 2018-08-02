@@ -1,4 +1,3 @@
-
 # example dialogue content and rules for one NPC
 
 npcAttributes:
@@ -7,32 +6,44 @@ npcAttributes:
 actionGraph:
    startAction:  welcome
    npcActions:
-      welcome: [smallTalkPlayer]
-      smallTalkNpc1: [buyPotion]
-      smallTalkNpc2: [buyPotion]
-      byeNice: []
-      byeAngry: []
+      welcome: [smallTalkPlayer1, smallTalkPlayer2]
+      smallTalkNpc: [buyPotion, buySpecialPotion]
+      bye: []
 
    playerActions:
-      smallTalkPlayer: [smallTalkNpc1, smallTalkNpc2]
-      buyPotion: [byeNice, byeAngry]
+      smallTalkPlayer1: [smallTalkNpc]
+      smallTalkPlayer2: [smallTalkNpc]
+      buyPotion: [bye]
+      buySpecialPotion: [bye]
 
    actionConditions:
-      byeNice:
+      buySpecialPotion:
         - {attribute: reputation, operator: "==", value: 60}
 
    npcAttributeModifications:
-      welcome:
-         - {attribute: reputation, operator: "+", value: 5}
+      smallTalkPlayer1:
+         - {attribute: reputation, operator: "+", value: 10}
+
+
+
+   decisions:
+      smallTalkNpc:
+         thenAction: buySpecialPotion
+         elseAction: buyPotion
+         conditions:
+            - {attribute: reputation, operator: "==", value: 60}
+
+
+
 
 actionContent:
    # npc
    welcome: "Welcome!"
-   smallTalkNpc1: "I heard the sun will shine all day."
-   smallTalkNpc2: "I think it will rain."
-   byeNice: "Here you go. See you!"
-   byeAngry: "I don't want to sell anything to you!"
+   smallTalkNpc: "I heard the sun will shine all day."
+   bye: "Here you go. See you!"
    # player
-   smallTalkPlayer: "The weather is nice today."
+   smallTalkPlayer1: "The weather is nice today."
+   smallTalkPlayer2: "I heard it will snow today."
    buyPotion: "I want to buy a potion."
+   buySpecialPotion: "I want to buy a special potion."
 
