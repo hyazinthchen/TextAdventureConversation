@@ -1,49 +1,41 @@
 # example dialogue content and rules for one NPC
 
-npcAttributes:
-   reputation: 50
-   
 actionGraph:
-   startAction:  welcome
-   npcActions:
-      welcome: [smallTalkPlayer1, smallTalkPlayer2]
-      smallTalkNpc: [buyPotion, buySpecialPotion]
-      bye: []
+  startAction:  welcome
 
-   playerActions:
-      smallTalkPlayer1: [smallTalkNpc]
-      smallTalkPlayer2: [smallTalkNpc]
-      buyPotion: [bye]
-      buySpecialPotion: [bye]
+  npcActions:
+    welcome: [smallTalkPlayer1, smallTalkPlayer2]
+    bye: []
 
-   actionConditions:
-      buySpecialPotion:
-        - {attribute: reputation, operator: "==", value: 60}
+  playerActions:
+    smallTalkPlayer1: [smallTalkNpc]
+    smallTalkPlayer2: [smallTalkNpc]
+    buyPotion: [bye]
+    buySpecialPotion: [bye]
 
-   npcAttributeModifications:
-      smallTalkPlayer1:
-         - {attribute: reputation, operator: "+", value: 10}
+  actionConditions:
+    buySpecialPotion:
+    - {attribute: reputation, operator: "==", value: 60}
 
+  npcAttributeModifications:
+    smallTalkPlayer1:
+    - {attribute: reputation, operator: "+", value: 10}
 
-
-   decisions:
-      smallTalkNpc:
-         thenAction: buySpecialPotion
-         elseAction: buyPotion
-         conditions:
-            - {attribute: reputation, operator: "==", value: 60}
-
-
-
+  decisions:
+    smallTalkNpc:
+      thenAction: buySpecialPotion
+      elseAction: buyPotion
+      conditions:
+      - {attribute: reputation, operator: "==", value: 60}
 
 actionContent:
-   # npc
-   welcome: "Welcome!"
-   smallTalkNpc: "I heard the sun will shine all day."
-   bye: "Here you go. See you!"
-   # player
-   smallTalkPlayer1: "The weather is nice today."
-   smallTalkPlayer2: "I heard it will snow today."
-   buyPotion: "I want to buy a potion."
-   buySpecialPotion: "I want to buy a special potion."
+  # npc
+  welcome: "Welcome!"
+  smallTalkNpc: "I heard the sun will shine all day."
+  bye: "Here you go. See you!"
+  # player
+  smallTalkPlayer1: "The weather is nice today."
+  smallTalkPlayer2: "I heard it will snow today."
+  buyPotion: "I want to buy a potion."
+  buySpecialPotion: "I want to buy a special potion."
 

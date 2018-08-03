@@ -43,9 +43,9 @@ public abstract class Action implements TreeNode {
         return targetActions;
     }
 
-    public List<Action> getChildren() {
+    /*public List<? extends npcDialogue.model.TreeNode> getChildren() {
         return targetActions;
-    }
+    }*/
 
     public List<Condition> getConditions() {
         return conditions;

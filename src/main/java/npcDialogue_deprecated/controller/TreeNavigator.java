@@ -23,14 +23,14 @@ public class TreeNavigator {
     public void navigate() {
         active.add(root);
         do {
-                for (TreeNode activeNode : active) {
-                    done.add(activeNode);
-                    active_temp.addAll(activeNode.getChildren());
-                }
-                active_temp.removeAll(active);
-                active_temp.removeAll(done);
-                active = active_temp;
-                active_temp = new HashSet<>();
-        }while(!active.isEmpty());
+            for (TreeNode activeNode : active) {
+                done.add(activeNode);
+                //active_temp.addAll(activeNode.getChildren());
+            }
+            active_temp.removeAll(active);
+            active_temp.removeAll(done);
+            active = active_temp;
+            active_temp = new HashSet<>();
+        } while (!active.isEmpty());
     }
 }

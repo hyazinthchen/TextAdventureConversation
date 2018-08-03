@@ -4,7 +4,6 @@ npcAttributes:
   reputation: 50
 
 actionGraph:
-  startAction:  welcome
 
   npcActions:
     welcome: [smallTalkPlayer1, smallTalkPlayer2]

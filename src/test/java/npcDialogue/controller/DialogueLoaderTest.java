@@ -1,5 +1,6 @@
 package npcDialogue.controller;
 
+import npcDialogue.model.ParsingException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -9,7 +10,7 @@ import static junit.framework.TestCase.assertEquals;
 public class DialogueLoaderTest {
 
     @Test
-    public void testLoadNpcAttributes(){
+    public void testLoadNpcAttributes() throws ParsingException {
         DialogueLoader loader = new DialogueLoader();
         npcDialogue.model.NpcDialogueData dialogueData = loader.load("merchant1Dialogue.yml");
 
@@ -17,7 +18,7 @@ public class DialogueLoaderTest {
     }
 
     @Test
-    public void testLoadStartAction(){
+    public void testLoadStartAction() throws ParsingException {
         DialogueLoader loader = new DialogueLoader();
         npcDialogue.model.NpcDialogueData dialogueData = loader.load("merchant1Dialogue.yml");
 
@@ -25,7 +26,7 @@ public class DialogueLoaderTest {
     }
 
     @Test
-    public void testLoadActionTexts(){
+    public void testLoadActionTexts() throws ParsingException {
         DialogueLoader loader = new DialogueLoader();
         npcDialogue.model.NpcDialogueData dialogueData = loader.load("merchant1Dialogue.yml");
 
@@ -47,7 +48,7 @@ public class DialogueLoaderTest {
 
 
     @Test
-    public void testLoadActionConditions(){
+    public void testLoadActionConditions() throws ParsingException {
         DialogueLoader loader = new DialogueLoader();
         npcDialogue.model.NpcDialogueData dialogueData = loader.load("merchant1Dialogue.yml");
 
@@ -62,10 +63,22 @@ public class DialogueLoaderTest {
     }
 
     @Test
-    public void testLoadNpcAttributeModifications() {
+    public void testLoadNpcAttributeModifications() throws ParsingException {
         DialogueLoader loader = new DialogueLoader();
         npcDialogue.model.NpcDialogueData dialogueData = loader.load("merchant1Dialogue.yml");
 
         assertEquals(10, dialogueData.getStartAction().getTargetActionById("smallTalkPlayer1").getNpcAttributeModifications().get(0).getValue());
+    }
+
+    @Test(expected = ParsingException.class)
+    public void testLoadNpcAttributesByException() throws ParsingException {
+        DialogueLoader loader = new DialogueLoader();
+        npcDialogue.model.NpcDialogueData dialogueData = loader.load("merchant2Dialogue.yml");
+    }
+
+    @Test(expected = ParsingException.class)
+    public void testLoadActionGraphByException() throws ParsingException {
+        DialogueLoader loader = new DialogueLoader();
+        npcDialogue.model.NpcDialogueData dialogueData = loader.load("merchant3Dialogue.yml");
     }
 }

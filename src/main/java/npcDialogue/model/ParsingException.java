@@ -2,6 +2,6 @@ package npcDialogue.model;
 
 public class ParsingException extends Exception {
     public ParsingException(String message) {
-        super(message);
+        System.out.println(message);
     }
 }

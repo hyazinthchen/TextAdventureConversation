@@ -12,7 +12,7 @@ import java.util.*;
  */
 public class DialogueLoader {
 
-    public NpcDialogueData load(String fileName) {
+    public NpcDialogueData load(String fileName) throws ParsingException {
         Map<String, Object> yamlDialogue = loadFromYamlFile(fileName);
 
         NpcAttributes npcAttributes = loadNpcAttributes(yamlDialogue);
@@ -44,51 +44,104 @@ public class DialogueLoader {
      * @return An NpcAttributes object.
      */
     @SuppressWarnings("unchecked")
-    private NpcAttributes loadNpcAttributes(Map<String, Object> yamlDialogue) {
-        LinkedHashMap<String, Object> rawNpcAttributes = new LinkedHashMap<>();
-        try {
-            rawNpcAttributes = (LinkedHashMap) yamlDialogue.get("npcAttributes");
-        } catch (NullPointerException e) {
-            System.out.println("Error loading yaml file. Couldn't find 'npcAttributes' in yaml file. Detailed message: \n" + e.getMessage());
-        }
-        NpcAttributes newNpcAttributes = new NpcAttributes();
-        for (Map.Entry<String, Object> entry : rawNpcAttributes.entrySet()) {
-            if (entry.getValue() instanceof Integer) {
-                newNpcAttributes.addAttribute(entry.getKey(), (Integer) entry.getValue());
+    private NpcAttributes loadNpcAttributes(Map<String, Object> yamlDialogue) throws ParsingException {
+        LinkedHashMap<String, Object> rawNpcAttributes = (LinkedHashMap) yamlDialogue.get("npcAttributes");
+        if (rawNpcAttributes != null) {
+            NpcAttributes newNpcAttributes = new NpcAttributes();
+            for (Map.Entry<String, Object> entry : rawNpcAttributes.entrySet()) {
+                if (entry.getValue() instanceof Integer) {
+                    newNpcAttributes.addAttribute(entry.getKey(), (Integer) entry.getValue());
+                }
             }
+            return newNpcAttributes;
+
+        } else {
+            throw new ParsingException("Error loading yaml file. Couldn't find 'npcAttributes' in yaml file.");
         }
-        return newNpcAttributes;
     }
 
     @SuppressWarnings("unchecked")
-    private NpcDialogueData loadActionGraph(Map<String, Object> yamlDialogue, NpcAttributes npcAttributes) {
+    private NpcDialogueData loadActionGraph(Map<String, Object> yamlDialogue, NpcAttributes npcAttributes) throws ParsingException {
+        Map<String, TreeNode> loadedDialogue = new HashMap<>();
         Map<String, Object> actionGraph = (LinkedHashMap) yamlDialogue.get("actionGraph");
+        if (actionGraph == null) {
+            throw new ParsingException("Error loading yaml file. Couldn't find 'actionGraph' in yaml file.");
+        }
         String startActionId = actionGraph.get("startAction").toString();
+        if (startActionId == null) {
+            throw new ParsingException("Error loading yaml file. Couldn't find 'startAction' in yaml file.");
+        }
         Map<String, Object> npcActions = (LinkedHashMap) actionGraph.get("npcActions");
+        if (npcActions == null) {
+            throw new ParsingException("Error loading yaml file. Couldn't find 'npcActions' in yaml file.");
+        }
         Map<String, Object> playerActions = (LinkedHashMap) actionGraph.get("playerActions");
-        Map<String, LinkedHashMap> actionConditions = (LinkedHashMap) actionGraph.get("actionConditions");
-        Map<String, LinkedHashMap> npcAttributeModifications = (LinkedHashMap) actionGraph.get("npcAttributeModifications");
-        Map<String, LinkedHashMap> decisions = (LinkedHashMap) actionGraph.get("decisions");
+        if (playerActions == null) {
+            throw new ParsingException("Error loading yaml file. Couldn't find 'playerActions' in yaml file.");
+        }
         Map<String, String> actionContents = (LinkedHashMap) yamlDialogue.get("actionContent");
-        Map<String, Action> loadedDialogue = new HashMap<>();
+        if (actionContents == null) {
+            throw new ParsingException("Error loading yaml file. Couldn't find 'actionContent' in yaml file.");
+        }
 
         addPlayerActionsToLoadedDialogue(playerActions, actionContents, loadedDialogue);
         addNpcActionsToLoadedDialogue(npcActions, actionContents, loadedDialogue);
         addTargetActionsToLoadedDialogue(npcActions, playerActions, loadedDialogue);
 
+        loadOptionalDialogueComponents(actionGraph, loadedDialogue);
+
+        return new NpcDialogueData(npcAttributes, loadedDialogue.get(startActionId));
+    }
+
+    /**
+     * Loads the optional elements of the yaml file: actionConditions, npcAttributeModification and decisions
+     *
+     * @param actionGraph
+     * @param loadedDialogue
+     */
+    private void loadOptionalDialogueComponents(Map<String, Object> actionGraph, Map<String, TreeNode> loadedDialogue) {
+        loadActionConditions(actionGraph, loadedDialogue);
+        loadNpcAttributeModifications(actionGraph, loadedDialogue);
+        loadDecisions(actionGraph, loadedDialogue);
+    }
+
+    /**
+     * Loads the actionConditions (when an action relies on an NpcAttribute)
+     *
+     * @param actionGraph
+     * @param loadedDialogue
+     */
+    private void loadActionConditions(Map<String, Object> actionGraph, Map<String, TreeNode> loadedDialogue) {
+        Map<String, LinkedHashMap> actionConditions = (LinkedHashMap) actionGraph.get("actionConditions");
         if (!actionConditions.isEmpty()) {
             addActionConditionsToLoadedDialogue(actionConditions, loadedDialogue);
         }
+    }
 
+    /**
+     * Loads the actionNpcAttributeModifications (when an action changes the NPC's attributes)
+     *
+     * @param actionGraph
+     * @param loadedDialogue
+     */
+    private void loadNpcAttributeModifications(Map<String, Object> actionGraph, Map<String, TreeNode> loadedDialogue) {
+        Map<String, LinkedHashMap> npcAttributeModifications = (LinkedHashMap) actionGraph.get("npcAttributeModifications");
         if (!npcAttributeModifications.isEmpty()) {
             addNpcAttributeModificationsToLoadedDialogue(npcAttributeModifications, loadedDialogue);
         }
+    }
 
+    /**
+     * Loads the decisions in a dialogue between player and an NPC
+     *
+     * @param actionGraph
+     * @param loadedDialogue
+     */
+    private void loadDecisions(Map<String, Object> actionGraph, Map<String, TreeNode> loadedDialogue) {
+        Map<String, LinkedHashMap> decisions = (LinkedHashMap) actionGraph.get("decisions");
         if (!decisions.isEmpty()) {
             addDecisionsToLoadedDialogue(decisions, loadedDialogue);
         }
-
-        return new NpcDialogueData(npcAttributes, loadedDialogue.get(startActionId));
     }
 
     /**
@@ -99,7 +152,7 @@ public class DialogueLoader {
      * @param loadedDialogue a map with actions from Npc and Player
      */
     @SuppressWarnings("unchecked")
-    private void addPlayerActionsToLoadedDialogue(Map<String, Object> playerActions, Map<String, String> actionContents, Map<String, Action> loadedDialogue) {
+    private void addPlayerActionsToLoadedDialogue(Map<String, Object> playerActions, Map<String, String> actionContents, Map<String, TreeNode> loadedDialogue) {
         for (Map.Entry<String, Object> playerEntry : playerActions.entrySet()) {
             ArrayList<String> targetActions = (ArrayList<String>) playerEntry.getValue();
             if (targetActions.size() > 0) {
@@ -123,7 +176,7 @@ public class DialogueLoader {
      * @param loadedDialogue a map with actions from Npc and Player
      */
     @SuppressWarnings("unchecked")
-    private void addNpcActionsToLoadedDialogue(Map<String, Object> npcActions, Map<String, String> actionContents, Map<String, Action> loadedDialogue) {
+    private void addNpcActionsToLoadedDialogue(Map<String, Object> npcActions, Map<String, String> actionContents, Map<String, TreeNode> loadedDialogue) {
         for (Map.Entry<String, Object> npcEntry : npcActions.entrySet()) {
             ArrayList<String> targetActions = (ArrayList<String>) npcEntry.getValue();
             if (targetActions.size() > 0) {
@@ -147,18 +200,18 @@ public class DialogueLoader {
      * @param loadedDialogue a map with actions from Npc and Player
      */
     @SuppressWarnings("unchecked")
-    private void addTargetActionsToLoadedDialogue(Map<String, Object> npcActions, Map<String, Object> playerActions, Map<String, Action> loadedDialogue) {
-        for (Map.Entry<String, Action> entry : loadedDialogue.entrySet()) {
+    private void addTargetActionsToLoadedDialogue(Map<String, Object> npcActions, Map<String, Object> playerActions, Map<String, TreeNode> loadedDialogue) {
+        for (Map.Entry<String, TreeNode> entry : loadedDialogue.entrySet()) {
             if (npcActions.containsKey(entry.getKey())) {
                 ArrayList<String> npcTargetActionList = (ArrayList<String>) npcActions.get(entry.getKey());
                 for (String targetActionName : npcTargetActionList) {
-                    entry.getValue().addTargetAction(loadedDialogue.get(targetActionName));
+                    entry.getValue().addTargetNode(loadedDialogue.get(targetActionName));
                 }
             }
             if (playerActions.containsKey(entry.getKey())) {
                 ArrayList<String> playerTargetActionList = (ArrayList<String>) playerActions.get(entry.getKey());
                 for (String targetActionName : playerTargetActionList) {
-                    entry.getValue().addTargetAction(loadedDialogue.get(targetActionName));
+                    entry.getValue().addTargetNode(loadedDialogue.get(targetActionName));
                 }
             }
         }
@@ -171,8 +224,8 @@ public class DialogueLoader {
      * @param loadedDialogue   a map with actions from Npc and Player
      */
     @SuppressWarnings("unchecked")
-    private void addActionConditionsToLoadedDialogue(Map<String, LinkedHashMap> actionConditions, Map<String, Action> loadedDialogue) {
-        for (Map.Entry<String, Action> entry : loadedDialogue.entrySet()) {
+    private void addActionConditionsToLoadedDialogue(Map<String, LinkedHashMap> actionConditions, Map<String, TreeNode> loadedDialogue) {
+        for (Map.Entry<String, TreeNode> entry : loadedDialogue.entrySet()) {
             if (actionConditions.containsKey(entry.getKey())) {
                 List<LinkedHashMap<String, Object>> listOfActionConditions = (List<LinkedHashMap<String, Object>>) actionConditions.get(entry.getKey());
                 for (LinkedHashMap<String, Object> actionCondition : listOfActionConditions) {
@@ -189,8 +242,8 @@ public class DialogueLoader {
      * @param loadedDialogue            a map with actions from Npc and Player
      */
     @SuppressWarnings("unchecked")
-    private void addNpcAttributeModificationsToLoadedDialogue(Map<String, LinkedHashMap> npcAttributeModifications, Map<String, Action> loadedDialogue) {
-        for (Map.Entry<String, Action> entry : loadedDialogue.entrySet()) {
+    private void addNpcAttributeModificationsToLoadedDialogue(Map<String, LinkedHashMap> npcAttributeModifications, Map<String, TreeNode> loadedDialogue) {
+        for (Map.Entry<String, TreeNode> entry : loadedDialogue.entrySet()) {
             if (npcAttributeModifications.containsKey(entry.getKey())) {
                 List<LinkedHashMap<String, Object>> listOfActionModifications = (List<LinkedHashMap<String, Object>>) npcAttributeModifications.get(entry.getKey());
                 for (LinkedHashMap<String, Object> npcAttributeModification : listOfActionModifications) {
@@ -200,9 +253,24 @@ public class DialogueLoader {
         }
     }
 
-    private void addDecisionsToLoadedDialogue(Map<String, LinkedHashMap> decisions, Map<String, Action> loadedDialogue) {
+    /**
+     * Adds all decisions as objects to the dialogue.
+     *
+     * @param decisions
+     * @param loadedDialogue
+     */
+    @SuppressWarnings("unchecked")
+    private void addDecisionsToLoadedDialogue(Map<String, LinkedHashMap> decisions, Map<String, TreeNode> loadedDialogue) {
+        List<Decision> decisionList = new ArrayList<>();
         for (Map.Entry<String, LinkedHashMap> decision : decisions.entrySet()) {
-            //TODO: implement
+            List<Condition> conditionsOfDecision = new ArrayList<>();
+            for (Map<String, Object> conditionOfDecision : (List<LinkedHashMap>) decision.getValue().get("conditions")) {
+                //conditionsOfDecision.add(new Condition((String) conditionOfDecision.get("attribute"), (String) conditionOfDecision.get("operator"), (int) conditionOfDecision.get("value"))); TODO: how to map String to RelationalOperator?
+            }
+            TreeNode thenAction = loadedDialogue.get(decision.getValue().get("thenAction"));
+            TreeNode elseAction = loadedDialogue.get(decision.getValue().get("elseAction"));
+            decisionList.add(new Decision(thenAction, elseAction, conditionsOfDecision));
         }
+        //TODO: add the decisions in decisionList to the dialogue
     }
 }

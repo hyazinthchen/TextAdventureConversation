@@ -5,7 +5,7 @@ import java.util.List;
 public interface TreeNode  {
 
 
-    List<? extends TreeNode> getChildren();
+    List<? extends npcDialogue.model.TreeNode> getChildren();
 
 
 

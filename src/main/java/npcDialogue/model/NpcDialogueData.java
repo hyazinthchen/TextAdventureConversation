@@ -4,7 +4,7 @@ public class NpcDialogueData {
     private NpcAttributes npcAttributes;
     private final Action startAction;
 
-    public NpcDialogueData(final NpcAttributes npcAttributes, final Action startAction) {
+    public NpcDialogueData(final NpcAttributes npcAttributes, final TreeNode startAction) {
         this.npcAttributes = npcAttributes;
         this.startAction = startAction;
     }

@@ -7,7 +7,7 @@ import java.util.NoSuchElementException;
 /**
  * Describes an act of the player or an NPC in a conversation where something is done or said. An action can have following actions or none, marking it as the end of the dialogue.
  */
-public abstract class Action extends TreeNode {
+public abstract class Action implements TreeNode {
     private final Role role;
     private final Role targetActionsRole;
     private final String actionText;
@@ -28,10 +28,6 @@ public abstract class Action extends TreeNode {
 
     public Role getRole() {
         return role;
-    }
-
-    public Role getTargetActionsRole() {
-        return targetActionsRole;
     }
 
     public String getActionText() {
@@ -60,7 +56,7 @@ public abstract class Action extends TreeNode {
      * @param targetAction the action to be added as a targetAction.
      * @throws IllegalArgumentException when the role of the action to be added and the targetActionsRole of the action don't fulfills.
      */
-    public void addTargetAction(Action targetAction) throws IllegalArgumentException {
+    public void addTargetAction(Action targetAction) throws IllegalArgumentException { //TODO: how to add Decisions that are Targets of Actions?
         if (targetAction.role == targetActionsRole) {
             targetActions.add(targetAction);
         } else {
